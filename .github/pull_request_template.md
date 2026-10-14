@@ -1,14 +1,14 @@
-## Problem and resulting behavior
+## 問題與變更後行為
 
-Describe the final change and the SPEC acceptance IDs it covers.
+說明最終變更及涵蓋的 SPEC 驗收編號。
 
-## Verification
+## 驗證
 
-- Commands actually run and results:
-- Numerical fixtures or browser flows verified:
-- Screenshots for UI changes (synthetic data):
+- 實際執行的指令及結果：
+- 已驗證的數值範例或瀏覽器流程：
+- 畫面變更的截圖（使用虛構範例）：
 
-## Delivery
+## 交付
 
-- Remaining owner-supplied content or external gates:
-- Production deployment impact, if Cloudflare Git integration is active:
+- 尚缺的作者內容或外部必要條件：
+- 若 Cloudflare Git 串接已啟用，是否影響正式環境部署：

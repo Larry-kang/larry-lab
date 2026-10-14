@@ -1,18 +1,18 @@
-# Numerical contract — Larry Lab v1
+# Larry Lab 第一版計算契約
 
-Version 1.0 · 2026-10-14. Required for any financial model or test change. Amounts are TWD; rates in formulas are decimals. These are explicit simplified product-model conventions, not actual lender settlement or personalized advice.
+版本 1.0 · 2026-10-14。修改財務模型或測試前必須閱讀。金額使用新台幣（TWD），公式中的利率採小數。以下為明確定義的簡化試算模型，不代表貸款機構實際結算方式或個人化建議。
 
-## 1. Shared numerical rules
+## 1. 共用數值規則
 
-Use full precision internally; rounding occurs at display/export boundaries. Summaries round to whole TWD, exported schedules to 0.01 TWD. A schedule's final payment clears its actual remaining balance; do not let rounded recurring payments leave material residuals. Internal principal reconciliation tolerance <=0.01 TWD, test fixture monetary tolerance <=0.01 TWD unless specified. Compare financial ratios before display rounding; test near thresholds.
+內部計算保留完整精度，只在顯示／匯出時四捨五入。摘要四捨五入至元，匯出攤還表保留至 0.01 元。最後一期須清償實際剩餘本金，不因每期顯示金額已四捨五入而留下明顯尾款。內部本金核對容許誤差 <=0.01 TWD；未另行指定時，測試範例的金額容許誤差也為 <=0.01 TWD。金融比例須在顯示四捨五入前判定，並測試門檻附近的值。
 
-Reject NaN, Infinity, blank required fields, unsupported signs, out-of-range numbers and invalid periods. Preserve a valid zero. Rates on loans are nominal annual 0–100%, monthly `i=r/12`. Investment nominal annual return -99%–100%, inflation 0–20%. A -100% one-time asset shock is allowed, but compounded annual returns must exceed -100%. Bound horizons and row counts as SPEC states; no unbounded loops.
+拒絕 NaN、Infinity、必要欄位空白、不支援的正負號、超出範圍的數值及無效期間；保留合法的 0。貸款名目年利率範圍 0–100%，月利率 `i=r/12`。投資名目年報酬範圍 -99%–100%，通膨 0–20%。單次資產下跌 -100% 合法，但複利年報酬必須大於 -100%。期間與資料筆數依 SPEC 設限，不使用無上限迴圈。
 
-Every result returns structured statuses (valid/invalid/infeasible/no-debt/no-equity as appropriate), units and assumptions. UI must not turn infeasible or undefined values into zero without a label.
+每個結果回傳具結構的狀態、單位及假設。狀態可依工具採 valid／invalid／infeasible／no-debt／no-equity，畫面分別呈現有效／無效／無法達成／無負債／淨值不足等中文說明。不可將無法達成或未定義的值默默顯示成 0。
 
-## 2. Mortgage and personal-loan schedules
+## 2. 房貸與信貸攤還表
 
-For principal `P`, monthly rate `i`, remaining months `n`, equal total payment:
+本金 `P`、月利率 `i`、剩餘期數 `n`；本息平均攤還公式如下。英文識別名稱保留，payment 為月付金，interest 為利息，principal 為償還本金，balance 為剩餘本金。
 
 ```text
 payment = P*i / (1 - (1+i)^(-n))    if i != 0
@@ -22,41 +22,41 @@ principal_m = payment_m - interest_m
 balance_m = balance_(m-1) - principal_m
 ```
 
-Use stable log/expm1 equivalents around zero if needed. Cap final principal at actual balance. Equal principal: after grace, principal per month is original unrepaid principal / remaining repayment months; monthly interest uses opening balance and therefore payments vary.
+接近零利率時，必要時採用穩定的 log／expm1 等值算法。最後一期償還本金以實際餘額為上限。本金平均攤還：寬限期後每期本金為尚未償還的原本金除以剩餘還款期數；利息以該期初餘額計算，因此月付金會變動。
 
-Loan payments are month-end, first one after one full month. No daily rate/day-count variation for these installment tools. Mortgage step rates use ordered start months (first must be month 1), each rate lasts until next segment; reject duplicates/out-of-term segments. At a rate change, recalculate equal-total payment on current balance and original remaining maturity, not a new full term. Equal-principal base remains based on post-grace principal and repayment months.
+還款在月底發生，首期在滿一個月後支付。這兩個分期工具不依每天或不同月份天數改變利率。房貸分段利率採依序排列的起始月份，第一段必須從第 1 個月開始，各段持續到下一段起始月份；重複月份或超出期數均須拒絕。利率改變時，本息平均攤還依目前餘額及原到期日剩餘期數重算，不重新起算完整貸款期間。本金平均攤還的每期本金仍依寬限期後原本金及還款期數計算。
 
-Grace `g` months pays interest only; `0 <= g < N`. Balance remains P during grace. Principal repaid in `N-g` months after grace, within total N. Rate changes during grace affect interest immediately. Fee F occurs at time zero and is not financed or compounded. Total interest = sum interest rows; principal sum = P; total cash outflow = sum loan payments + F. Property down payment is displayed separately and never classified as loan interest.
+寬限期 `g` 個月只付利息；`0 <= g < N`。期間本金維持 P，之後在 `N-g` 個月內償還，總期數仍為 N。寬限期內利率變動立即影響利息。費用 F 在期初支付，不加入貸款本金或計入複利。總利息為逐期利息加總，償還本金加總為 P，本息加費用總支出為月付金加總再加 F。房屋頭期款另行顯示，不列為貸款利息。
 
-Derived mortgage inputs: `P=price-downPayment`, or `P=price*LTV`; LTV 0–100%. A positive price and nonnegative down payment <=price are necessary. P=0 produces a no-loan result with zero installment interest and no division; a user-entered fee remains separately visible. Monthly income >0 if entered; burden = (maximum loan monthly payment + other monthly debt payments)/income. Label this a budget ratio, not lender approval.
+房貸衍生輸入：`P=price-downPayment` 或 `P=price*LTV`；LTV 為 0–100%。房價必須為正，頭期款不得為負或高於房價。P=0 時顯示無貸款狀態，分期利息為 0，不做除法；若仍有使用者輸入的費用，須另行顯示。選填月收入時必須 >0；負擔比例為最高月付金加其他債務月付金，再除以月收入。此為預算比例，不是核貸判定。
 
-### Personal-loan estimated cash-flow cost
+### 信貸現金流成本估算
 
-Gross principal P, fee `0 <= F < P`, actual net cash available `P-F`. Solve monthly IRR x from:
+貸款本金 P、費用 `0 <= F < P`，可用淨現金為 `P-F`。依下式求月內部報酬率（IRR）x：
 
 ```text
 P-F = sum(payment_m/(1+x)^m, m=1..N)
 effectiveAnnualCost = (1+x)^12 - 1
 ```
 
-All installment outflows positive and exactly one positive initial inflow; monthly root x>=0 is unique for supported nonnegative nominal rate/fee. Fee paid separately or withheld has the same time-zero net cost; do not count it twice in the IRR. Annualization is effective, not `12*x`. Use bracket expansion and bisection/robust root-finding; stop with monetary residual <=0.01 TWD and bounded iterations. If a root cannot be found, return a descriptive undefined cost, not 0%. `F=0,r=0` yields x=0 exactly. Official regulatory APR may use other conventions; label “估算有效年化成本（依本工具現金流）”.
+支持的現金流為一筆正的期初流入與各期正的付款額；在非負名目利率／費用的範圍內，月利率根 x>=0 唯一。費用另外支付或從撥款扣除具有相同的期初淨成本，不得在 IRR 重複計算。有效年化成本使用複利年化，不是 `12*x`。採搜尋區間擴張搭配二分法或其他穩定求根方式，金額殘差 <=0.01 TWD 且限制迭代次數。找不到解時回傳明確的無法計算說明，不顯示 0%。`F=0,r=0` 時 x 精確為 0。法規規定的 APR 可能採不同約定；畫面稱「估算有效年化成本（依本工具現金流）」。
 
-### Loan fixtures and invariants
+### 貸款測試範例與應維持條件
 
-| Input | Expected |
+| 輸入 | 預期結果 |
 | --- | --- |
-| P=120,000, N=12, r=0%, F=0, equal total | payment=10,000; interest=0; ending balance=0 |
-| Same, equal principal | identical schedule |
-| P=120,000, N=12, r=12%, equal principal, no grace | first payment=11,200; last=10,100; total interest=7,800 |
-| P=120,000, N=12, r=0%, grace=3 | first 3 payments=0; next 9=13,333.333333… before display rounding; principal sum=120,000 |
-| Personal P=100,000, N=12, r=6%, F=0 | payment=8,606.642970708; interest=3,279.715648499; cost=(1.005)^12-1 |
-| Personal P=12,000, N=12, r=0%, F=1,000 | net inflow=11,000; payment=1,000; payment sum=12,000; total cash outflow incl fee=13,000; positive IRR |
+| P=120,000, N=12, r=0%, F=0，本息平均攤還 | 月付金=10,000；利息=0；期末餘額=0 |
+| 同上，改為本金平均攤還 | 攤還表相同 |
+| P=120,000, N=12, r=12%，本金平均攤還，無寬限期 | 首期月付金=11,200；末期=10,100；總利息=7,800 |
+| P=120,000, N=12, r=0%，寬限期=3 | 前 3 期付款=0；後 9 期未四捨五入的付款=13,333.333333…；償還本金總和=120,000 |
+| 信貸 P=100,000, N=12, r=6%, F=0 | 月付金=8,606.642970708；利息=3,279.715648499；年化成本=(1.005)^12-1 |
+| 信貸 P=12,000, N=12, r=0%, F=1,000 | 淨流入=11,000；月付金=1,000；付款總和=12,000；本息加費用總支出=13,000；IRR 為正 |
 
-Additional tests: rate segments all equal reproduce fixed-rate model; 0% segments work; increasing positive rate increases cost under same terms; grace=N rejected; fee>=P rejected for personal loan; schedule rows count=N and balances never negative beyond tolerance. For IRR with a fee, independently verify discounted cash flows and compare a trusted independent numerical reference, not just the production helper.
+其他測試：各段利率相同時等同固定利率模型；0% 利率段可正常運作；其他條件相同時，提高正利率會增加成本；寬限期=N 須拒絕；信貸費用>=P 須拒絕；攤還表筆數=N，餘額不得低於負的容許誤差。含費用的 IRR 須獨立核對折現現金流，並與可信的獨立數值參考比對，不只呼叫正式程式自己的輔助函式。
 
-## 3. Stock-pledge model
+## 3. 股票質押模型
 
-Aggregated eligible collateral market value V, illustrated loan fraction c, actual loan L, annual nominal rate r, days d, warning maintenance ratio t and restoration ratio u (e.g. UI 130% ->1.3). V,L>=0, c in [0,1], t>0, u>=t, both ratio inputs <=1000%. No debt capitalization, lender discount or existing extra collateral in this simplified v1 model.
+合格擔保品彙總市值 V、範例可貸成數 c、實際借款 L、名目年利率 r、天數 d、警示維持率 t、補足目標 u；例如畫面 130% 換成 1.3。V,L>=0，c 在 [0,1]，t>0，u>=t，兩個維持率輸入皆 <=1000%。第一版簡化模型不含利息併入本金、貸款機構折算或既有額外擔保品。
 
 ```text
 illustratedLimit = V*c
@@ -73,30 +73,32 @@ cashRepaymentToTarget = max(0, L-scenarioCollateral/u)
 additionalCollateralToTarget = max(0, L*u-scenarioCollateral)
 ```
 
-At/below threshold show “已達／低於設定門檻”; don't display a negative remaining fall as future protection. If V=0,L>0, maintenance=0 and the loan is undercollateralized. If L=0, maintenance/drop threshold=N/A, costs=0 and no-debt state. Zero collateral with a positive existing loan is allowed as a stress state and shows full repayment need.
+公式依序計算範例可借上限、擔保品淨值、維持率、年息、平均月息、期間利息、情境市值／維持率、門檻市值、可承受跌幅、補足目標所需還款及追加擔保品。期間利息採範例 Actual/365（日數除以 365）基準。
 
-Cash repayment reduces debt; added eligible securities increase collateral. Pledged cash (if accepted by an actual lender) is additional collateral, not repayment. UI must not collapse the two equations or claim lender accepts any supplied asset.
+已達或低於門檻時顯示「已達／低於設定門檻」，不將負的可承受跌幅顯示成未來安全空間。V=0,L>0 時維持率為 0，顯示擔保不足。L=0 時維持率及跌幅門檻不適用（N/A）、利息為 0，顯示無負債。允許擔保品已歸零但仍有借款的壓力情境，顯示全額還款需求。
 
-### Pledge fixtures
+現金還款會降低負債，追加合格證券會增加擔保品。若實際貸款機構接受現金作擔保，該現金屬於追加擔保品，不是還款。畫面不得混用兩種公式，也不得宣稱貸款機構接受所有輸入資產。
 
-V=1,000,000, L=600,000, c=60%, r=3%, d=365, t=130%, u=166%:
+### 質押測試範例
 
-- limit=600,000; current maintenance=166.6666667%; annual interest=18,000; average monthly=1,500; term interest=18,000.
-- warning threshold collateral=780,000; drop from initial V=22%.
-- shock=-30% -> collateral=700,000, maintenance=116.6666667%, equity=100,000.
-- restoring u requires repayment `600,000-700,000/1.66` =178,313.253012… OR additional eligible collateral=296,000.
-- substituting each action independently restores 166%; never add both actions as a single compulsory amount.
-- -100% shock -> collateral 0, repayment 600,000, additional collateral 996,000.
+V=1,000,000, L=600,000, c=60%, r=3%, d=365, t=130%, u=166%：
 
-These defaults illustrate a configurable model. Product rules vary; do not copy margin-trading rules into a stock-pledge contract or assert actual liquidation timing.
+- 可借上限=600,000；目前維持率=166.6666667%；年息=18,000；平均月息=1,500；期間利息=18,000。
+- 警示門檻市值=780,000；相對期初 V 的跌幅=22%。
+- shock=-30% 時，擔保品市值=700,000；維持率=116.6666667%；淨值=100,000。
+- 回復 u 需要還款 `600,000-700,000/1.66` =178,313.253012…，或追加合格擔保品=296,000。
+- 分別代入兩種方式都應回復至 166%；不可把兩者加總為必須同時補足的金額。
+- 下跌 -100% 時，擔保品市值為 0；還款需求 600,000，或追加擔保品 996,000。
 
-## 4. Retirement model
+預設值用於示範可調整的模型。不同產品規則可能不同，不把融資交易規則套用為股票質押契約，也不宣稱實際強制處分時點。
 
-Whole-year ages A (now), R (target), H (horizon): `18<=A<=R<H<=120`. Monthly simulation intervals start at A and stop at H, with `12*(H-A)` periods. An alternative retirement search evaluates integer ages from A through H-1.
+## 4. 退休模型
 
-Inputs: investable net liquid assets W>=0, monthly contribution C>=0 during work, retirement spending E>=0, optional monthly income I>=0 from fixed age K (A<=K<=H; default no income), inflation p and nominal annual returns b (before retirement) and a (after).
+年齡採整歲：A 為現在、R 為目標退休、H 為規劃終止；`18<=A<=R<H<=120`。月模擬從 A 開始、到 H 結束，共 `12*(H-A)` 期。最早退休年齡搜尋依序檢查 A 至 H-1 的整歲年齡。
 
-Real monthly return in phase j:
+輸入：可投資的淨流動資產 W>=0、工作期間月投入 C>=0、退休月支出 E>=0、從固定年齡 K 開始的選填月收入 I>=0（A<=K<=H，預設無收入）、通膨 p，以及退休前 b／退休後 a 的名目年報酬。
+
+階段 j 的實質月成長倍率如下。work month 為工作月份，retirement month 為退休月份；q_before／q_after 分別為退休前／後倍率，income_m 為該月收入。
 
 ```text
 q_j = ((1+nominalAnnual_j)/(1+p))^(1/12)
@@ -104,20 +106,20 @@ work month:       W_m = W_(m-1)*q_before + C
 retirement month: W_m = W_(m-1)*q_after + income_m - E
 ```
 
-Contributions, spending and income occur at month-end. Income applies when the period's start age >=K and the period is in retirement. At target R, there are exactly `12*(R-A)` contribution periods, then `12*(H-R)` retirement periods. Cash flows are constants in today's purchasing power; nominal equivalents at a given month m multiply by `(1+p)^(m/12)` from current age, including all displayed values.
+投入、支出及收入在月底發生。收入僅適用於退休期間，且該期起始年齡 >=K。目標 R 前恰有 `12*(R-A)` 個投入期，之後有 `12*(H-R)` 個退休期。現金流固定為今天購買力；從目前年齡起，第 m 月的名目等值為實質金額乘以 `(1+p)^(m/12)`，所有顯示金額採相同轉換。
 
-Required target-age principal uses backwards funding with final required balance 0:
+由期末需求餘額 0 往前回推，計算目標退休年齡所需本金：
 
 ```text
 B_final=0
 B_(m-1)=max(0, (B_m+E-income_m)/q_after)
 ```
 
-The max allows a later surplus to accumulate without assuming borrowing before it arrives. Today-retirement requirement runs this recurrence with retirement at A and a income-start age K. Required principal at R is expressed in today's purchasing power, not inflated age-R dollars. Income must not shift earlier when testing different retirement ages.
+max 保持必要本金非負，允許後續收入盈餘累積，同時不假設收入到來前能借款支應。今天退休所需本金以退休年齡 A 及固定收入起始年齡 K 執行同一回推。R 時所需本金仍以今天購買力呈現，不是 R 時的通膨後金額。測試不同退休年齡時不得提前收入起始年齡。
 
-Forward feasibility: a month has shortfall only if grown balance+income is below E beyond monetary tolerance. Balance exactly 0 at H is feasible; zero earlier is feasible only if subsequent income funds expenses. Report first shortfall period/age and stop the funded path there; do not draw negative balances as spendable assets or imply recovery after an unfunded period. Plot thereafter may remain zero with shortfall annotation.
+往前模擬資金是否足夠：只有該月成長後餘額加收入低於 E，且超出金額容許誤差，才算資金不足。H 時餘額恰為 0 屬可行；較早歸零時，只有後續收入足以支付支出才可繼續可行。回報首次不足的期數／年齡，並在該處停止足額支應路徑；不將負餘額畫成可用資產，也不暗示未付支出的期間之後會自行恢復。圖表後段可維持 0，並標示不足。
 
-Monthly saving needed: solve the contribution that makes projected W at R >= required target balance. For n working months, factor q=q_before:
+每月應存金額：求使 R 時預估資產 >= 目標所需本金的月投入。工作期數 n、成長倍率 q=q_before：
 
 ```text
 projected = W*q^n + C*(q^n-1)/(q-1)
@@ -125,23 +127,23 @@ if q=1, projected=W+C*n
 neededSaving = max(0, (required-W*q^n)/annuityFactor)
 ```
 
-n=0 -> saving needed is N/A (“沒有累積期”) and show actual funding gap. Earliest feasible age tests every allowed integer retirement age with income held at K and correct phase assumptions. Maximum target-age spending is the largest E>=0 funded by target assets through H; solve against the same monthly/backwards model with bracketed search, a cap consistent with allowed inputs and <=0.01 TWD spending tolerance. If mathematical capacity exceeds UI cap, label it as above the cap rather than falsely exact.
+n=0 時，每月應存金額不適用（「沒有累積期」），另顯示實際資金缺口。最早退休搜尋逐一檢查全部允許的整歲年齡，固定收入起始 K 並正確套用退休前後假設。目標年齡最高可負擔月支出，是使該時資產能支應到 H 的最大 E>=0；採相同月模型／回推模型，用有上下界的搜尋求解，上限與輸入允許範圍一致，月支出容許誤差 <=0.01 TWD。若理論可支應金額超過畫面上限，須標示超過上限，不宣稱上限就是精確答案。
 
-### Retirement fixtures
+### 退休測試範例
 
-1. A=59,R=60,H=61,W=60,000,C=5,000,E=10,000, b=a=p=0%, income=0: target assets=120,000; required at R=120,000; today requirement=240,000; gap=0; needed saving=5,000; maximum spending at R=10,000; earliest feasible retirement=60; no shortfall.
-2. A=R=60,H=62,W=0,E=10,000, all rates 0%; I=4,000 beginning age61: requirement=192,000 (12*10,000 +12*6,000). W=192,000 funds horizon exactly; W=0 fails at first payment.
-3. A=R=60,H=61,W=120,000,E=10,000, a=p=0%: funded exactly to61; W=110,000 fails at final month's payment. No saving period, so required saving N/A.
-4. Annual nominal return equals annual inflation -> real q=1 and zero-real-rate fixtures apply. Real negative returns remain supported.
-5. If H is K, retirement income contributes zero payments before horizon. Work-period income is not added on top of C, which already represents net saving.
+1. A=59,R=60,H=61,W=60,000,C=5,000,E=10,000，b=a=p=0%，收入=0：目標資產=120,000；R 時所需本金=120,000；今天退休所需本金=240,000；缺口=0；每月應存=5,000；最高月支出=10,000；最早可退休年齡=60；無資金不足。
+2. A=R=60,H=62,W=0,E=10,000，各利率皆 0%；I=4,000 從 61 歲開始：所需本金=192,000（12*10,000 +12*6,000）。W=192,000 時恰可支應至期限；W=0 時首期就不足。
+3. A=R=60,H=61,W=120,000,E=10,000，a=p=0%：恰可支應到 61 歲；W=110,000 時最後一個月不足。沒有累積期，因此每月應存金額不適用。
+4. 名目年報酬等於年通膨時，實質 q=1，零實質報酬的測試結果應適用；仍須支援負實質報酬。
+5. K=H 時，期限前沒有退休收入付款期。工作期間收入不額外加在 C 上，因為 C 已代表淨儲蓄。
 
-Additional tests: present/future toggle changes only units, not feasibility; monotonic required principal with spending; negative-real-return path; current-age retirement; no feasible retirement; income larger than spending; scenario calculations independent; income timing checked at exact age boundary. Do not use website screenshot outputs as the sole mathematical oracle.
+其他測試：今天／未來金額切換只改單位，不改可行性；支出增加時所需本金不得下降；負實質報酬路徑；今天退休；無可行退休年齡；收入高於支出；各情境互相獨立；收入起始的精確年齡邊界。不得只以其他網站截圖作為數學正確性的判準。
 
-## 5. Portfolio
+## 5. 投資組合
 
-### Allocation and instantaneous stress
+### 配置與單次壓力情境
 
-Asset values V_j>=0 (1–20), debt L_k>=0 (0–10), annual nominal interest r_k>=0:
+資產 V_j>=0（1–20 筆）、借款 L_k>=0（0–10 筆）、名目年利率 r_k>=0：
 
 ```text
 gross = sum(V_j)
@@ -158,20 +160,22 @@ equityChange = stressEquity-equity
 equityReturn = equityChange/equity    only if initial equity>0
 ```
 
-Stress -100%–100% is one instantaneous price-change assumption, without loan interest for an unspecified duration. Costs are displayed separately and never silently deducted over an invented horizon. Gross=0 -> weights/debtRatio N/A. Initial equity<=0 -> leverage/equityReturn N/A. Positive initial equity with negative stress equity may have return<-100%; retain that loss and label residual debt exposure.
+公式依序定義總資產、負債、淨值、權重、負債比、槓桿倍數、年／月利息、情境總資產／淨值、淨值變動與淨值報酬率。
 
-Fixture: assets60,000 and40,000, debt30,000 at4%; gross100,000, equity70,000, weights60/40%, debt ratio30%, leverage1.4285714, annual interest1,200, month100. Shocks -20%/-10% ->stress gross84,000, equity54,000, change -16,000, equity return -22.8571429%.
+漲跌幅 -100%–100% 是單次價格變動假設；期間未指定，因此不計某段期間的借款利息。利息另行顯示，不自行假設期間後扣除成本。總資產為 0 時，權重／負債比不適用。期初淨值<=0 時，槓桿倍數／淨值報酬率不適用。期初淨值為正、情境淨值為負時，報酬可低於 -100%；保留該損失，並提示尚有負債。
 
-### Unlevered accumulation
+範例：資產 60,000 與 40,000，借款 30,000、利率 4%；總資產 100,000、淨值 70,000、權重 60%／40%、負債比 30%、槓桿 1.4285714 倍、年息 1,200、月息 100。漲跌幅 -20%／-10% 後，總資產 84,000、淨值 54,000、變動 -16,000、淨值報酬 -22.8571429%。
 
-Initial amount W>=0, monthly contribution C>=0, horizon Y whole years, target fractions w_j>=0 sum1 within1e-6, effective annual total returns r_j>-1. No loan inputs in this mode. Monthly factor `q_j=(1+r_j)^(1/12)`.
+### 無槓桿資產累積
 
-Initialize each asset W*w_j. Each month, grow each balance by q_j then add C*w_j. After months12,24,… rebalance accumulated total to target w_j with no transaction tax/fee; final rebalance changes weights only, not total. Do not use a single weighted annual CAGR to replace this multi-asset monthly path. Contributions total W+12*Y*C; model gain = ending gross minus contributions. This is an assumed return projection, not historical performance.
+期初資產 W>=0、月投入 C>=0、期間 Y 為整年、目標權重 w_j>=0 且總和在 1e-6 容許誤差內為 1，有效年總報酬 r_j>-1。此模式無借款輸入。月成長倍率 `q_j=(1+r_j)^(1/12)`。
 
-Fixtures: W=120,000,C=1,000,Y=1,w=50/50%, both returns0% ->ending132,000, each66,000, gain0. W=100,000,C=0,Y=1,single asset annual12% ->ending112,000. Zero-weight rows must not create ghost balances. Test unequal returns against independently calculated month rows and annual rebalance sum conservation.
+期初各資產為 W*w_j。每月先依 q_j 成長，再加入 C*w_j。在第 12、24、… 個月將總資產重新分配為目標權重，不計交易稅费；期末再平衡只改權重，不改總額。不可用單一加權年複合報酬取代多資產逐月路徑。累計投入為 W+12*Y*C；模型收益為期末總資產減累計投入。此為假設報酬推估，不是歷史績效。
 
-## 6. Input/reference checks
+範例：W=120,000,C=1,000,Y=1,w=50%／50%，兩者報酬 0%，期末 132,000、各 66,000、收益 0。W=100,000,C=0,Y=1，單一資產年報酬 12%，期末 112,000。零權重項目不得產生額外餘額。不同報酬情境須對照獨立計算的逐月數值，且驗證年度再平衡前後總額一致。
 
-Add independent golden fixtures above, numerical properties and browser-visible examples. Include cases with corrupted saved JSON, prototype-related keys, invalid/negative periods, malformed rate segments, weights off100%, excessive file/row size and boundary thresholds. Exports preserve model units and timing. Formula changes update this contract and affected tests together, with a reason recorded in the PR.
+## 6. 輸入與參考值檢查
 
-Lender-related public reference: [SinoPac stock loan FAQ](https://www.sinotrade.com.tw/newweb/loan-zone/?strProd=0210). This source helps explain why ratios are configurable; it does not define a universal contract. Loan/retirement/portfolio equations are the site's declared mathematical models, not source quotations.
+建立上述獨立預期範例、數值性質及瀏覽器可見的測試案例。涵蓋儲存 JSON 損毀、與 prototype 有關的欄位、無效／負的期數、錯誤利率分段、權重不等於 100%、超大檔案／過多資料，以及門檻邊界。匯出保留模型單位及時間約定。修改公式時同步更新本契約及相關測試，並在 PR 說明原因。
+
+貸款機構公開參考：[永豐金證券借貸常見問題](https://www.sinotrade.com.tw/newweb/loan-zone/?strProd=0210)。此來源用來說明維持率必須可設定，不定義通用契約。貸款／退休／投資組合公式是本站宣告的數學模型，不是引用來源原文。

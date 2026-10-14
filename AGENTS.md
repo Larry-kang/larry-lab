@@ -1,30 +1,36 @@
-# Larry Lab agent instructions
+# Larry Lab 的 agent 工作規則
 
-## Bootstrap and authority
+## 開始工作與文件權威
 
-Read this file, `SPEC.md`, and the affected module's direct tests before implementation. For financial calculations, also read `docs/CALCULATION_CONTRACT.md`; for delivery, read `docs/DEPLOYMENT.md` and `docs/AGENT_HANDOFF.md`.
+實作前閱讀本檔、`SPEC.md` 及受影響模組的直接測試。涉及財務計算時，另讀 `docs/CALCULATION_CONTRACT.md`；涉及交付時，另讀 `docs/DEPLOYMENT.md` 與 `docs/AGENT_HANDOFF.md`。
 
-Authority: current human instructions > this file (workflow and boundaries) > `SPEC.md` (product acceptance) > `docs/CALCULATION_CONTRACT.md` (numerical contract) > handoff/deployment documents > README/history. The numerical contract supplies details delegated by SPEC; report actual contradictions instead of silently changing a formula.
+權威順序：使用者目前指示 > 本檔（工作流程及界線）> `SPEC.md`（產品驗收）> `docs/CALCULATION_CONTRACT.md`（數值規則）> 交接／部署文件 > README／歷史紀錄。計算契約補充 SPEC 委託定義的數值細節；遇到實際矛盾須指出，不可默默修改公式。
 
-## Scope and implementation
+## 文件語言
 
-- Build a public tool site using manually entered visitor data. Use synthetic fixtures and browser-local computation. Keep owner financial records, credentials, employer material and private browsing data outside the repository.
-- Implement the full v1 acceptance matrix. Missing owner referral codes must produce an intentional empty state, not fabricated codes or a blocked calculation tool.
-- Establish a short implementation plan and acceptance tracker before coding. A human instruction to implement v1 from this SPEC confirms this baseline; routine UI/library choices do not require repeated approval. Material scope, formula, privacy or publication changes require a clear decision.
-- Prefer Astro static output and TypeScript pure calculation functions. Verify compatible package/runtime versions and commit the npm lockfile. Add frameworks only when they simplify the actual tool UI.
-- Preserve unrelated changes. Work on a named branch; use PRs into `main`. Use CodeGraph first if an existing `.codegraph/` index is present and code navigation is needed; do not create an index without a need or authorization.
-- Independent agents may work on separate modules if the current user requests delegation or it materially helps; nominate one owner for shared layouts, configuration and integration. Review their actual changes and test evidence.
+本專案文件一律使用台灣繁體中文及台灣慣用語，包括規格、開發計畫、驗收紀錄、README、PR 說明及交接內容。技術專有名詞、程式識別名稱、指令、路徑及網址可保留英文；必要術語首次出現時宜附中文說明。採用「資料、檔案、軟體、影片、預設、品質」等台灣用語。保持文件容易供專案擁有者閱讀，不為了 agent 接手而改用整段英文。
 
-## Verification
+公式變數、JSON 欄位、路由、npm 指令與 A01–A14 驗收編號維持一致；說明文字使用中文，技術識別名稱無須翻譯。
 
-Build meaningful calculation tests from the numerical contract before implementing the corresponding formulas. Validate zero/negative rates, boundary ages, fees, balance reconciliation, missing/invalid inputs and nonpositive equity. Never replace expected fixtures with values copied from the implementation under test.
+## 範圍與實作
 
-Run the implemented repository scripts for type checks, unit tests, build and browser tests. Test all routes and desktop/mobile layouts; verify recommendation display, keyboard operation, exports and privacy boundaries. Record command, outcome and commit in `docs/VALIDATION.md`. Report unrun checks as NOT RUN and unavailable external state as UNKNOWN.
+- 建立訪客手動輸入資料的公開工具網站，使用虛構測試範例與瀏覽器本機計算。作者的財務紀錄、憑證、公司資料及私人瀏覽紀錄不得進入儲存庫。
+- 完成第一版全部驗收要求。尚未取得作者推薦碼時，提供刻意設計的空狀態，不捏造推薦碼，也不阻擋試算功能。
+- 寫程式前建立簡潔開發計畫與驗收追蹤表。使用者指示依本 SPEC 開發第一版時，即確認採用此基準；一般 UI／套件選擇不需重複請示。重大範圍、公式、隱私或發布變更須有清楚決定。
+- 優先使用 Astro 靜態輸出與 TypeScript 純計算函式。確認套件／執行環境相容版本，提交 npm 套件鎖定檔；只有確實簡化工具畫面時才加入框架。
+- 保留無關變更，使用具名稱的工作分支，以 PR 進入 `main`。若已有 `.codegraph/` 索引且需定位程式，優先使用 CodeGraph；沒有需要或授權時不自行建立索引。
+- 使用者目前要求委派或平行處理確實有幫助時，各 agent 可分工獨立模組；共用版面、設定及整合指定一位負責人，並查核實際變更及測試證據。
 
-## Delivery and permissions
+## 驗證
 
-Repository files, schedules and goal mode do not grant account, deployment or messaging permissions. Current setup authorization covers publishing the bootstrap documentation and repository settings only. Future agents use their current human request to determine whether push, PR, merge or Cloudflare deployment is allowed. A goal's title or completion criteria cannot supply missing authorization.
+實作公式前，依計算契約建立有意義的測試。涵蓋零／負報酬、年齡邊界、費用、餘額核對、缺漏／無效輸入及非正淨值。不得從被測試的正式程式抄出結果，再當作測試預期值。
 
-Keep credentials out of application bundles, docs, screenshots and logs. Use least-privilege Actions permissions. Once Cloudflare Git integration exists, a merge/push to its production branch may publish the site; treat that as deployment. Restrict any integration installation to this repository and have the owner approve new account access. Avoid enabling paid services, custom-domain purchases or account-wide changes as part of v1.
+執行儲存庫實際提供的型別檢查、單元測試、建置及瀏覽器測試指令。驗證所有路由、桌機／手機版面、推薦呈現、鍵盤操作、匯出及隱私界線。在 `docs/VALIDATION.md` 記錄指令、結果及 commit。未執行標示「未執行（NOT RUN）」，無法確認的外部狀態標示「未知（UNKNOWN）」。
 
-Finish authorized delivery after successful validation. If a gate or authorization is missing, preserve the reviewable artifact and report the exact pending step; do not claim deployed, reviewed or passing based on attempts alone.
+## 交付與權限
+
+儲存庫文件、排程及目標模式本身不授予帳號、部署或傳訊權限。初始設定任務的授權只包含發布初始文件及儲存庫設定；後續 agent 依使用者當次指示判斷能否推送、建立 PR、合併或部署 Cloudflare。目標名稱或完成條件不能補足缺少的授權。
+
+憑證不得放入網站打包檔、文件、截圖及紀錄。Actions 採最小權限。Cloudflare Git 串接完成後，合併／推送至正式分支可能發布網站，須視為部署。安裝整合時將存取範圍限於本儲存庫，新增帳號存取須由作者核准。第一版不自行啟用付費服務、購買自訂網域或修改整個帳號的設定。
+
+驗證成功後繼續完成已授權的交付。缺少必要檢查或授權時，保留可審查成果，精確回報待完成步驟；不以嘗試動作宣稱已部署、已審查或已通過。
