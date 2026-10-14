@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, tools } from '../config/site';
+---
+
+<BaseLayout title={site.name} description={site.description} nav="home">
+  <section class="hero">
+    <h1>{site.name}</h1>
+    <p class="lead">{site.tagline}</p>
+    <p class="prose">
+      所有試算完全在你的瀏覽器本機執行，不串接任何外部金融帳戶，不儲存也不上傳你的財務隱私資料。
+    </p>
+  </section>
+
+  <section aria-labelledby="featured-tools-heading" class="panel">
+    <h2 id="featured-tools-heading">精選試算工具</h2>
+    <ul class="card-grid">
+      {
+        tools.map((t) => (
+          <li>
+            <a class="tool-card" href={t.path}>
+              <p class="eyebrow">{t.category}</p>
+              <h3>{t.name}</h3>
+              <p>{t.summary}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p style="margin-top: 16px;"><a href="/tools/">瀏覽全部工具與分類說明 →</a></p>
+  </section>
+
+  <section aria-labelledby="author-heading" class="panel">
+    <h2 id="author-heading">關於作者與本站</h2>
+    <p class="prose">{site.author}</p>
+    <p class="prose">
+      Larry Lab 建立初衷是為了解決日常真實的決策計算需求，透過清晰的數值契約與嚴格的模型假設，讓借貸成本、資產壓力與退休推估一目了然。
+    </p>
+    <p class="prose">
+      本站公開原始碼託管於 GitHub：<a href={site.githubRepo} target="_blank" rel="noopener noreferrer">{site.githubRepo}</a>
+    </p>
+    <p><a href="/about/">閱讀更多關於我與網站理念 →</a></p>
+  </section>
+</BaseLayout>

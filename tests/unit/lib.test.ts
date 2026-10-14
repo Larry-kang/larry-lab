@@ -1,0 +1,224 @@
+import { describe, expect, it } from 'vitest';
+import { csvCell, toCsv } from '../../src/lib/csv';
+import { MAX_IMPORT_BYTES, buildExport, parseImport, sanitize, type Schema } from '../../src/lib/io';
+import { FieldReader, parseNumberText } from '../../src/lib/parse';
+import { clearAllTools, loadTool, saveTool } from '../../src/lib/storage';
+import recommendationsFile from '../../src/content/recommendations.json';
+import {
+  activeRecommendations,
+  groupByCategory,
+  isOfferActive,
+  isSafeHttpsUrl,
+  validateRecommendations,
+} from '../../src/lib/recommendations';
+
+describe('parseNumberText', () => {
+  it('accepts commas, decimals, negatives and percent suffix', () => {
+    expect(parseNumberText('1,234,567.5')).toEqual({ kind: 'ok', value: 1234567.5 });
+    expect(parseNumberText('  42 ')).toEqual({ kind: 'ok', value: 42 });
+    expect(parseNumberText('-0.5')).toEqual({ kind: 'ok', value: -0.5 });
+    expect(parseNumberText('.5')).toEqual({ kind: 'ok', value: 0.5 });
+    expect(parseNumberText('2.5%', { percent: true })).toEqual({ kind: 'ok', value: 2.5 });
+    expect(parseNumberText('0')).toEqual({ kind: 'ok', value: 0 });
+  });
+  it('treats blank as empty, not zero', () => {
+    expect(parseNumberText('')).toEqual({ kind: 'empty' });
+    expect(parseNumberText('   ')).toEqual({ kind: 'empty' });
+  });
+  it('rejects currency strings, exponents, signs and garbage', () => {
+    for (const bad of ['NT$100', '$100', '100元', '1e5', '+5', '--1', '1,23', '1..2', 'Infinity', 'NaN', '.', '-', ',', '1 000', '0x10', 'abc', '١٢٣']) {
+      expect(parseNumberText(bad).kind, bad).toBe('error');
+    }
+    expect(parseNumberText('9'.repeat(60)).kind).toBe('error');
+  });
+});
+
+describe('FieldReader', () => {
+  it('collects errors by path and treats blank required fields as NaN', () => {
+    const reader = new FieldReader({ a: '12', b: '', c: 'x', list: [{ v: '5' }, { v: 'bad' }] });
+    expect(reader.number('a')).toBe(12);
+    expect(Number.isNaN(reader.number('b'))).toBe(true);
+    expect(reader.errors.b).toBeUndefined();
+    expect(Number.isNaN(reader.number('c'))).toBe(true);
+    expect(reader.errors.c).toBeDefined();
+    expect(reader.optional('b')).toBeUndefined();
+    expect(reader.item('list', 0).number('v')).toBe(5);
+    reader.item('list', 1).number('v');
+    expect(reader.errors['list.1.v']).toBeDefined();
+    expect(reader.percent('a')).toBeCloseTo(0.12, 10);
+  });
+});
+
+describe('CSV safety', () => {
+  it('neutralises formula-looking text', () => {
+    for (const bad of ['=SUM(A1)', '+1+1', '-2+3', '@cmd', '\tTAB', '\rCR']) {
+      expect(csvCell(bad).replace(/^"/, '').startsWith("'"), bad).toBe(true);
+    }
+  });
+  it('quotes separators, quotes and newlines, and escapes quotes', () => {
+    expect(csvCell('a,b')).toBe('"a,b"');
+    expect(csvCell('say "hi"')).toBe('"say ""hi"""');
+    expect(csvCell('line1\nline2')).toBe('"line1\nline2"');
+    expect(csvCell('plain')).toBe('plain');
+  });
+  it('writes numbers as numerals including negatives', () => {
+    expect(csvCell(-12.5)).toBe('-12.5');
+    expect(csvCell(Number.NaN)).toBe('');
+    expect(csvCell(null)).toBe('');
+  });
+  it('adds a BOM and CRLF', () => {
+    const out = toCsv([['a', 'b'], [1, 2]]);
+    expect(out.startsWith('\uFEFF')).toBe(true);
+    expect(out).toContain('a,b\r\n1,2\r\n');
+  });
+});
+
+describe('JSON import / export', () => {
+  const schema: Schema = {
+    mode: { kind: 'enum', values: ['x', 'y'] },
+    note: { kind: 'text', max: 10 },
+    remember: { kind: 'bool' },
+    items: { kind: 'list', maxItems: 2, item: { name: { kind: 'text', max: 5 } } },
+  };
+  const wrap = (inputs: unknown, extra: Record<string, unknown> = {}) =>
+    JSON.stringify({ schemaVersion: 1, toolId: 't', inputs, ...extra });
+
+  it('round-trips a valid export', () => {
+    const inputs = { mode: 'y', note: 'hello', remember: true, items: [{ name: 'a' }] };
+    const result = parseImport(buildExport('t', inputs), 't', schema);
+    expect(result).toEqual({ ok: true, value: inputs });
+  });
+  it('fills defaults for missing fields', () => {
+    const result = parseImport(wrap({}), 't', schema);
+    expect(result).toEqual({ ok: true, value: { mode: 'x', note: '', remember: false, items: [] } });
+  });
+  it('drops unknown fields and prototype pollution attempts', () => {
+    const text = '{"schemaVersion":1,"toolId":"t","inputs":{"mode":"x","extra":"no","__proto__":{"polluted":"yes"},"constructor":{"prototype":{"polluted":"yes"}}}}';
+    const result = parseImport(text, 't', schema);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(Object.keys(result.value).sort()).toEqual(['items', 'mode', 'note', 'remember']);
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+      expect((result.value as Record<string, unknown>).polluted).toBeUndefined();
+    }
+  });
+  it('rejects bad version, tool, JSON, types, sizes and enum values', () => {
+    expect(parseImport('{bad', 't', schema).ok).toBe(false);
+    expect(parseImport('[]', 't', schema).ok).toBe(false);
+    expect(parseImport('null', 't', schema).ok).toBe(false);
+    expect(parseImport(JSON.stringify({ schemaVersion: 2, toolId: 't', inputs: {} }), 't', schema).ok).toBe(false);
+    expect(parseImport(JSON.stringify({ schemaVersion: 1, toolId: 'other', inputs: {} }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ note: 5 }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ note: 'x'.repeat(11) }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ mode: 'z' }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ remember: 'true' }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ items: 'no' }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ items: [{}, {}, {}] }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ items: [{ name: 'toolong' }] }), 't', schema).ok).toBe(false);
+    expect(parseImport(wrap({ items: [5] }), 't', schema).ok).toBe(false);
+  });
+  it('rejects files above 100 KB', () => {
+    const big = wrap({ note: 'a' }, { pad: 'x'.repeat(MAX_IMPORT_BYTES) });
+    expect(parseImport(big, 't', schema)).toEqual({ ok: false, error: '檔案超過 100 KB 上限' });
+  });
+  it('keeps names as plain text', () => {
+    const result = sanitize(schema, { items: [{ name: '<b>x' }] });
+    expect(result.ok && (result.value.items as Array<{ name: string }>)[0].name).toBe('<b>x');
+  });
+});
+
+describe('storage helper', () => {
+  const schema: Schema = { note: { kind: 'text' } };
+  it('works without localStorage (does not throw)', () => {
+    expect(saveTool('t', { note: 'a' })).toBe(false);
+    expect(loadTool('t', schema)).toBeNull();
+    expect(clearAllTools()).toBe(0);
+  });
+  it('saves, loads and clears when storage exists', () => {
+    const data = new Map<string, string>();
+    const fake = {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => void data.set(k, v),
+      removeItem: (k: string) => void data.delete(k),
+      key: (i: number) => [...data.keys()][i] ?? null,
+      get length() {
+        return data.size;
+      },
+    };
+    Object.defineProperty(globalThis, 'localStorage', { value: fake, configurable: true });
+    try {
+      expect(saveTool('t', { note: 'hi' })).toBe(true);
+      expect(loadTool('t', schema)).toEqual({ note: 'hi' });
+      data.set('larry-lab:v1:tool:t', '{corrupt');
+      expect(loadTool('t', schema)).toBeNull();
+      data.set('larry-lab:v1:tool:t', JSON.stringify({ schemaVersion: 1, toolId: 'other', inputs: {} }));
+      expect(loadTool('t', schema)).toBeNull();
+      saveTool('t', { note: 'x' });
+      saveTool('u', { note: 'y' });
+      data.set('unrelated', '1');
+      expect(clearAllTools()).toBe(2);
+      expect(data.has('unrelated')).toBe(true);
+    } finally {
+      Reflect.deleteProperty(globalThis, 'localStorage');
+    }
+  });
+});
+
+describe('recommendations', () => {
+  const item = (over: Record<string, unknown> = {}) => ({
+    id: 'sample',
+    name: '範例平台',
+    category: '範例分類',
+    shortDescription: '僅供測試的虛構項目',
+    enabled: true,
+    disclosure: '測試用揭露',
+    sortOrder: 1,
+    lastVerifiedAt: '2026-10-14',
+    referralUrl: 'https://example.com/',
+    ...over,
+  });
+
+  it('production data ships with no active item', () => {
+    const items = validateRecommendations(recommendationsFile);
+    expect(activeRecommendations(items)).toHaveLength(0);
+  });
+  it('rejects malformed files and unsafe URLs', () => {
+    expect(() => validateRecommendations({})).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'javascript:alert(1)' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'data:text/html,x' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://user:pw@example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ id: 'Bad Id' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item(), item()] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ enabled: 'yes' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ lastVerifiedAt: '2026/10/14' })] })).toThrow();
+    expect(isSafeHttpsUrl('https://example.com/')).toBe(true);
+    expect(isSafeHttpsUrl('//example.com')).toBe(false);
+  });
+  it('shows only enabled items that have a code or a link, in a fixed order', () => {
+    const items = validateRecommendations({
+      items: [
+        item({ id: 'b', sortOrder: 2 }),
+        item({ id: 'a', sortOrder: 1, referralUrl: undefined, code: 'TEST123' }),
+        item({ id: 'c', sortOrder: 0, enabled: false }),
+        item({ id: 'd', sortOrder: 3, referralUrl: undefined }),
+        item({ id: 'e', sortOrder: 1 }),
+      ],
+    });
+    expect(activeRecommendations(items).map((x) => x.id)).toEqual(['a', 'e', 'b']);
+  });
+  it('drops expired offers without inventing dates', () => {
+    const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14' })] });
+    expect(isOfferActive(withOffer, new Date('2026-10-14T15:00:00Z'))).toBe(true);
+    expect(isOfferActive(withOffer, new Date('2026-10-15T16:30:00Z'))).toBe(false);
+    const [noOffer] = validateRecommendations({ items: [item()] });
+    expect(isOfferActive(noOffer, new Date())).toBe(false);
+  });
+  it('groups by category keeping order', () => {
+    const items = validateRecommendations({ items: [item({ id: 'a', category: 'X' }), item({ id: 'b', category: 'Y' }), item({ id: 'c', category: 'X' })] });
+    expect(groupByCategory(items).map((g) => [g.category, g.items.map((i) => i.id)])).toEqual([
+      ['X', ['a', 'c']],
+      ['Y', ['b']],
+    ]);
+  });
+});

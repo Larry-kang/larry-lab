@@ -1,0 +1,69 @@
+---
+import { activeRecommendations, groupByCategory, isOfferActive, validateRecommendations } from '../lib/recommendations';
+import recommendationsFile from '../content/recommendations.json';
+import { site } from '../config/site';
+
+interface Props {
+  variant: 'sidebar' | 'mobile' | 'full';
+}
+const { variant } = Astro.props;
+
+const items = activeRecommendations(validateRecommendations(recommendationsFile));
+const now = new Date();
+const groups = groupByCategory(items);
+const prefix = variant;
+---
+
+<div class={`rec rec-${variant}`} data-rec-variant={variant}>
+  {variant !== 'full' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦資訊</h2>}
+  {
+    items.length === 0 ? (
+      <div class="rec-empty" data-testid="rec-empty">
+        <p>
+          <strong>推薦資訊整理中</strong>
+        </p>
+        <p>目前沒有啟用的推薦項目。作者提供並核對真實推薦碼或連結後，才會顯示在這裡；本站不會捏造優惠或連結。</p>
+        <p>推薦項目不影響任何試算結果，也不構成金融商品排名。</p>
+      </div>
+    ) : (
+      groups.map((group) => (
+        <section aria-label={group.category}>
+          <h3 class="rec-category">{group.category}</h3>
+          <ul class="rec-list">
+            {group.items.map((item) => (
+              <li class="rec-card" data-rec-id={item.id}>
+                <p class="rec-name">{item.name}</p>
+                <p class="rec-desc">{item.shortDescription}</p>
+                {isOfferActive(item, now) && (
+                  <p class="rec-offer" data-offer-expires={item.offerExpiresAt ?? ''}>
+                    {item.offerText}
+                    {item.offerExpiresAt ? `（至 ${item.offerExpiresAt}）` : ''}
+                  </p>
+                )}
+                {item.code && (
+                  <p class="rec-code">
+                    推薦碼：<code>{item.code}</code>{' '}
+                    <button type="button" class="btn small" data-copy={item.code}>
+                      複製推薦碼
+                    </button>
+                  </p>
+                )}
+                {item.referralUrl && (
+                  <p>
+                    <a class="btn small primary" href={item.referralUrl} target="_blank" rel="sponsored noopener noreferrer">
+                      前往 {item.name}（另開分頁）
+                    </a>
+                  </p>
+                )}
+                <p class="rec-meta">資料核對日：{item.lastVerifiedAt}</p>
+                <p class="rec-meta">{item.disclosure}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    )
+  }
+  <p class="rec-notice">{site.referralNotice}</p>
+  {variant !== 'full' && <p class="rec-more"><a href="/recommendations/">查看推薦總覽與利益揭露</a></p>}
+</div>

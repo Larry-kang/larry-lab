@@ -1,0 +1,108 @@
+import type { CsvCell } from '../csv';
+import type { Values } from '../parse';
+
+export interface Option {
+  value: string;
+  label: string;
+}
+
+export interface FieldSpec {
+  key: string;
+  label: string;
+  kind: 'amount' | 'percent' | 'integer' | 'decimal' | 'text' | 'select';
+  unit?: string;
+  hint?: string;
+  options?: Option[];
+  placeholder?: string;
+  visibleIf?: (scenario: Values, root: Values) => boolean;
+  /** For select fields: when changed, clear the values of fields that become hidden. */
+  clearsHidden?: boolean;
+}
+
+export interface ListSpec {
+  key: string;
+  label: string;
+  itemLabel: string;
+  addLabel: string;
+  min: number;
+  max: number;
+  hint?: string;
+  fields: FieldSpec[];
+  defaultItem: () => Values;
+  visibleIf?: (scenario: Values, root: Values) => boolean;
+}
+
+export type Spec = FieldSpec | ListSpec;
+
+export function isListSpec(spec: Spec): spec is ListSpec {
+  return 'fields' in spec;
+}
+
+export interface Card {
+  label: string;
+  value: string;
+  note?: string;
+  tone?: 'neutral' | 'good' | 'warn' | 'bad';
+  /** Included in the scenario comparison table. */
+  compare?: boolean;
+}
+
+export interface Notice {
+  tone: 'info' | 'good' | 'warn' | 'bad';
+  text: string;
+}
+
+export interface ChartSeries {
+  name: string;
+  points: Array<[number, number]>;
+}
+
+export interface ChartSpec {
+  title: string;
+  description: string;
+  xLabel: string;
+  yLabel: string;
+  yKind: 'twd' | 'percent';
+  xKind?: 'integer';
+  series: ChartSeries[];
+  hLines?: Array<{ y: number; label: string }>;
+  vLines?: Array<{ x: number; label: string }>;
+}
+
+export interface TableSpec {
+  caption: string;
+  columns: string[];
+  rows: string[][];
+  note?: string;
+}
+
+export interface Evaluation {
+  /** Field errors keyed by path, e.g. `principal` or `segments.1.annualRate`. */
+  errors: Record<string, string>;
+  notices: Notice[];
+  cards: Card[];
+  charts: ChartSpec[];
+  tables: TableSpec[];
+  csv?: { filename: string; rows: CsvCell[][] };
+  assumptions: string[];
+}
+
+export interface ToolDef {
+  id: string;
+  /** Shown in compare/CSV messages, e.g. "方案" or "情境". */
+  scenarioNoun: string;
+  maxScenarios: number;
+  /** Fields shared by all scenarios (stored at the root of the JSON inputs). */
+  topFields: FieldSpec[];
+  /** Fields edited per scenario. */
+  scenarioFields: Spec[];
+  /** Fresh, fully empty state. */
+  blank: () => Values;
+  /** Fictional example data. */
+  example: () => Values;
+  evaluate: (scenario: Values, root: Values) => Evaluation;
+}
+
+export function emptyEvaluation(): Evaluation {
+  return { errors: {}, notices: [], cards: [], charts: [], tables: [], assumptions: [] };
+}

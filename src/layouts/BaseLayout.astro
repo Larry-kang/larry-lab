@@ -1,0 +1,83 @@
+---
+import '../styles/global.css';
+import RecommendationPanel from '../components/RecommendationPanel.astro';
+import { navItems, site } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Key from navItems for the current page; omit for pages outside the main navigation. */
+  nav?: (typeof navItems)[number]['key'];
+  /** Show a "tool category" label above the page content. */
+  toolCategory?: string;
+}
+const { title, description, nav, toolCategory } = Astro.props;
+const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="/" aria-label="Larry Lab 首頁"><span class="brand-mark" aria-hidden="true">L</span>Larry Lab</a>
+        <nav aria-label="主要導覽">
+          <ul class="nav-list">
+            {
+              navItems.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={nav === item.key ? 'page' : undefined}>{item.label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <div class="layout">
+      <main id="main" class="content" tabindex="-1">
+        {toolCategory && <p class="eyebrow">{toolCategory}</p>}
+        <slot />
+        <details class="rec-mobile-wrap" data-testid="rec-mobile">
+          <summary>推薦資訊（手機版）</summary>
+          <RecommendationPanel variant="mobile" />
+        </details>
+      </main>
+      <aside class="rec-aside" aria-label="推薦資訊" data-testid="rec-aside">
+        <RecommendationPanel variant="sidebar" />
+      </aside>
+    </div>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>© Larry Lab · 所有試算皆在瀏覽器本機完成，範例均為虛構資料。</p>
+        <ul class="footer-links">
+          <li><a href="/methodology/">計算方法</a></li>
+          <li><a href="/privacy/">隱私說明</a></li>
+          <li><a href="/recommendations/#disclosure">利益揭露</a></li>
+          <li><a href="/recommendations/">推薦總覽</a></li>
+          <li><a href={site.githubRepo} rel="noopener noreferrer">原始碼（GitHub）</a></li>
+        </ul>
+      </div>
+    </footer>
+    <script>
+      import '../scripts/site.ts';
+    </script>
+  </body>
+</html>
