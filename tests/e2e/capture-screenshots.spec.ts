@@ -1,9 +1,12 @@
 import { test } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test('擷取桌機與手機各功能截圖', async ({ page, isMobile }) => {
-  const dir = path.resolve('artifacts/screenshots', isMobile ? 'mobile' : 'desktop');
+  const dir = path.resolve(__dirname, '../../artifacts/screenshots', isMobile ? 'mobile' : 'desktop');
   fs.mkdirSync(dir, { recursive: true });
 
   const pagesToCapture = [
@@ -23,6 +26,9 @@ test('擷取桌機與手機各功能截圖', async ({ page, isMobile }) => {
     if (p.path.startsWith('/tools/') && p.path !== '/tools/') {
       await page.waitForSelector('#tool-root[data-ready="true"]', { timeout: 10000 });
     }
+    // 全頁截圖
     await page.screenshot({ path: path.join(dir, `${p.name}.png`), fullPage: true });
+    // 首屏截圖
+    await page.screenshot({ path: path.join(dir, `${p.name}-fold.png`), fullPage: false });
   }
 });

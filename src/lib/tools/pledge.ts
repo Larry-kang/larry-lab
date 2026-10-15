@@ -26,14 +26,16 @@ export const pledgeTool: ToolDef = {
   maxScenarios: 3,
   topFields: [],
   scenarioFields: [
+    // --- 基本輸入 ---
     amountField('collateralValue', '合格擔保品彙總市值', { hint: '單一彙總金額；請只填貸款機構實際接受的合格擔保品。' }),
-    percentField('loanToValue', '可貸成數（範例）', { unit: '%', hint: '預設 60% 是範例，不是通用券商規則。' }),
-    amountField('loanAmount', '實際借款', { hint: '壓力試算時可高於範例可借上限，系統只提醒，不自動修改。' }),
+    amountField('loanAmount', '實際借款金額', { hint: '壓力試算時可高於範例可借上限，系統只提醒，不自動覆寫。' }),
     percentField('annualRate', '名目年利率', { unit: '%/年' }),
     integerField('days', '借款天數', '天', { hint: '1–3650 天；期間利息以範例 Actual/365 計算。' }),
-    percentField('warningRatio', '警示維持率（範例）', { hint: '預設 130% 是範例，請依自己的契約調整。' }),
-    percentField('targetRatio', '補足目標維持率（範例）', { hint: '預設 166% 是範例，須大於或等於警示維持率。' }),
-    percentField('customShock', '自訂擔保品漲跌幅', { hint: '例如 -40 表示下跌 40%；範圍 -100% 至 100%。' }),
+    // --- 進階設定 ---
+    { ...percentField('loanToValue', '範例可貸成數', { unit: '%', hint: '預設 60% 是範例，不是通用券商規則。' }), isAdvanced: true },
+    { ...percentField('warningRatio', '警示維持率（門檻）', { hint: '預設 130% 是範例，請依自己的借貸契約調整。' }), isAdvanced: true },
+    { ...percentField('targetRatio', '補足目標維持率', { hint: '預設 166% 是範例，須大於或等於警示維持率。' }), isAdvanced: true },
+    { ...percentField('customShock', '自訂擔保品漲跌幅', { hint: '例如 -40 表示下跌 40%；範圍 -100% 至 100%。' }), isAdvanced: true },
   ],
   blank: () => ({
     scenarios: [scenario('方案 1', { collateralValue: '', loanToValue: '', loanAmount: '', annualRate: '', days: '', warningRatio: '', targetRatio: '', customShock: '' })],
@@ -41,6 +43,18 @@ export const pledgeTool: ToolDef = {
   example: () => ({
     scenarios: [scenario('方案 1（範例）'), scenario('方案 2（範例：借款較少）', { loanAmount: '400,000' })],
   }),
+  scenarioBadge(s: Values): string {
+    const loan = Number(String(s.loanAmount || '0').replace(/,/g, ''));
+    const rate = s.annualRate || '—';
+    if (loan <= 0) return '零借款無負債';
+    return `借款 ${formatTwd(loan)} ｜ 年息 ${rate}%`;
+  },
+  advancedSummary(s: Values): string {
+    const ltv = s.loanToValue || '60';
+    const warn = s.warningRatio || '130';
+    const target = s.targetRatio || '166';
+    return `成數 ${ltv}% ｜ 警示 ${warn}% ｜ 目標 ${target}%`;
+  },
   evaluate(values): Evaluation {
     const r = new FieldReader(values);
     const input: PledgeInput = {
@@ -68,22 +82,43 @@ export const pledgeTool: ToolDef = {
     if (result.overIllustratedLimit) {
       ev.notices.push({ tone: 'warn', text: `實際借款高於範例可借上限 ${formatTwd(result.illustratedLimit!)}；壓力試算仍照你輸入的借款計算。` });
     }
+
+    // 前三項核心結果 (Core Cards)
+    ev.cards.push(
+      card('目前簡化維持率', hasDebt ? formatPercent(result.maintenance!, 2) : '不適用（N/A）', {
+        isCore: true,
+        compare: true,
+        tone: result.atOrBelowThreshold ? 'bad' : 'neutral',
+        note: hasDebt ? '擔保品市值 ÷ 借款金額' : '無負債',
+      }),
+      card(
+        '到警示門檻跌幅',
+        !hasDebt ? '不適用（N/A）' : result.atOrBelowThreshold ? '已達／低於設定門檻' : formatPercent(result.dropToThreshold!, 2),
+        {
+          isCore: true,
+          compare: true,
+          tone: result.atOrBelowThreshold ? 'bad' : 'neutral',
+          note: !hasDebt ? '無追繳風險' : result.atOrBelowThreshold ? '目前已面臨追繳補額風險' : `市值跌至 ${formatTwd(result.thresholdCollateral!)} 觸發警示`,
+        },
+      ),
+      card(`期間利息（${input.days} 天）`, formatTwd(result.termInterest!), {
+        isCore: true,
+        compare: true,
+        note: '範例 Actual/365 基準計算',
+      }),
+    );
+
+    // 次要結果卡片
     ev.cards.push(
       card('範例可借上限', formatTwd(result.illustratedLimit!), { note: '擔保品市值 × 範例可貸成數' }),
       card('擔保品淨值', formatTwd(result.equity!), { note: '擔保品市值 − 借款', tone: result.equity! < 0 ? 'bad' : 'neutral' }),
-      card('目前簡化維持率', hasDebt ? formatPercent(result.maintenance!, 2) : '不適用（N/A）', { compare: true, tone: result.atOrBelowThreshold ? 'bad' : 'neutral', note: '擔保品市值 ÷ 借款' }),
-      card('年息', formatTwd(result.yearInterest!), { compare: true }),
+      card('年息總額', formatTwd(result.yearInterest!), { compare: true }),
       card('平均月息', formatTwd(result.averageMonthlyInterest!)),
-      card(`期間利息（${input.days} 天）`, formatTwd(result.termInterest!), { compare: true, note: '範例 Actual/365 基準' }),
-      card('警示門檻擔保品市值', hasDebt ? formatTwd(result.thresholdCollateral!) : '不適用（N/A）', { note: '借款 × 警示維持率；不是保證的處分價格' }),
-      card(
-        '相對目前市值可承受跌幅',
-        !hasDebt ? '不適用（N/A）' : result.atOrBelowThreshold ? '已達／低於設定門檻' : formatPercent(result.dropToThreshold!, 2),
-        { compare: true, tone: result.atOrBelowThreshold ? 'bad' : 'neutral' },
-      ),
+      card('警示門檻擔保品市值', hasDebt ? formatTwd(result.thresholdCollateral!) : '不適用（N/A）', { note: '借款 × 警示維持率；非保證處分價' }),
     );
+
     ev.tables.push({
-      caption: '擔保品漲跌情境',
+      caption: '擔保品漲跌情境明細',
       columns: ['情境', '擔保品市值', '維持率', '淨值', '是否低於警示', '現金還款（回復至目標）', '追加合格證券（回復至目標）'],
       rows: result.scenarios.map((s) => [
         s.label,

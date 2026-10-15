@@ -10,12 +10,13 @@ const notMode = (mode: MortgageInputMode) => (s: Values) => (s.inputMode ?? 'pri
 
 const segmentsSpec: ListSpec = {
   key: 'segments',
-  label: '利率分段（名目年利率）',
+  label: '分段利率（名目年利率）',
   itemLabel: '利率段',
   addLabel: '新增利率段',
   min: 1,
   max: 10,
-  hint: '第一段必須從第 1 個月開始；每段持續到下一段起始月份。單一固定利率只需一段。',
+  isAdvanced: true,
+  hint: '第一段必須從第 1 個月開始；每段持續到下一段起始月份。若為固定單一利率，只需一段。',
   fields: [
     integerField('startMonth', '起始月份', '第幾個月'),
     percentField('annualRate', '名目年利率', { unit: '%/年' }),
@@ -66,36 +67,40 @@ export const mortgageTool: ToolDef = {
   maxScenarios: 3,
   topFields: [],
   scenarioFields: [
+    // --- 基本輸入 ---
+    { ...amountField('price', '房價'), visibleIf: notMode('principal') },
+    { ...amountField('downPayment', '頭期款', { hint: '貸款本金 = 房價 − 頭期款' }), visibleIf: modeIs('price-down') },
+    { ...percentField('ltv', '貸款成數', { hint: '貸款本金 = 房價 × 貸款成數，0–100%' }), visibleIf: modeIs('price-ltv') },
+    { ...amountField('principal', '貸款本金'), visibleIf: modeIs('principal') },
+    integerField('termMonths', '貸款年限／期數', '個月', { hint: '例如 30 年 = 360 個月；1–600 個月。' }),
+    // --- 進階設定 ---
     {
       key: 'inputMode',
-      label: '輸入模式',
+      label: '本金計算模式',
       kind: 'select',
       clearsHidden: true,
+      isAdvanced: true,
       options: [
         { value: 'price-down', label: '房價 + 頭期款' },
         { value: 'price-ltv', label: '房價 + 貸款成數' },
         { value: 'principal', label: '直接輸入貸款本金' },
       ],
-      hint: '切換模式會清除不再使用的欄位，避免房價、本金、頭期款互相矛盾。',
+      hint: '切換模式會清除衝突欄位，保持本金與頭期款一致。',
     },
-    { ...amountField('principal', '貸款本金'), visibleIf: modeIs('principal') },
-    { ...amountField('price', '房價'), visibleIf: notMode('principal') },
-    { ...amountField('downPayment', '頭期款', { hint: '貸款本金 = 房價 − 頭期款' }), visibleIf: modeIs('price-down') },
-    { ...percentField('ltv', '貸款成數', { hint: '貸款本金 = 房價 × 貸款成數，0–100%' }), visibleIf: modeIs('price-ltv') },
-    integerField('termMonths', '貸款期數', '個月', { hint: '1–600 個月（例如 30 年 = 360）' }),
     {
       key: 'method',
       label: '攤還方式',
       kind: 'select',
+      isAdvanced: true,
       options: [
-        { value: 'annuity', label: '本息平均攤還（月付金固定）' },
-        { value: 'equal-principal', label: '本金平均攤還（月付金逐月遞減）' },
+        { value: 'annuity', label: '本息平均攤還（每月還款固定）' },
+        { value: 'equal-principal', label: '本金平均攤還（每月本金固定，月付遞減）' },
       ],
     },
-    integerField('graceMonths', '寬限期（選填）', '個月', { hint: '只付利息的月數，包含在總期數內；留空表示 0（無寬限期）。' }),
-    amountField('fee', '一次性費用（選填）', { hint: '期初支付，不併入貸款本金；留空表示 0。' }),
-    amountField('monthlyIncome', '月收入（選填）', { hint: '填寫後才計算負擔比例；必須大於 0。' }),
-    amountField('otherMonthlyDebt', '其他貸款月付金（選填）', { hint: '用於負擔比例；留空表示 0。' }),
+    { ...integerField('graceMonths', '寬限期（選填）', '個月', { hint: '只付利息的月數；留空表示 0（無寬限期）。' }), isAdvanced: true },
+    { ...amountField('fee', '一次性開辦手續費（選填）', { hint: '期初支付，不併入貸款本金；留空表示 0。' }), isAdvanced: true },
+    { ...amountField('monthlyIncome', '每月收入（選填）', { hint: '用於計算所得負擔比例 (DTI)；必須大於 0。' }), isAdvanced: true },
+    { ...amountField('otherMonthlyDebt', '其他貸款月付金額（選填）', { hint: '用於綜合負擔比例；留空表示 0。' }), isAdvanced: true },
     segmentsSpec,
   ],
   blank: () => ({ scenarios: [blankScenario()] }),
@@ -105,6 +110,39 @@ export const mortgageTool: ToolDef = {
       scenario('方案 2（範例：寬限期）', { graceMonths: '24', segments: [{ startMonth: '1', annualRate: '2.0' }, { startMonth: '37', annualRate: '2.4' }] }),
     ],
   }),
+  scenarioBadge(s: Values): string {
+    const segments = Array.isArray(s.segments) ? (s.segments as Values[]) : [];
+    if (segments.length === 1 && segments[0]?.annualRate) {
+      return `年利率 ${segments[0].annualRate}%`;
+    }
+    if (segments.length > 1) {
+      const firstRate = segments[0]?.annualRate ?? '—';
+      return `${segments.length}段利率（首段 ${firstRate}%）`;
+    }
+    return '未設利率';
+  },
+  advancedSummary(s: Values): string {
+    const parts: string[] = [];
+    parts.push(s.method === 'equal-principal' ? '本金均攤' : '本息均攤');
+    const grace = Number(s.graceMonths || 0);
+    if (grace > 0) parts.push(`寬限期 ${grace} 個月`);
+    const fee = Number(String(s.fee || '0').replace(/,/g, ''));
+    if (fee > 0) parts.push(`費用 ${formatTwd(fee)}`);
+    return parts.join(' ｜ ');
+  },
+  syncFromA: {
+    buttonLabel: '以方案 A 的基本條件套用至其他方案',
+    description: '此操作將以方案 A 的房價、頭期款/本金模式、月收入與其他債務覆寫其他方案；各方案之利率、期數、攤還方式、寬限期與費用將保留不變。',
+    apply(target: Values, sourceA: Values) {
+      target.inputMode = sourceA.inputMode;
+      target.price = sourceA.price;
+      target.downPayment = sourceA.downPayment;
+      target.ltv = sourceA.ltv;
+      target.principal = sourceA.principal;
+      target.monthlyIncome = sourceA.monthlyIncome;
+      target.otherMonthlyDebt = sourceA.otherMonthlyDebt;
+    },
+  },
   evaluate(values): Evaluation {
     const r = new FieldReader(values);
     const mode = r.choice<MortgageInputMode>('inputMode');
@@ -136,14 +174,34 @@ export const mortgageTool: ToolDef = {
     if (result.status === 'no-debt') {
       ev.notices.push({ tone: 'info', text: '貸款本金為 0：沒有分期付款與利息。若有輸入一次性費用，仍列於總支出。' });
     }
+
+    // 核心前三項結果 (Core Cards)
+    if (result.status !== 'no-debt') {
+      const paymentLabel = s.paymentIsConstant ? '一般月付金' : '首期月付金（會變動）';
+      ev.cards.push(
+        card(paymentLabel, formatTwd(s.regularPayment || s.firstPayment), {
+          isCore: true,
+          compare: true,
+          note: s.gracePayment !== null ? `寬限期內月付 ${formatTwd(s.gracePayment)}` : s.paymentIsConstant ? undefined : `範圍約 ${formatTwd(s.minPayment)} 至 ${formatTwd(s.maxPayment)}`,
+        }),
+      );
+    } else {
+      ev.cards.push(card('一般月付金', formatTwd(0), { isCore: true, compare: true, note: '無貸款' }));
+    }
+    ev.cards.push(
+      card('總利息支出', formatTwd(s.totalInterest), { isCore: true, compare: true, note: '依攤還期間逐期利息累計' }),
+      card('含費用總支出', formatTwd(s.totalCost), { isCore: true, compare: true, note: `償還本金 ${formatTwd(s.totalPrincipal)} + 利息與手續費` }),
+    );
+
+    // 次要結果卡片 (Secondary Cards)
     if (d.price !== null && d.downPayment !== null) {
-      ev.cards.push(card('房價', formatTwd(d.price)), card('頭期款', formatTwd(d.downPayment), { note: '頭期款不計入貸款利息' }));
+      ev.cards.push(card('房價總額', formatTwd(d.price)), card('頭期款', formatTwd(d.downPayment), { note: '頭期款不計入貸款利息' }));
     }
     ev.cards.push(card('貸款本金', formatTwd(d.principal), { compare: true }));
+
     if (result.status !== 'no-debt') {
       ev.cards.push(
         card('首期月付金', formatTwd(s.firstPayment), { compare: true, note: s.gracePayment !== null ? '寬限期內只付利息' : undefined }),
-        card('一般月付金（中段）', formatTwd(s.regularPayment)),
         card('最高月付金', formatTwd(s.maxPayment), { compare: true }),
       );
       if (s.gracePayment !== null) {
@@ -159,25 +217,28 @@ export const mortgageTool: ToolDef = {
         });
       }
     }
-    ev.cards.push(
-      card('利息總額', formatTwd(s.totalInterest), { compare: true }),
-      card('一次性費用', formatTwd(s.fee)),
-      card('總支出（本息 + 費用）', formatTwd(s.totalCost), { compare: true, note: `償還本金 ${formatTwd(s.totalPrincipal)}` }),
-    );
+
+    if (s.fee > 0) {
+      ev.cards.push(card('一次性費用', formatTwd(s.fee)));
+    }
+
     if (result.burdenRatio !== null) {
       ev.cards.push(
-        card('負擔比例（預算參考）', formatPercent(result.burdenRatio, 1), {
+        card('所得負擔比 (DTI)', formatPercent(result.burdenRatio, 1), {
           compare: true,
           note: '（最高月付金 + 其他貸款月付金）÷ 月收入',
+          tone: result.burdenRatio > 0.5 ? 'warn' : 'neutral',
         }),
       );
-      ev.notices.push({ tone: 'info', text: '負擔比例只是自我預算檢視，不代表貸款機構的核貸結果。' });
+      ev.notices.push({ tone: 'info', text: '所得負擔比僅供個人財務健康檢視，不代表銀行實際核貸准駁或利率條件。' });
     }
+
     if (result.status !== 'no-debt') {
       ev.charts.push(balanceChart(result.schedule, d.principal));
       ev.tables.push(scheduleTable(result.schedule, '逐月攤還表'));
       ev.csv = { filename: 'mortgage-schedule.csv', rows: scheduleCsv(result.schedule) };
     }
+
     ev.assumptions = [
       versionNote,
       '利率為名目年利率，月利率 = 年利率 ÷ 12；還款發生在每月月底，首期在滿一個月後支付，不依實際天數調整。',

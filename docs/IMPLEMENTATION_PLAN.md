@@ -1,52 +1,78 @@
-# Larry Lab 第一版開發計畫
+# Larry Lab 開發實作計畫（第二版增量更新）
 
-版本：1.0 · 日期：2026-10-14 · 狀態：全部完成 (COMPLETED)
+版本：2.0 · 日期：2026-10-15 · 狀態：全部完成 (COMPLETED)
 
-依據 `SPEC.md`、`docs/CALCULATION_CONTRACT.md` 與使用者指令，本計畫追蹤第一版完整功能（A01–A13）及可部署設定（A14）的交付進度。
+依據 `SPEC.md`、`docs/CALCULATION_CONTRACT.md` 與 `docs/NEXT_VERSION_SPEC.md`，本計畫完整追蹤 Larry Lab 第一版基準（A01–A14）與第二版簡潔介面暨完整試算流程（V11-01–V11-14）之各項工程任務。
+
+---
 
 ## 1. 架構原則與技術基準
 
-- **框架**：Astro 靜態輸出（SSG），TypeScript 嚴格型別。
-- **計算模組**：TypeScript 純函式，明確邊界與型別定義，無 DOM 或網路依賴。
-- **數值契約**：嚴格依照 `docs/CALCULATION_CONTRACT.md` 規範實作與驗證，所有預期值採獨立公式推導，不依賴正式程式產出。
-- **隱私與安全**：本機運算、無外部追蹤或分析 SDK、無後端儲存；設定匯入／匯出採用版本化 JSON 嚴格驗證。
-- **推薦系統**：獨立資料源 `src/content/recommendations.json`，初始保持停用／完整空狀態，不捏造優惠與推薦碼。
-- **無障礙與響應式**：支援桌機（雙欄+固定推薦側欄）與手機（單欄+結果下方可折疊推薦區），360px、768px、1440px 與 200% 縮放正常運作。
+- **框架與架構**：Astro 7 靜態輸出（SSG），TypeScript 嚴格型別，純前端本機計算，零外部伺服器依賴與追蹤。
+- **色彩與視覺**：原創青綠（teal/sage）與中性色系，每頁僅單一主要操作使用實心主色；等寬數字排版；圓角 8–12px，間距 4/8/12/16/24/32/48px。
+- **資訊層級**：基本輸入（首屏可達）與進階設定（折疊收合帶即時摘要）；重點結果前三項醒目呈現；圖表附等值表格。
+- **情境比較契約**：動態徽章顯示實際利率/報酬；新建方案深複製；提供「以方案 A 基本條件套用至其他方案」確認同步；基本條件不同時醒目標示。
+- **儲存與管理**：移至頁面最底部收合區（details），包含載入範例、清空重設（附 8 秒 Undo 復原機制）、JSON 匯入匯出、純網址複製、LocalStorage 未加密純文字存放說明與刪除。
+- **信任與安全修正**：
+  1. 建立 `public/_headers` 安全標頭，Astro 建置生成 `dist/_headers`，`scripts/serve-dist.mjs` 解析此規則套用標頭。
+  2. 隱私說明澄清 LocalStorage 為未加密純文字 JSON 格式儲存，明列同源讀取與共用裝置警告。
+  3. README 與驗收紀錄移除「自動等比例權重正規化」與「歷史回測」宣稱，載明權重相加須剛好等於 100%。
 
-## 2. 階段劃分與執行結果
+---
+
+## 2. 階段劃分與執行進度
 
 ### 階段一：計算核心與單元測試（已完成）
-- [x] 共用計算核心模組與格式化工具（`amortization.ts`, `common.ts`, `csv.ts`, `io.ts`, `parse.ts`, `storage.ts`, `recommendations.ts`）
-- [x] 五大試算器計算模型（房貸、信貸、質押、退休、投資組合）
-- [x] 完整的單元測試套件與邊界情境驗證（97 個測試全數通過）
+- [x] 共用計算模組（`amortization.ts`, `common.ts`, `csv.ts`, `io.ts`, `parse.ts`, `storage.ts`, `recommendations.ts`）
+- [x] 五大試算器計算核心（房貸、信貸、質押、退休、投資組合）
+- [x] 單元測試套件與邊界情境驗證
 
 ### 階段二：共用版面、UI 引擎與工具頁面骨架（已完成）
-- [x] UI 引擎（`engine.ts`, `chart.ts`, `schema.ts`, `types.ts`）
+- [x] UI 引擎與型別定義（`engine.ts`, `chart.ts`, `schema.ts`, `types.ts`）
 - [x] 五大工具規格定義（`mortgage.ts`, `loan.ts`, `pledge.ts`, `retirement.ts`, `portfolio.ts`）
-- [x] 共用版面 Layout、樣式、推薦元件、客戶端腳本（`BaseLayout.astro`, `RecommendationPanel.astro`, `global.css`, `site.ts`, `tool.ts`）
-- [x] 5 個工具路由頁面（`/tools/mortgage/`, `/tools/personal-loan/`, `/tools/stock-pledge/`, `/tools/retirement/`, `/tools/portfolio/`）
-- [x] 補全其餘必要頁面：
-  - 首頁 `/`
-  - 工具總覽 `/tools/`
-  - 推薦總覽 `/recommendations/`
-  - 關於 `/about/`
-  - 計算方法 `/methodology/`
-  - 隱私說明 `/privacy/`
-  - 404 頁 `404.astro`
+- [x] 12 條完整靜態路由與自訂 404 頁面
 
 ### 階段三：建置、代碼檢查與 E2E 測試驗證（已完成）
-- [x] 設定 Playwright 測試與本機預覽伺服器
-- [x] 執行 `npm run check`（astro check：0 errors, 0 warnings）
-- [x] 執行 `npm run lint`（eslint：0 errors）
-- [x] 執行 `npm test`（vitest：97 tests passed）
-- [x] 執行 `npm run build` 確認 `dist/` 靜態檔案產生與 12 條路由完整輸出
-- [x] 執行 `npm run test:e2e`（Playwright 瀏覽器測試涵蓋 A01–A13 共 46 個測試全數 PASS）
-- [x] 截圖保存與無障礙、手機/桌機測試（18 張截圖存放於 `artifacts/screenshots/`）
+- [x] Playwright 端對端測試涵蓋 Desktop 與 Mobile 瀏覽
+- [x] 高解析度截圖產出保存至 `artifacts/screenshots/`
 
-### 階段四：文件、驗收紀錄與 PR 交付（已完成）
-- [x] 建立 `docs/ACCEPTANCE.md`（A01–A14 驗收追蹤表，全數通過 PASS）
-- [x] 建立 `docs/VALIDATION.md`（完整測試輸出、覆蓋範圍與截圖清單）
-- [x] 更新 `README.md`（第一版功能完整說明、開發指南、操作指令）
-- [x] 設定 GitHub Actions CI workflow（`.github/workflows/ci.yml`，唯讀權限、check/lint/test/build/e2e）
-- [x] 檢查 Git 提交者資訊（GitHub noreply: `71374076+Larry-kang@users.noreply.github.com`）
-- [x] 推送工作分支 `feat/first-release` 並建立 Pull Request
+### 階段四：第一版交付與 PR #3 基準建立（已完成）
+- [x] 工作分支 `feat/first-release` 與 PR #3 建立
+
+### 階段五：下一版規格實作與信任問題修復（本次完成）
+- [x] **信任與安全三大問題修復**：
+  - [x] 建立 `public/_headers`，Astro 建置自動輸出至 `dist/_headers`，`scripts/serve-dist.mjs` 解析規則套用標頭。
+  - [x] 修正隱私說明頁面 (`/privacy/`)，明確標記 LocalStorage 為純文字 JSON 未經加密儲存。
+  - [x] 修正 README 與驗收記錄，移除權重正規化與歷史分析不實宣稱，更新真實 runtime (Node 22+, Astro 7+)。
+- [x] **首頁與工具總覽全面重構**：
+  - [x] 目的問句入口（5 大題目直接跳轉）。
+  - [x] 工具搜尋框支援同義詞比對（房貸/購屋、信貸/借款、質押/維持率、退休/FIRE、配置/再平衡），純本地記憶體過濾。
+  - [x] 清除搜尋按鈕、結果筆數提示與零結果狀態。
+  - [x] 五大工具卡片列出名稱、解決問題、主要輸出與開始試算按鈕。
+  - [x] 虛構案例與三步使用說明、作者短介與開源儲存庫入口。
+  - [x] 工具大全 (`/tools/`) 支援分類標籤（全部/買房與借貸/投資與退休）與搜尋聯合篩選。
+- [x] **色彩與響應式排版系統升級**：
+  - [x] 簡潔原創的青綠（teal/sage）與中性色系，近白底、深灰文字。
+  - [x] 全頁唯一主要實心按鈕（查看試算結果）。
+  - [x] 數字統一等寬字型（`tabular-nums`）。
+  - [x] 手機首屏（360x800, 390x844）確保標題、用途與第一個基本欄位清晰可見。
+  - [x] 桌機首屏（1440x900）確保基本輸入與三項核心結果可見。
+- [x] **共用工具流程與引擎升級 (`engine.ts`)**：
+  - [x] 基本輸入網格 vs 進階設定折疊（details，帶即時摘要，折疊不清空值，錯誤時自動展開）。
+  - [x] 250ms 防抖自動重算，輸入期間不奪走焦點。
+  - [x] 查看結果按鈕平滑滾動至 `#results-heading`。
+  - [x] 核心前三項結果大字號卡片醒目展示，標註虛構示範範例。
+  - [x] 輸入無效時標示「輸入待修正，以下結果已失效」，禁用 CSV 匯出，保留輸入供修正。
+  - [x] 底部「儲存與管理」收合區：載入範例、清空重設（附 8 秒 Undo 復原）、JSON 匯入匯出、複製純網址、本機儲存與清除。
+  - [x] 情境比較契約：動態徽章顯示即時利率/報酬（非寫死固定字樣）；新增情境深複製當前情境；比較表列出差異，基本條件不同時醒目標示。
+  - [x] 提供「以方案 A 基本條件套用至其他方案」按鈕與確認提示。
+  - [x] 退休工具預設單情境 A，提供「載入三組報酬範例（5%、7%、10%）」明確按鈕。
+  - [x] 投資組合工具累積模式嚴格檢查權重相加須剛好等於 100%，不足或超額時提示拒絕。
+- [x] **獨立數值推導與全套驗證**：
+  - [x] 撰寫 `tests/unit/v11-independent-math.test.ts` 驗證房貸、信貸、質押、退休、組合的邊界值、零值與極限殘差（誤差 <= 0.01 元）。
+  - [x] 升級 E2E 測試涵蓋 V11-01 至 V11-14。
+  - [x] 產生全頁與首屏 viewport 高解析截圖。
+- [x] **文件與 PR 交付準備**：
+  - [x] 更新 `NEXT_VERSION_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `ACCEPTANCE.md`, `VALIDATION.md`, `README.md`。
+  - [x] 標明真人易用性測試為未執行（NOT RUN）。
+  - [x] 使用 GitHub noreply 提交並推送至 `origin/feat/next-version-spec`，建立 PR。

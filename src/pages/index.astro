@@ -4,41 +4,152 @@ import { site, tools } from '../config/site';
 ---
 
 <BaseLayout title={site.name} description={site.description} nav="home">
+  <!-- 1. 簡短標題、免登入一句話與搜尋 -->
   <section class="hero">
-    <h1>{site.name}</h1>
-    <p class="lead">{site.tagline}</p>
-    <p class="prose">
-      所有試算完全在你的瀏覽器本機執行，不串接任何外部金融帳戶，不儲存也不上傳你的財務隱私資料。
-    </p>
+    <h1>{site.tagline}</h1>
+    <p class="hero-subtitle">{site.subtitle}</p>
+
+    <div class="search-box-wrap" role="search" aria-label="工具搜尋">
+      <div class="search-input-group">
+        <input
+          type="search"
+          id="home-tool-search"
+          class="search-input"
+          placeholder="搜尋工具（例如：房貸、FIRE、開辦費、維持率、配置…）"
+          aria-label="搜尋財金試算工具"
+          autocomplete="off"
+        />
+        <button type="button" id="clear-search-btn" class="btn" hidden>清除</button>
+      </div>
+      <div class="search-meta">
+        <span id="search-count" aria-live="polite">顯示全部 5 項實用工具</span>
+        <span>純本地比對，不外傳任何搜尋字詞</span>
+      </div>
+    </div>
   </section>
 
-  <section aria-labelledby="featured-tools-heading" class="panel">
-    <h2 id="featured-tools-heading">精選試算工具</h2>
-    <ul class="card-grid">
+  <!-- 2. 目的入口 -->
+  <section class="intent-section" aria-label="常見試算需求">
+    <div class="intent-title">我想知道…</div>
+    <div class="intent-chips">
       {
         tools.map((t) => (
-          <li>
+          <a class="intent-chip" href={t.path}>
+            {t.intentQuestion}
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 3. 五項工具卡片 -->
+  <section aria-labelledby="tools-list-heading" class="panel">
+    <h2 id="tools-list-heading">精選試算工具</h2>
+    <div id="search-zero-state" class="notice notice-warn" hidden>
+      <p>找不到符合關鍵字的工具。請嘗試搜尋其他同義詞（如「房貸」、「信貸」、「質押」、「退休」、「配置」），或點擊「清除」瀏覽全部工具。</p>
+    </div>
+    <ul class="card-grid" id="tool-card-grid">
+      {
+        tools.map((t) => (
+          <li class="tool-card-item" data-tool-id={t.id}>
             <a class="tool-card" href={t.path}>
-              <p class="eyebrow">{t.category}</p>
-              <h3>{t.name}</h3>
-              <p>{t.summary}</p>
+              <div>
+                <p class="eyebrow">{t.category}</p>
+                <h3>{t.name}</h3>
+                <p class="tool-card-problem">{t.problemSolved}</p>
+                <p class="tool-card-outputs">重點產出：{t.mainOutputs}</p>
+              </div>
+              <span class="tool-card-action">開始試算 →</span>
             </a>
           </li>
         ))
       }
     </ul>
-    <p style="margin-top: 16px;"><a href="/tools/">瀏覽全部工具與分類說明 →</a></p>
+    <p style="margin-top: 20px;"><a href="/tools/">瀏覽工具大全與分類說明 →</a></p>
   </section>
 
+  <!-- 4. 虛構案例與三步使用說明 -->
+  <section aria-labelledby="steps-heading" class="panel">
+    <h2 id="steps-heading">三步完成試算與決策比較</h2>
+    <p class="prose">
+      以虛構案例「35 歲、計劃 60 歲退休、預期月支出 4.5 萬元」為例，你可以在 Larry Lab 輕鬆驗算：
+    </p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-num">步驟 1</span>
+        <h3>輸入你的假設條件</h3>
+        <p>在瀏覽器手動填寫年齡、資產、預算或利率。基本欄位最少只要 3 個數字即可開始，進階欄位隨時可展開微調。</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">步驟 2</span>
+        <h3>看懂三項核心重點</h3>
+        <p>系統自動計算並醒目呈現最關鍵的三個結論，搭配平滑圖表與逐月攤還明細，不再被繁複的表格淹沒。</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">步驟 3</span>
+        <h3>多方案比較與自行保存</h3>
+        <p>一鍵複製方案 A 至方案 B，進行利率或支出敏感度比較。設定可匯出成 JSON 隨身備份，資料絕不上傳伺服器。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 作者短介與原始碼入口 -->
   <section aria-labelledby="author-heading" class="panel">
     <h2 id="author-heading">關於作者與本站</h2>
     <p class="prose">{site.author}</p>
     <p class="prose">
-      Larry Lab 建立初衷是為了解決日常真實的決策計算需求，透過清晰的數值契約與嚴格的模型假設，讓借貸成本、資產壓力與退休推估一目了然。
+      Larry Lab 是專為「看清財務真實代價」而打造的原創工具箱。堅持無會員、無後端儲存、零追蹤腳本，嚴格遵循公開透明的數學計算契約。
     </p>
     <p class="prose">
-      本站公開原始碼託管於 GitHub：<a href={site.githubRepo} target="_blank" rel="noopener noreferrer">{site.githubRepo}</a>
+      本專案公開原始碼託管於 GitHub：<a href={site.githubRepo} target="_blank" rel="noopener noreferrer">{site.githubRepo}</a>
     </p>
-    <p><a href="/about/">閱讀更多關於我與網站理念 →</a></p>
+    <p><a href="/about/">閱讀更多關於我與網站工程架構 →</a></p>
   </section>
+
+  <script>
+    import { filterTools } from '../config/site';
+
+    const searchInput = document.getElementById('home-tool-search') as HTMLInputElement | null;
+    const clearBtn = document.getElementById('clear-search-btn') as HTMLButtonElement | null;
+    const countEl = document.getElementById('search-count');
+    const zeroState = document.getElementById('search-zero-state');
+    const cardItems = document.querySelectorAll<HTMLElement>('.tool-card-item');
+
+    function applySearch() {
+      const q = searchInput?.value || '';
+      if (clearBtn) clearBtn.hidden = !q.trim();
+
+      const matched = filterTools(q);
+      const matchedIds = new Set(matched.map((t) => t.id));
+
+      let visibleCount = 0;
+      cardItems.forEach((item) => {
+        const id = item.dataset.toolId || '';
+        const isMatch = matchedIds.has(id);
+        item.hidden = !isMatch;
+        if (isMatch) visibleCount += 1;
+      });
+
+      if (countEl) {
+        if (!q.trim()) {
+          countEl.textContent = '顯示全部 5 項實用工具';
+        } else {
+          countEl.textContent = `找到 ${visibleCount} 項工具（關鍵字：「${q.trim()}」）`;
+        }
+      }
+
+      if (zeroState) {
+        zeroState.hidden = visibleCount > 0;
+      }
+    }
+
+    searchInput?.addEventListener('input', applySearch);
+    clearBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      applySearch();
+    });
+  </script>
 </BaseLayout>

@@ -1,20 +1,22 @@
-# Larry Lab 第一版驗證紀錄（VALIDATION REPORT）
+# Larry Lab 第二版驗證紀錄（VALIDATION REPORT）
 
-日期：2026-10-14  
-分支：`feat/first-release`  
-環境：Node.js v20.19.0 / Windows PowerShell / Astro 5.14.7 / Playwright 1.56.1
+日期：2026-10-15  
+分支：`feat/next-version-spec`  
+基礎 Commit：`f71f82a`（基於 PR #3 最新內容）  
+環境：Node.js v24.11.1 / Windows PowerShell / Astro 7.3.8 / Playwright 1.64.1 / Vitest 5.0.4
 
 ---
 
-## 1. 驗證摘要 (Executive Summary)
+## 1. 驗證總結 (Executive Summary)
 
-Larry Lab 第一版（A01–A14）所有實作項目已經過完整而嚴格的自動化與手動驗證：
+Larry Lab 第二版（涵蓋第一版基準 A01–A14 與第二版增量規格 V11-01–V11-14）已完成完整的自動化測試與工程驗證：
 - **Astro 型別與模板檢查 (`npm run check`)**：通過 (0 errors, 0 warnings, 0 hints)
 - **ESLint 代碼規範檢查 (`npm run lint`)**：通過 (0 errors, 0 warnings)
-- **Vitest 單元與合約測試 (`npm test`)**：通過 (97/97 tests pass, 100% 成功)
-- **Astro 靜態建置 (`npm run build`)**：通過 (12 條靜態路由全數生成於 `dist/`)
-- **Playwright 端對端測試 (`npm run test:e2e`)**：通過 (46/46 tests pass，覆蓋桌機與手機)
-- **完整畫面截圖 (`tests/e2e/capture-screenshots.spec.ts`)**：通過 (產出 18 張高解析度畫面截圖至 `artifacts/screenshots/`)
+- **Vitest 單元與合約測試 (`npm test`)**：通過 (111/111 tests pass, 100% 成功，包含獨立數值推導)
+- **Astro 靜態建置 (`npm run build`)**：通過 (12 條靜態路由全數生成於 `dist/`，包含 `dist/_headers`)
+- **Playwright 端對端測試 (`npm run test:e2e`)**：通過 (56/56 tests pass，涵蓋 Desktop 1440x900 與 Mobile 360x740)
+- **畫面與首屏截圖歸檔**：通過 (產出 36 張高解析度截圖至 `artifacts/screenshots/`，包含全頁與首屏 viewport)
+- **真人易用性探索測試**：誠實標記為 **未執行 (NOT RUN)**，不假冒或捏造受測者數據。
 
 ---
 
@@ -30,9 +32,9 @@ npm run check
 > larry-lab@1.0.0 check
 > astro check
 
-11:34:07 PM [check] Getting Astro files in D:\Dev\larry-lab...
-11:34:08 PM [check] Found 12 files.
-Result (12 files): 
+19:18:51 [types] Generated 95ms
+19:18:51 [check] Getting diagnostics for Astro files in D:\Dev\larry-lab-v2...
+Result (57 files): 
 - 0 errors
 - 0 warnings
 - 0 hints
@@ -57,7 +59,7 @@ npm run lint
 
 ---
 
-## 4. 計算核心與合約單元測試 (Unit Tests)
+## 4. 計算核心與獨立數學推導單元測試 (Unit Tests)
 
 執行指令：
 ```bash
@@ -69,41 +71,39 @@ npm test
 > larry-lab@1.0.0 test
 > vitest run
 
- ✓ tests/unit/io.test.ts (7 tests)
- ✓ tests/unit/pledge.test.ts (11 tests)
- ✓ tests/unit/format.test.ts (8 tests)
- ✓ tests/unit/recommendations.test.ts (5 tests)
- ✓ tests/unit/portfolio.test.ts (11 tests)
- ✓ tests/unit/loan.test.ts (8 tests)
- ✓ tests/unit/parse.test.ts (8 tests)
- ✓ tests/unit/retirement.test.ts (11 tests)
- ✓ tests/unit/mortgage.test.ts (13 tests)
- ✓ tests/unit/csv.test.ts (8 tests)
- ✓ tests/unit/amortization.test.ts (7 tests)
+ ✓ tests/unit/tools-meta.test.ts (5 tests) 9ms
+ ✓ tests/unit/loan.test.ts (9 tests) 31ms
+ ✓ tests/unit/pledge.test.ts (12 tests) 32ms
+ ✓ tests/unit/v11-independent-math.test.ts (9 tests) 30ms
+ ✓ tests/unit/portfolio.test.ts (13 tests) 38ms
+ ✓ tests/unit/mortgage.test.ts (24 tests) 53ms
+ ✓ tests/unit/retirement.test.ts (18 tests) 50ms
+ ✓ tests/unit/lib.test.ts (21 tests) 20ms
 
- Test Files  11 passed (11)
-      Tests  97 passed (97)
-   Start at  23:33:57
-   Duration  479ms
+ Test Files  8 passed (8)
+      Tests  111 passed (111)
+   Duration  473ms
 ```
 
-### 關鍵測試項目覆蓋
-1. **房貸 (`mortgage.test.ts`)**：
-   - 零利率、寬限期本息均攤、本金均攤、多段利率切換、期初與常態費用攤入總費用年百分率 (IRR)。
-2. **信貸 (`loan.test.ts`)**：
-   - 開辦費扣除實拿金額、牛頓法精確收斂年化 IRR、方案 A/B 總利息與月付金差異。
-3. **股票質押 (`pledge.test.ts`)**：
-   - 多檔股票綜合維持率、補繳與斷頭門檻計算、零借款時「無借款無負債」安全邊界、還款與質押解法互斥。
-4. **退休試算 (`retirement.test.ts`)**：
-   - 累積期終值、退休期資產提領與消耗、延後領取勞保/其他收入分段折現、負/零/正實質報酬率邊界。
-5. **投資組合 (`portfolio.test.ts`)**：
-   - 權重自動正規化（避免超額或不足 100%）、每年再平衡與買入持有軌跡、歷史壓力情境、非正淨值保護。
-6. **資料管理與防護 (`csv.test.ts`, `io.test.ts`, `recommendations.test.ts`)**：
-   - CSV 公式注入防護（開頭字元跳脫）、JSON Schema 匯入匯出驗證、推薦碼安全過濾與完整空狀態。
+### 關鍵獨立數值推導驗證摘要 (`v11-independent-math.test.ts`)
+1. **房貸 (V11-04)**：
+   - P=120,000, 12期, 0%, 費用0：月付金 = 10,000，總利息 = 0，期末餘額 = 0，各期償還本金加總誤差 <= 0.01 元。
+   - 3期寬限：前 3 期月付 = 0，後 9 期月付 = 13,333.333333 元，總本金加總 = 120,000 元。
+2. **信貸 (V11-05)**：
+   - P=100,000, 12期, 6%, 費用0：月付 = 8,606.642970708 元，總利息 = 3,279.715648499 元，有效年化成本 = (1.005)^12 - 1。
+   - 費用提高時：可用金額減少且有效年化成本上升。
+3. **股票質押 (V11-06)**：
+   - V=1,000,000, L=600,000, 警示130%, 目標166%：門檻市值 = 780,000 元，可跌 22%；下跌 30% 後市值 700,000 元，現金還款 178,313.253012 元或追加合格證券 296,000 元均能精確回復至 166% 維持率。
+   - 借款為 0 時呈現無負債安全邊界，維持率與跌幅門檻為 N/A，不發生除以零。
+4. **退休試算 (V11-07)**：
+   - 59歲、60歲退休、終止61歲、資產60,000、月投5,000、月支10,000、利率與通膨0%：今天退休本金 240,000 元，目標年齡退休本金 120,000 元，預估資產 120,000 元，每月應存 5,000 元，最早可退休年齡 60 歲。
+5. **投資組合 (V11-09)**：
+   - 資產60,000跌20%、40,000跌10%、負債30,000：壓力後總資產 84,000 元，淨值 54,000 元。
+   - 累積模式目標權重相加 60% + 30% = 90%：系統拒絕計算並顯示 `目標權重總和須等於 100%`，絕不進行擅自修改權重的自動正規化。
 
 ---
 
-## 5. 靜態建置輸出 (Static Build)
+## 5. 靜態建置輸出與安全標頭 (Build & Headers)
 
 執行指令：
 ```bash
@@ -112,28 +112,36 @@ npm run build
 
 實際輸出：
 ```
-> larry-lab@1.0.0 build
-> astro build
-
-11:34:11 PM [build] output: "static"
-11:34:11 PM [build] directory: D:\Dev\larry-lab\dist\
-11:34:11 PM [build] Collecting build info...
-11:34:11 PM [build] Completed in 28ms.
-11:34:11 PM [build] Building static routes...
-11:34:12 PM [build] (1/12) Generating: /404
-11:34:12 PM [build] (2/12) Generating: /about
-11:34:12 PM [build] (3/12) Generating: /methodology
-11:34:12 PM [build] (4/12) Generating: /privacy
-11:34:12 PM [build] (5/12) Generating: /recommendations
-11:34:12 PM [build] (6/12) Generating: /tools/mortgage
-11:34:12 PM [build] (7/12) Generating: /tools/personal-loan
-11:34:12 PM [build] (8/12) Generating: /tools/portfolio
-11:34:12 PM [build] (9/12) Generating: /tools/retirement
-11:34:12 PM [build] (10/12) Generating: /tools/stock-pledge
-11:34:12 PM [build] (11/12) Generating: /tools
-11:34:12 PM [build] (12/12) Generating: /
-11:34:12 PM [build] Completed in 244ms.
+19:18:25 [build] output: "static"
+19:18:25 [build] directory: D:\Dev\larry-lab-v2\dist\
+19:18:25 [build] Building static routes...
+19:18:25   ├─ /404.html
+19:18:25   ├─ /about/index.html
+19:18:25   ├─ /methodology/index.html
+19:18:25   ├─ /privacy/index.html
+19:18:25   ├─ /recommendations/index.html
+19:18:25   ├─ /tools/mortgage/index.html
+19:18:25   ├─ /tools/personal-loan/index.html
+19:18:25   ├─ /tools/portfolio/index.html
+19:18:25   ├─ /tools/retirement/index.html
+19:18:25   ├─ /tools/stock-pledge/index.html
+19:18:25   ├─ /tools/index.html
+19:18:25   ├─ /index.html
+19:18:25 Complete!
 ```
+
+### 安全標頭檔案查核
+- 原始設定檔：`public/_headers`
+- 建置產物：`dist/_headers`
+- 規則內容：
+  ```
+  /*
+    X-Content-Type-Options: nosniff
+    X-Frame-Options: DENY
+    Referrer-Policy: strict-origin-when-cross-origin
+    Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-ancestors 'none';
+  ```
+- 本機預覽測試透過 `scripts/serve-dist.mjs` 解析此規則套用標頭，與 Cloudflare Pages 部署行為一致。
 
 ---
 
@@ -146,41 +154,38 @@ npm run test:e2e
 
 實際輸出：
 ```
-> larry-lab@1.0.0 test:e2e
-> playwright test tests/e2e/e2e.spec.ts
-
-Running 46 tests using 1 worker
-
-  46 passed (23.9s)
+Running 56 tests using 1 worker
+  56 passed (18.8s)
 ```
 
 測試涵蓋情境：
-- 首頁英雄區與所有工具跳轉導航
-- 工具總覽卡片與深層連結
-- 五個工具（房貸、信貸、質押、退休、組合）完整操作、數值變更即時計算
-- 無障礙標籤、錯誤即時回饋、跳至主內容導航、圖表等值替代數據表格
-- 推薦碼停用與完整空狀態標記
-- 手機版折疊推薦區（展開/收合及 `aria-expanded` 屬性）
-- 情境比較抽屜展開與收合
-- JSON 匯出與匯入回填機制驗證
-- 404 頁面自訂路徑回首頁
+1. **找工具 (V11-01)**：首頁與工具大全之同義詞搜尋（房貸/購屋、FIRE、質押、再平衡）、清除按鈕、零結果狀態處理與分類按鈕聯動。
+2. **首屏可見性 (V11-02)**：手機尺寸 (360x740) 驗證標題、用途、方案切換與第一個基本輸入在首屏內 (`toBeInViewport()`)；桌機尺寸 (1440x900) 驗證基本輸入與三項核心指標卡片可見。
+3. **欄位層級與互動 (V11-03)**：進階設定折疊預設收合、展開後不丟失輸入值、輸入無效時標示「輸入待修正，以下結果已失效」且進階區塊自動展開。
+4. **五大工具互動 (V11-04–V11-09)**：房貸月付金與利息支出、信貸有效年化成本、股票質押維持率與追加擔保品明細、退休所需本金與最早退休年齡、投資組合雙模式切換。
+5. **情境比較契約 (V11-08)**：複製目前方案深複製、動態徽章顯示實際利率/報酬、三組報酬範例載入、基本條件不同警示與套用 A 條件按鈕。
+6. **資料管理與 Undo (V11-10)**：清空重設後顯示 8 秒 Undo 復原按鈕並成功還原；複製工具網址為純網址不含金額；未加密 LocalStorage 純文字說明。
+7. **無障礙與安全標頭 (V11-12 & V11-13)**：全鍵盤 Skip Link 跳轉、圖表替代表格、伺服器標頭來自 `dist/_headers`、隱私頁面確認無加密不實宣稱。
+8. **全部路由與 404 (V11-14)**：12 條路由正常造訪、自訂 404 頁面回首頁連結。
 
 ---
 
 ## 7. 畫面截圖歸檔 (Visual Artifacts)
 
-測試腳本執行於 Desktop (1280x800) 與 Mobile (iPhone 12 / 375x667) 環境，截圖保存於 `artifacts/screenshots/`：
+測試腳本執行於 Desktop (1440x900) 與 Mobile (360x740) 環境，截圖保存於 `artifacts/screenshots/`：
+- 全頁截圖：`home.png`, `tools.png`, `tool-mortgage.png`, `tool-loan.png`, `tool-pledge.png`, `tool-retirement.png`, `tool-portfolio.png`, `recommendations.png`, `about.png`。
+- 首屏 Viewport 截圖：`home-fold.png`, `tools-fold.png`, `tool-mortgage-fold.png`, `tool-loan-fold.png`, `tool-pledge-fold.png`, `tool-retirement-fold.png`, `tool-portfolio-fold.png`, `recommendations-fold.png`, `about-fold.png`。
 
-### 桌機版本 (`artifacts/screenshots/desktop/`)
-1. `home.png`：首頁與精選工具
-2. `tools.png`：工具總覽列表
-3. `tool-mortgage.png`：房貸試算器（含攤還圖表、費用、DTI 與側欄空狀態）
-4. `tool-loan.png`：信貸試算器（含有效年化 IRR 與比較）
-5. `tool-pledge.png`：股票質押試算器（含維持率、情境分析與追加擔保試算）
-6. `tool-retirement.png`：退休試算器（含終值累積、支出折現與情境比較）
-7. `tool-portfolio.png`：投資組合試算器（含權重正規化、再平衡模擬與圖表）
-8. `recommendations.png`：推薦總覽（停用空狀態與利益揭露說明）
-9. `about.png`：關於作者與開源理念
+---
 
-### 手機版本 (`artifacts/screenshots/mobile/`)
-包含對應 9 個頁面的全頁長截圖，驗證在 375px 窄螢幕下無橫向破版、字體易讀、表單排版自動堆疊與底部折疊式推薦區體驗。
+## 8. 未驗證項目與外部待完成事項
+
+1. **真人易用性測試 (Usability Testing)**：
+   - 狀態：**未執行 (NOT RUN)**。
+   - 原因：執行環境無法取得 3 位真實受測者。本報告不捏造受測者數據，候選版本將提交專案擁有者親自測試。
+2. **正式線上 Cloudflare Pages 標頭**：
+   - 狀態：**尚未部署 (NOT_DEPLOYED)**。
+   - 原因：本次未獲授權合併 `main` 或部署 Cloudflare Pages。建置產物 `dist/_headers` 已符合 Cloudflare Pages 規格，待擁有者發布後另行驗證線上 HTTP 標頭。
+3. **正式推薦碼與商業合作連結**：
+   - 狀態：**停用空狀態中 (DISABLED_EMPTY_STATE)**。
+   - 原因：作者尚未提供真實推薦碼，網站全站維持完整空狀態「推薦資訊整理中」與利益揭露說明。

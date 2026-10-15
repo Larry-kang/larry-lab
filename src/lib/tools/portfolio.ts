@@ -10,16 +10,16 @@ const isAccumulation = (_s: Values, root: Values) => root.mode === 'accumulation
 
 const assetsSpec: ListSpec = {
   key: 'assets',
-  label: '資產明細（1–20 筆）',
+  label: '現有資產配置明細（1–20 筆）',
   itemLabel: '資產',
   addLabel: '新增資產',
   min: 1,
   max: 20,
   fields: [
-    { key: 'name', label: '名稱', kind: 'text', placeholder: '例如：範例股票基金' },
-    { key: 'category', label: '分類', kind: 'text', placeholder: '例如：股票' },
-    amountField('value', '目前金額'),
-    percentField('shock', '漲跌幅', { unit: '%', hint: '-100% 至 100%，單次變動' }),
+    { key: 'name', label: '資產名稱', kind: 'text', placeholder: '例如：台股 ETF / 美股基金' },
+    { key: 'category', label: '資產分類', kind: 'text', placeholder: '例如：股票 / 債券 / 現金' },
+    amountField('value', '目前市值金額'),
+    percentField('shock', '自訂漲跌幅假設', { unit: '%', hint: '-100% 至 100%，模擬單次市場衝擊' }),
   ],
   defaultItem: () => ({ name: '', category: '', value: '', shock: '' }),
   visibleIf: isAllocation,
@@ -27,15 +27,16 @@ const assetsSpec: ListSpec = {
 
 const loansSpec: ListSpec = {
   key: 'loans',
-  label: '貸款明細（0–10 筆）',
-  itemLabel: '貸款',
-  addLabel: '新增貸款',
+  label: '借款與負債明細（0–10 筆）',
+  itemLabel: '負債',
+  addLabel: '新增負債',
   min: 0,
   max: 10,
-  hint: '沒有貸款可不填；利息只另行顯示，不假設期間後扣除成本。',
+  isAdvanced: true,
+  hint: '若無借款負債可留空；利息僅單獨列示，不預設期間扣除。',
   fields: [
-    { key: 'name', label: '名稱', kind: 'text', placeholder: '例如：範例貸款' },
-    amountField('principal', '貸款本金'),
+    { key: 'name', label: '負債名稱', kind: 'text', placeholder: '例如：信貸 / 質押借款' },
+    amountField('principal', '借款本金'),
     percentField('annualRate', '名目年利率', { unit: '%/年' }),
   ],
   defaultItem: () => ({ name: '', principal: '', annualRate: '' }),
@@ -44,16 +45,16 @@ const loansSpec: ListSpec = {
 
 const accAssetsSpec: ListSpec = {
   key: 'accAssets',
-  label: '目標配置（1–20 筆，權重總和須為 100%）',
-  itemLabel: '資產',
-  addLabel: '新增資產',
+  label: '長期目標資產配置（1–20 筆，權重總和須恰為 100%）',
+  itemLabel: '配置項目',
+  addLabel: '新增配置項目',
   min: 1,
   max: 20,
-  hint: '年總報酬已含配息，不要重複加計股息。',
+  hint: '年總報酬已包含息收再投資，請勿重複加計股息。權重總和必須等於 100%，系統不會擅自自動等比例變更你的權重。',
   fields: [
-    { key: 'name', label: '名稱', kind: 'text', placeholder: '例如：範例股票基金' },
-    percentField('weight', '目標權重', { unit: '%' }),
-    percentField('annualReturn', '假設年總報酬', { unit: '%/年', hint: '-99% 至 100%' }),
+    { key: 'name', label: '資產標的名稱', kind: 'text', placeholder: '例如：全球股票指數 / 綜合債券' },
+    percentField('weight', '目標配置權重', { unit: '%', hint: '所有資產之權重相加須剛好等於 100%' }),
+    percentField('annualReturn', '長期假設年化總報酬', { unit: '%/年', hint: '-99% 至 100% 複利預估' }),
   ],
   defaultItem: () => ({ name: '', weight: '', annualReturn: '' }),
   visibleIf: isAccumulation,
@@ -110,21 +111,23 @@ export const portfolioTool: ToolDef = {
   topFields: [
     {
       key: 'mode',
-      label: '試算模式',
+      label: '試算模式選擇',
       kind: 'select',
       options: [
-        { value: 'allocation', label: '配置／壓力（含貸款）' },
-        { value: 'accumulation', label: '累積（無槓桿，每年再平衡）' },
+        { value: 'allocation', label: '配置與壓力測試（含負債槓桿）' },
+        { value: 'accumulation', label: '長期資產累積（定期定額與年度再平衡）' },
       ],
-      hint: '兩個模式互相獨立；切換不會刪除另一個模式已輸入的資料。',
+      hint: '兩模式各自獨立；切換不會清空另一模式已輸入之數值。',
     },
   ],
   scenarioFields: [
+    // --- 配置模式欄位 ---
     assetsSpec,
     loansSpec,
-    { ...amountField('initial', '期初資產'), visibleIf: isAccumulation },
-    { ...amountField('monthlyContribution', '每月投入', { hint: '月底依目標權重投入。' }), visibleIf: isAccumulation },
-    { ...integerField('years', '累積年數', '年', { hint: '1–60 年。' }), visibleIf: isAccumulation },
+    // --- 累積模式欄位 ---
+    { ...amountField('initial', '期初投入資產'), visibleIf: isAccumulation },
+    { ...amountField('monthlyContribution', '每月儲蓄投入金額', { hint: '每月月底依目標權重比例投入。' }), visibleIf: isAccumulation },
+    { ...integerField('years', '長期累積年數', '年', { hint: '1–60 年整數。' }), visibleIf: isAccumulation },
     accAssetsSpec,
   ],
   blank: () => ({ mode: 'allocation', scenarios: [blank()] }),
@@ -145,6 +148,17 @@ export const portfolioTool: ToolDef = {
       }),
     ],
   }),
+  scenarioBadge(s: Values): string {
+    const assets = Array.isArray(s.assets) ? (s.assets as Values[]) : [];
+    const total = assets.reduce((sum, a) => sum + Number(String(a.value || '0').replace(/,/g, '')), 0);
+    if (total > 0) return `總資產 ${formatTwd(total)}`;
+    return '未設資產';
+  },
+  advancedSummary(s: Values): string {
+    const loans = Array.isArray(s.loans) ? (s.loans as Values[]) : [];
+    const totalLoan = loans.reduce((sum, l) => sum + Number(String(l.principal || '0').replace(/,/g, '')), 0);
+    return totalLoan > 0 ? `負債共 ${loans.length} 筆（${formatTwd(totalLoan)}）` : '無負債貸款';
+  },
   evaluate(values, root): Evaluation {
     return root.mode === 'accumulation' ? evaluateAccumulation(values) : evaluateAllocation(values);
   },
@@ -171,22 +185,39 @@ function evaluateAllocation(values: Values): Evaluation {
   if (result.stressEquityNegative) {
     ev.notices.push({ tone: 'bad', text: '漲跌後淨值為負數，代表資產不足以償還負債，仍有負債尚未清償。' });
   }
+
+  // 配置模式前三項核心結果 (Core Cards)
   ev.cards.push(
-    card('總資產', formatTwd(result.gross!), { compare: true }),
-    card('負債', formatTwd(result.debt!), { compare: true }),
-    card('淨值', formatTwd(result.equity!), { compare: true, tone: result.equity! <= 0 ? 'bad' : 'neutral' }),
+    card('總資產', formatTwd(result.gross!), { isCore: true, compare: true, note: '全部持有資產市值總和' }),
+    card('淨值（實質資產）', formatTwd(result.equity!), {
+      isCore: true,
+      compare: true,
+      tone: result.equity! <= 0 ? 'bad' : 'neutral',
+      note: '總資產 − 負債借款',
+    }),
+    card('漲跌後淨值', formatTwd(result.stressEquity!), {
+      isCore: true,
+      compare: true,
+      tone: result.stressEquityNegative ? 'bad' : 'neutral',
+      note: '衝擊後剩餘淨值資產',
+    }),
+  );
+
+  // 次要結果卡片
+  ev.cards.push(
+    card('總負債', formatTwd(result.debt!), { compare: true }),
     card('負債比', result.debtRatio === null ? '不適用（N/A）' : formatPercent(result.debtRatio, 2), { compare: true, note: '負債 ÷ 總資產' }),
     card('槓桿倍數', result.leverage === null ? '不適用（N/A）' : formatMultiple(result.leverage), { compare: true, note: '總資產 ÷ 淨值' }),
-    card('年利息', formatTwd(result.annualInterest!)),
-    card('月利息', formatTwd(result.monthlyInterest!)),
+    card('預估年利息', formatTwd(result.annualInterest!)),
+    card('預估月利息', formatTwd(result.monthlyInterest!)),
     card('漲跌後總資產', formatTwd(result.stressGross!)),
-    card('漲跌後淨值', formatTwd(result.stressEquity!), { compare: true, tone: result.stressEquityNegative ? 'bad' : 'neutral' }),
     card('淨值變動金額', formatTwd(result.equityChange!), { compare: true }),
     card('淨值報酬率', result.equityReturn === null ? '不適用（N/A）' : formatPercent(result.equityReturn, 2), { compare: true, note: '淨值變動 ÷ 期初淨值，可低於 -100%' }),
   );
+
   ev.tables.push({
-    caption: '資產配置與漲跌後金額',
-    columns: ['資產', '分類', '目前金額', '權重', '漲跌幅', '漲跌後金額'],
+    caption: '資產配置與漲跌衝擊明細',
+    columns: ['資產名稱', '資產分類', '目前市值金額', '配置權重', '假設漲跌幅', '漲跌後市值金額'],
     rows: result.rows.map((row, i) => [
       label(row.name, `資產 ${i + 1}`),
       label(row.category, '—'),
@@ -199,16 +230,24 @@ function evaluateAllocation(values: Values): Evaluation {
   ev.csv = {
     filename: 'portfolio-allocation.csv',
     rows: [
-      ['資產', '分類', '目前金額（TWD）', '權重（小數）', '漲跌幅（小數）', '漲跌後金額（TWD）'],
-      ...result.rows.map((row, i) => [label(row.name, `資產 ${i + 1}`), row.category, cents(row.value), row.weight === null ? 'N/A' : row.weight, row.shock, cents(row.stressedValue)]),
+      ['資產名稱', '資產分類', '目前金額（TWD）', '權重（小數）', '漲跌幅（小數）', '漲跌後金額（TWD）'],
+      ...result.rows.map((row, i) => [
+        label(row.name, `資產 ${i + 1}`),
+        label(row.category, ''),
+        cents(row.value),
+        row.weight === null ? 'N/A' : row.weight,
+        row.shock,
+        cents(row.stressedValue),
+      ]),
     ],
   };
   ev.assumptions = [
     versionNote,
-    '輸入的漲跌幅只模擬「一次」價格變動，期間未指定，因此不計某段期間的借款利息；利息另行顯示。',
-    '每日槓桿 ETF 與路徑效應不在第一版範圍，也不推論其漲跌路徑。',
-    '總資產為 0 時權重與負債比不適用；期初淨值非正時槓桿倍數與淨值報酬率不適用。',
-    '此工具不使用歷史行情，不自動交易，也不提出配置建議。',
+    '權重以總資產為基準；總資產為 0 時，權重與負債比不適用（N/A）。',
+    '期初淨值小於或等於 0 時，槓桿倍數與淨值報酬率不適用（N/A）。',
+    '漲跌幅為單次價格變動假設；此模式不計特定期間的借款利息，利息僅獨立顯示供參考。',
+    '期初淨值為正但漲跌後為負時，淨值報酬率可低於 -100%，代表資產已不足以償還負債。',
+    '未計入：交易手續費、稅負、各資產流動性差異、逐日波動與追繳條款。',
     '範例數字均為虛構，僅供示範。',
   ];
   return ev;
@@ -226,46 +265,68 @@ function evaluateAccumulation(values: Values): Evaluation {
     years: r.number('years'),
     assets,
   });
-  const errors = { ...remapAccumulationErrors(result.errors), ...r.errors };
+  const errors = remapAccumulationErrors({ ...result.errors, ...r.errors });
   if (Object.keys(errors).length > 0) return invalid(errors);
 
   const ev = newEvaluation();
+
+  // 累積模式前三項核心結果 (Core Cards)
   ev.cards.push(
-    card('累計投入', formatTwd(result.totalContributed!), { compare: true, note: '期初資產 + 每月投入 × 12 × 年數' }),
-    card('預估期末價值', formatTwd(result.finalValue!), { compare: true }),
-    card('預估收益', formatTwd(result.gain!), { compare: true, tone: result.gain! < 0 ? 'bad' : 'good', note: '期末價值 − 累計投入；假設報酬推估，不是歷史績效' }),
+    card('預估期末資產總值', formatTwd(result.finalValue!), {
+      isCore: true,
+      compare: true,
+      note: `經 ${r.number('years')} 年複利成長與年度再平衡`,
+    }),
+    card('累計總投入本金', formatTwd(result.totalContributed!), {
+      isCore: true,
+      compare: true,
+      note: '期初投入 + 全期每月儲蓄投入加總',
+    }),
+    card('累積預估投資收益', formatTwd(result.gain!), {
+      isCore: true,
+      compare: true,
+      tone: result.gain! >= 0 ? 'good' : 'bad',
+      note: '期末總資產 − 累計總投入本金',
+    }),
   );
-  result.finalByAsset.forEach((value, i) => {
-    ev.cards.push(card(`期末：${label(assets[i].name, `資產 ${i + 1}`)}`, formatTwd(value)));
+
+  ev.tables.push({
+    caption: '逐年資產累積歷程',
+    columns: ['年份', '累計投入（TWD）', '期末預估總值（TWD）', '累計收益（TWD）'],
+    rows: result.yearRows.map((yr) => [
+      yr.year === 0 ? '期初' : `第 ${yr.year} 年`,
+      formatTwd(yr.contributed),
+      formatTwd(yr.value),
+      formatTwd(yr.gain),
+    ]),
   });
   ev.charts.push({
-    title: '累積價值與累計投入',
-    description: `逐年年底的預估價值與累計投入，共 ${result.yearRows.length - 1} 年。`,
+    title: '長期資產累積與投入軌跡',
+    description: `從第 0 年到第 ${r.number('years')} 年的累計投入與預估資產總值（每年底進行年度再平衡）。`,
     xLabel: '年數',
     yLabel: '金額（新台幣元）',
     yKind: 'twd',
+    xKind: 'integer',
     series: [
-      { name: '預估價值', points: result.yearRows.map((y) => [y.year, y.value] as [number, number]) },
-      { name: '累計投入', points: result.yearRows.map((y) => [y.year, y.contributed] as [number, number]) },
+      { name: '預估資產總值', points: result.yearRows.map((yr) => [yr.year, yr.value]) },
+      { name: '累計投入本金', points: result.yearRows.map((yr) => [yr.year, yr.contributed]) },
     ],
-  });
-  ev.tables.push({
-    caption: '逐年累積表',
-    columns: ['年數', '累計投入', '預估價值', '收益'],
-    rows: result.yearRows.map((y) => [String(y.year), formatTwd(y.contributed), formatTwd(y.value), formatTwd(y.gain)]),
   });
   ev.csv = {
     filename: 'portfolio-accumulation.csv',
     rows: [
-      ['年數', '累計投入（TWD）', '預估價值（TWD）', '收益（TWD）'],
-      ...result.yearRows.map((y) => [y.year, cents(y.contributed), cents(y.value), cents(y.gain)]),
+      ['年份', '累計投入（TWD）', '期末價值（TWD）', '累計收益（TWD）'],
+      ...result.yearRows.map((yr) => [yr.year, cents(yr.contributed), cents(yr.value), cents(yr.gain)]),
     ],
   };
   ev.assumptions = [
     versionNote,
-    '無槓桿：每項資產各自以 (1 + 年總報酬)^(1/12) 逐月成長，月底依目標權重投入，並在每年第 12 個月底再平衡至目標權重（不計交易稅費）。',
-    '年總報酬已含配息，不重複加計股息；此為假設報酬推估，不是歷史績效，也不是保證。',
-    '不採用歷史行情、不提供借款投入模式、不計稅費。',
+    '無借款槓桿；每月月底依目標權重投入，每年年底重新調整至目標權重（年度再平衡）。',
+    '權重總和必須在容許誤差內等於 100%，系統不會擅自為你調整或自動等比例正規化。',
+    '年總報酬已包含息收再投資；每月以 (1 + r)^(1/12) 複利成長。',
+    '再平衡只改變資產間的比例分配，不計交易稅費與滑價。',
+    '未計入：手續費、交易稅、股息所得稅、匯率風險及歷史實際走勢的路徑差異。',
+    '這是固定年報酬假設下的推估模型，不是歷史回測，也不代表未來投資績效保證。',
     '範例數字均為虛構，僅供示範。',
   ];
   return ev;
