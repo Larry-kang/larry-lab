@@ -1,4 +1,4 @@
-import { sanitize, type Schema } from './io';
+import { migrateMortgageInputs, sanitize, type Schema } from './io';
 import type { Values } from './parse';
 
 const PREFIX = 'larry-lab:v1:tool:';
@@ -32,6 +32,10 @@ export function loadTool(toolId: string, schema: Schema): Values | null {
     if (!text) return null;
     const data = JSON.parse(text) as { schemaVersion?: unknown; toolId?: unknown; inputs?: unknown };
     if (data.schemaVersion !== 1 || data.toolId !== toolId) return null;
+    if (toolId === 'mortgage') {
+      const mig = migrateMortgageInputs(data.inputs);
+      if (!mig.ok) return null;
+    }
     const result = sanitize(schema, data.inputs);
     return result.ok ? result.value : null;
   } catch {

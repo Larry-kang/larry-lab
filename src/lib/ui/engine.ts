@@ -92,6 +92,16 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         s.name = `${def.scenarioNoun} ${letters[i] || i + 1}`;
       }
     });
+    if (def.id === 'mortgage') {
+      scenarios().forEach((s) => {
+        if (!Array.isArray(s.segments) || s.segments.length === 0) {
+          s.segments = [{ startMonth: '1', annualRate: typeof s.fixedRate === 'string' ? s.fixedRate : '' }];
+        }
+        if (s.fixedRate === undefined || s.fixedRate === '') {
+          s.fixedRate = (s.segments[0] as Values)?.annualRate || '';
+        }
+      });
+    }
     if (active >= scenarios().length) active = 0;
   }
   normalize();
@@ -102,10 +112,11 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   const topEl = h('div', { class: 'tool-top' });
   const formEl = h('form', { class: 'tool-form', novalidate: true, 'aria-label': '輸入欄位' });
   const resultsEl = h('section', { class: 'tool-results', 'aria-labelledby': 'results-heading' });
+  const workspaceEl = h('div', { class: 'tool-workspace' }, formEl, resultsEl);
   const compareEl = h('section', { class: 'tool-compare', 'aria-label': `${def.scenarioNoun}比較` });
   const storageEl = h('details', { class: 'storage-management' });
 
-  container.replaceChildren(statusEl, tabsEl, topEl, formEl, resultsEl, compareEl, storageEl);
+  container.replaceChildren(statusEl, tabsEl, topEl, workspaceEl, compareEl, storageEl);
 
   formEl.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -383,6 +394,9 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         const rm = h('button', { type: 'button', class: 'btn subtle small' }, `刪除${spec.itemLabel} ${index + 1}`);
         rm.addEventListener('click', () => {
           items.splice(index, 1);
+          if (def.id === 'mortgage' && spec.key === 'segments' && items.length === 1) {
+            scenario.fixedRate = (items[0] as Values).annualRate || '';
+          }
           renderForm();
           refresh();
           setStatus(`已刪除${spec.itemLabel} ${index + 1}。`);
@@ -484,6 +498,29 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   function onValue(path: string, value: string, spec: FieldSpec, scenario: Values | null): void {
     setPath(root, path.split('.'), value);
     touched.add(path);
+
+    const currentScenario = scenario || scenarios()[active];
+    if (def.id === 'mortgage' && currentScenario) {
+      if (path.endsWith('.fixedRate')) {
+        if (!Array.isArray(currentScenario.segments) || currentScenario.segments.length === 0) {
+          currentScenario.segments = [{ startMonth: '1', annualRate: value }];
+        } else {
+          (currentScenario.segments[0] as Values).annualRate = value;
+        }
+        const partnerPath = path.replace(/\.fixedRate$/, '.segments.0.annualRate');
+        const partnerInput = formEl.querySelector<HTMLInputElement>(`input[data-path="${partnerPath}"]`);
+        if (partnerInput && partnerInput.value !== value) {
+          partnerInput.value = value;
+        }
+      } else if (path.endsWith('.segments.0.annualRate')) {
+        currentScenario.fixedRate = value;
+        const partnerPath = path.replace(/\.segments\.0\.annualRate$/, '.fixedRate');
+        const partnerInput = formEl.querySelector<HTMLInputElement>(`input[data-path="${partnerPath}"]`);
+        if (partnerInput && partnerInput.value !== value) {
+          partnerInput.value = value;
+        }
+      }
+    }
 
     if (spec.kind === 'select' && spec.clearsHidden && scenario) {
       for (const other of selectSpecs(def.scenarioFields)) {

@@ -592,6 +592,28 @@ fieldset.list-item > legend {
   margin-top: 24px;
 }
 
+/* ---------- tool workspace layout ---------- */
+.tool-workspace {
+  margin: 12px 0;
+}
+
+@media (min-width: 1280px) {
+  .tool-workspace {
+    display: grid;
+    grid-template-columns: minmax(360px, 460px) minmax(400px, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .tool-workspace > .tool-form {
+    margin: 0;
+  }
+
+  .tool-workspace > .tool-results {
+    margin-top: 0;
+  }
+}
+
 .results-title-row {
   display: flex;
   align-items: center;

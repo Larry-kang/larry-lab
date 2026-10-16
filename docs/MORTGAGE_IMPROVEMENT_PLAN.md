@@ -105,3 +105,55 @@ P0先修結果標籤與金額不一致；P1完成核心輸入、利率時段摘�
 建立與實作一致的驗收表，缺證據為PARTIAL／NOT RUN，未知外部狀態為UNKNOWN。真人易用性不能由agent冒充。持續完成已授權本機工作，不停在計畫或雛形。交付實際diff、commit基準、可開啟預覽、截圖、逐項結果與限制。
 
 本文件本身不新增commit／push／PR／merge／部署授權；依擁有者當次指示確認交付範圍。未授權不推送或部署，不改寫公開歷史、不擴權、不新增付費服務。所有文件使用台灣繁體中文，公開內容無私人資料與本機路徑。
+
+## 9. 施工缺陷修復與補齊驗收缺口記錄（2026-10-15 複核）
+
+針對獨立審查報告指出之 3 項缺陷與驗收缺口，本輪已完成修復與補齊驗證：
+
+### 9.1 三項缺陷修復成果與回歸證據
+
+1. **固定／分段利率資料一致性**
+   - **問題**：方案 1 將固定年利率從 2.2% 改為 5% 後，月付更新為 51,535，但頁籤徽章與比較表仍顯示 2.2%。
+   - **根本原因**：`fixedRate` 與 `segments` 存在雙重狀態，畫面輸入未即時連動 `segments[0].annualRate`，且頁籤徽章讀取 `segments[0]`。
+   - **修復**：以 `segments` 為唯一利率來源；`fixedRate` 透過 JavaScript getter/setter 綁定 `segments[0].annualRate`；UI `onValue` 在使用者修改任一利率輸入框時，雙向同步 DOM `value`。
+   - **驗證**：`tests/unit/reproduce-defects.test.ts` 與 `tests/e2e/m12-defect-fixes-and-acceptance.spec.ts: M12-FIX-01` 通過。
+
+2. **比較表指標明確對齊**
+   - **問題**：預設方案 2 首期為 16,000，比較表「首期月付金」卻顯示 16,000～39,203。
+   - **根本原因**：首屏核心指標卡（`card-featured`）共用 `compareKey: 'firstPayment'`，但該卡數值為 `paymentRange` 或 `firstPayment` 的動態標記，導致比較表以範圍字串覆蓋方案 2 首期。
+   - **修復**：嚴格拆分 `compareKey`：`firstPayment` 專屬首期、`maxPayment` 最高月付、`paymentRange` 月付範圍、`postGracePayment` 寬限後首期；核心卡不標記 `compare: true`，確保比較表取自精確獨立計算結果。方案 2 首期嚴格為 NT$16,000，寬限後首期為 NT$37,337，最高月付為 NT$39,203。
+   - **驗證**：`tests/unit/reproduce-defects.test.ts` 與 `tests/e2e/m12-defect-fixes-and-acceptance.spec.ts: M12-FIX-02` 通過。
+
+3. **舊版單段 JSON 匯入還原與衝突拒絕**
+   - **問題**：舊版設定只有 `segments` 無 `fixedRate`，匯入補空後被判「請輸入固定年利率」；衝突資料未被拒絕。
+   - **根本原因**：`migrateMortgageInputs` 未在邊界為單段設定補齊 `fixedRate`，且驗證邏輯強制要求 `fixedRate` 不得為空字串。
+   - **修復**：在 `io.ts` 與 `storage.ts` 邊界建立 `migrateMortgageInputs`，相容舊單段與無 segments 格式；若 `fixedRate` 與 `segments[0].annualRate` 數值衝突，拋出錯誤拒絕匯入並不覆寫目前設定；移除 `fixedRate` 空字串強制報錯，以 `segments` 驗證為準。
+4. **等值利率誤判衝突修復**
+   - **問題**：`fixedRate="2.20"` 與 `segments[0].annualRate="2.2"` 因純字串比對被誤判為衝突而拒絕匯入。
+   - **根本原因**：`migrateMortgageInputs` 使用 `fixedRateStr !== firstSegRate` 字串直接比對，未進行數字正規化解析。
+   - **修復**：引入 `parseNumberText` 嚴格數字解析，檢查有限值與 [0, 100] 範圍；以浮點數容差（1e-7）判等；保留對垃圾字元（如 2.2abc）、NaN、Infinity、超出範圍（-1, 101）與數值衝突（2.2 與 5）的嚴格拒絕；等值時同步固定利率。
+   - **驗證**：`tests/unit/reproduce-defects.test.ts: Defect 4` 5 項測試全數通過。
+
+5. **桌機初始首屏不符合規格修復**
+   - **問題**：1440×900、未點擊且 scrollY=0 時，三張核心結果卡頂端約 1005px，全部位於首屏之外。
+   - **根本原因**：輸入表單與結果區塊在桌機下依然採單欄垂直堆疊，表單高度將結果推至視窗之外。
+   - **修復**：引入 `.tool-workspace` 容器，在 `>= 1280px` 桌機解析度下啟用兩欄並排網格（左欄表單 360~460px、右欄結果 400px~1fr，gap 24px）；`< 1280px` 手機與中型螢幕維持上下堆疊。不縮小字體、不裁切內容。
+   - **驗證**：`tests/e2e/m12-defect-fixes-and-acceptance.spec.ts: FOLD-CORE-VERIFY` 驗證 scrollY=0 下三項核心指標卡、標籤與數值在視口內；另設 `CALC-BUTTON-SCROLL-VERIFY` 獨立驗證按鈕聚焦與捲動。
+
+### 9.2 驗收缺口補齊紀錄
+
+| 項目 | 預期與驗證方式 | 實際結果 | 狀態 |
+| --- | --- | --- | --- |
+| 退休工具多情境比較揭露 | 比較表完整列出目前年齡、目標退休年齡、規劃終止年齡、通膨率、年金收入等條件，不同條件標註「不同」diff tag | 比較表完整呈現上述欄位，修改終止年齡與通膨率後正確標記不同 | **PASS** |
+| 五工具 CSV 嚴格數值與 RFC 4180 | 下載並解析 CSV（處理雙引號、逗號與防公式注入轉義）：房貸 361 列（本金 9.6M、利息 3.52M、末期為 0）、信貸 61 列（本金 500k、末期為 0）、退休 662 列；質押 6 列核對 5 情境維持率與追加擔保品；投資組合配置（4 列）與累積（22 列，期末 5.3M+ 複利終值）雙模式獨立核對 | 欄位齊全、各工具關鍵數值精確符合獨立數學契約 | **PASS** |
+| 首屏物理視口範圍驗證 | 1440x900 在初始未捲動、未點擊、scrollY=0 下，基本輸入與三項核心卡片及其標籤與數值物理位於視口；360x800 未捲動前首個輸入位於視口；「查看結果」按鈕之捲動與焦點行為另設獨立驗證 | Playwright `toBeInViewport()` 物理斷言全數通過；未捲動首屏截圖留存 | **PASS** |
+| 各解析度水平捲軸檢核 | 360x800, 390x844, 768x1024, 1440x900 與 640px 窄視口無全頁水平捲軸溢出 | `scrollWidth <= innerWidth` 全數為 true | **PASS** |
+| 真實 200% 縮放驗收 | 需觸發瀏覽器原生介面縮放 (Ctrl + '+') | Playwright 限制無法模擬原生瀏覽器 UI 縮放，嚴格標註以避免以小視口冒充，測試更名為窄視口檢核 | **NOT RUN** |
+| 外部官方網站交叉比對 | 內政部不動產資訊平台等外部網站 | 因外部網站 alert 與自動化限制無法連線比對，以本機獨立推導公式完成所有數值驗證 | **UNKNOWN** |
+
+### 9.3 執行命令與驗證數據
+- `npm run check`：62 files, 0 errors, 0 warnings, 1 hint
+- `npm run lint`：0 errors, 0 warnings
+- `npm test`：11 test files, 130 tests PASSED
+- `npx playwright test`：94 tests PASSED (58.4s，跨 desktop 與 mobile 雙環境)
+- `npm run build`：12 頁面全數成功產出於 `dist/`

@@ -24,7 +24,7 @@ describe('M12 房貸改善計畫獨立算術與規格驗收 (M12-01 ~ M12-10)', 
       { scenarios: [] },
     );
     expect(evAnnuity.errors).toEqual({});
-    const corePaymentAnnuity = evAnnuity.cards.find((c) => c.isCore && c.compareKey === 'firstPayment');
+    const corePaymentAnnuity = evAnnuity.cards.find((c) => c.isCore && c.label.includes('月付'));
     expect(corePaymentAnnuity?.value).toBe('NT$10,000');
     expect(evAnnuity.cards.find((c) => c.label === '總利息支出')?.value).toBe('NT$0');
     expect(evAnnuity.cards.find((c) => c.label === '含費用總支出')?.value).toBe('NT$120,000');
@@ -45,7 +45,7 @@ describe('M12 房貸改善計畫獨立算術與規格驗收 (M12-01 ~ M12-10)', 
       { scenarios: [] },
     );
     expect(evEqual.errors).toEqual({});
-    const corePaymentEqual = evEqual.cards.find((c) => c.isCore && c.compareKey === 'firstPayment');
+    const corePaymentEqual = evEqual.cards.find((c) => c.isCore && c.label.includes('月付'));
     expect(corePaymentEqual?.value).toBe('NT$10,000');
     expect(evEqual.cards.find((c) => c.label === '總利息支出')?.value).toBe('NT$0');
     expect(evEqual.cards.find((c) => c.label === '含費用總支出')?.value).toBe('NT$120,000');
@@ -72,12 +72,12 @@ describe('M12 房貸改善計畫獨立算術與規格驗收 (M12-01 ~ M12-10)', 
     expect(ev.errors).toEqual({});
 
     // 核心卡片呈現範圍，且不得單獨標 10,600 為首期
-    const corePayment = ev.cards.find((c) => c.isCore && c.compareKey === 'firstPayment');
+    const corePayment = ev.cards.find((c) => c.isCore && c.label.includes('月付'));
     expect(corePayment?.value).toContain('10,100');
     expect(corePayment?.value).toContain('11,200');
 
-    // 次要首期卡片嚴格等於 11,200
-    const firstCard = ev.cards.find((c) => c.label === '首期月付金');
+    // 次要首期卡片嚴格等於 11,200 (且 compareKey 嚴格為 firstPayment)
+    const firstCard = ev.cards.find((c) => c.compareKey === 'firstPayment');
     expect(firstCard?.value).toBe('NT$11,200');
 
     // 最高月付卡片等於 11,200

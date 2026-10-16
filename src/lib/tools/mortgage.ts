@@ -24,8 +24,35 @@ const segmentsSpec: ListSpec = {
   defaultItem: () => ({ startMonth: '', annualRate: '' }),
 };
 
+export function attachRateSync(s: Values): Values {
+  if (!Array.isArray(s.segments) || s.segments.length === 0) {
+    const r = typeof s.fixedRate === 'string' ? s.fixedRate : '';
+    s.segments = [{ startMonth: '1', annualRate: r }];
+  }
+  Object.defineProperty(s, 'fixedRate', {
+    get() {
+      return Array.isArray(this.segments) && this.segments[0]
+        ? (this.segments[0].annualRate ?? '')
+        : '';
+    },
+    set(v: string) {
+      if (Array.isArray(this.segments) && this.segments[0]) {
+        this.segments[0].annualRate = v;
+      } else {
+        this.segments = [{ startMonth: '1', annualRate: v }];
+      }
+    },
+    enumerable: true,
+    configurable: true,
+  });
+  return s;
+}
+
 function scenario(name: string, overrides: Values = {}): Values {
-  return {
+  const segs = overrides.segments
+    ? (overrides.segments as Values[]).map((seg) => ({ ...seg }))
+    : [{ startMonth: '1', annualRate: overrides.fixedRate ?? '2.2' }];
+  const s: Values = {
     name,
     inputMode: 'price-down',
     principal: '',
@@ -33,19 +60,23 @@ function scenario(name: string, overrides: Values = {}): Values {
     downPayment: '2,400,000',
     ltv: '',
     termMonths: '360',
-    fixedRate: '2.2',
     method: 'annuity',
     graceMonths: '0',
     fee: '15,000',
     monthlyIncome: '120,000',
     otherMonthlyDebt: '0',
-    segments: [{ startMonth: '1', annualRate: '2.2' }],
+    segments: segs,
     ...overrides,
   };
+  attachRateSync(s);
+  if (overrides.fixedRate !== undefined && !overrides.segments) {
+    s.fixedRate = overrides.fixedRate;
+  }
+  return s;
 }
 
 function blankScenario(): Values {
-  return {
+  const s: Values = {
     name: '方案 1',
     inputMode: 'price-down',
     principal: '',
@@ -53,7 +84,6 @@ function blankScenario(): Values {
     downPayment: '',
     ltv: '',
     termMonths: '',
-    fixedRate: '',
     method: 'annuity',
     graceMonths: '',
     fee: '',
@@ -61,6 +91,7 @@ function blankScenario(): Values {
     otherMonthlyDebt: '',
     segments: [{ startMonth: '1', annualRate: '' }],
   };
+  return attachRateSync(s);
 }
 
 /**
@@ -216,9 +247,9 @@ export const mortgageTool: ToolDef = {
   }),
   scenarioBadge(s: Values): string {
     const segments = Array.isArray(s.segments) ? (s.segments as Values[]) : [];
-    if (segments.length === 1 && (segments[0]?.annualRate || s.fixedRate)) {
+    if (segments.length === 1) {
       const rate = segments[0]?.annualRate || s.fixedRate;
-      return `年利率 ${rate}%`;
+      return rate ? `年利率 ${rate}%` : '未設利率';
     }
     if (segments.length > 1) {
       const firstRate = segments[0]?.annualRate ?? '—';
@@ -297,7 +328,7 @@ export const mortgageTool: ToolDef = {
     const r = new FieldReader(values);
     const mode = r.choice<MortgageInputMode>('inputMode');
 
-    // 處理固定單一利率與分段利率同步
+    // 處理固定單一利率與分段利率同步，以 segments 為唯一利率來源
     const rawSegments = r.list('segments');
     let segments: RateSegment[];
     if (rawSegments.length > 1) {
@@ -307,8 +338,11 @@ export const mortgageTool: ToolDef = {
       });
     } else {
       let rateNum: number;
-      const fixedRateInput = typeof values.fixedRate === 'string' && values.fixedRate.trim() !== '' ? values.fixedRate : undefined;
-      if (fixedRateInput !== undefined) {
+      const seg0 = Array.isArray(values.segments) && (values.segments as Values[])[0] ? (values.segments as Values[])[0] : null;
+      const seg0Rate = seg0 ? seg0.annualRate : undefined;
+      if (rawSegments.length === 1 && typeof seg0Rate === 'string' && seg0Rate.trim() !== '') {
+        rateNum = r.item('segments', 0).percent('annualRate');
+      } else if (typeof values.fixedRate === 'string' && values.fixedRate.trim() !== '') {
         rateNum = r.percent('fixedRate');
       } else if (rawSegments.length === 1) {
         rateNum = r.item('segments', 0).percent('annualRate');
@@ -338,8 +372,8 @@ export const mortgageTool: ToolDef = {
       if (errors['segments.0.annualRate']) {
         errors.fixedRate = errors['segments.0.annualRate'];
       }
-      if (typeof values.fixedRate === 'string' && values.fixedRate.trim() === '') {
-        errors.fixedRate = '請輸入固定年利率';
+      if (errors.fixedRate && !errors['segments.0.annualRate']) {
+        errors['segments.0.annualRate'] = errors.fixedRate;
       }
     }
     if (Object.keys(errors).length > 0 || !result.schedule?.summary || !result.derived) return invalid(errors);
@@ -355,25 +389,30 @@ export const mortgageTool: ToolDef = {
       ev.cards.push(
         card('一般月付金', formatTwd(0), {
           isCore: true,
-          compare: true,
-          compareKey: 'firstPayment',
-          compareLabel: '首期月付金',
           note: '無貸款',
         }),
         card('總利息支出', formatTwd(0), {
           isCore: true,
           compare: true,
           compareKey: 'totalInterest',
+          compareLabel: '總利息支出',
           note: '無貸款利息',
         }),
         card('含費用總支出', formatTwd(s.totalCost), {
           isCore: true,
           compare: true,
           compareKey: 'totalCost',
+          compareLabel: '含費用總支出',
           note: s.fee > 0 ? `包含手續費 ${formatTwd(s.fee)}` : '無貸款與費用',
         }),
       );
-      ev.cards.push(card('貸款本金', formatTwd(0), { compare: true, compareKey: 'principal' }));
+      ev.cards.push(
+        card('首期月付金', formatTwd(0), { compare: true, compareKey: 'firstPayment', compareLabel: '首期月付金', note: '無貸款' }),
+        card('最高月付金', formatTwd(0), { compare: true, compareKey: 'maxPayment', compareLabel: '最高月付金' }),
+        card('月付金範圍', '固定 NT$0', { compare: true, compareKey: 'paymentRange', compareLabel: '月付金範圍' }),
+        card('寬限期結束後首期月付金', '不適用', { compare: true, compareKey: 'postGracePayment', compareLabel: '寬限期後首期月付金' }),
+        card('貸款本金', formatTwd(0), { compare: true, compareKey: 'principal', compareLabel: '貸款本金' }),
+      );
       if (s.fee > 0) ev.cards.push(card('一次性費用', formatTwd(s.fee)));
       return ev;
     }
@@ -388,15 +427,12 @@ export const mortgageTool: ToolDef = {
       ? (Math.abs(graceMax - graceMin) < 0.005 ? `寬限期內月付 ${formatTwd(graceMin)}（只付利息）` : `寬限期內月付 ${formatTwd(graceMin)} ~ ${formatTwd(graceMax)}（隨利率變動）`)
       : '';
 
-    // --- 前三項核心重點結果卡片 (Core Cards) ---
+    // --- 前三項核心重點結果卡片 (Core Cards - 供當前方案首屏結果卡展示，不污染比較表) ---
     if (g > 0) {
       if (postGraceIsConstant) {
         ev.cards.push(
           card('寬限後月付金', formatTwd(s.postGraceFirstPayment), {
             isCore: true,
-            compare: true,
-            compareKey: 'firstPayment',
-            compareLabel: '首期月付金',
             note: graceSummaryText,
           }),
         );
@@ -404,9 +440,6 @@ export const mortgageTool: ToolDef = {
         ev.cards.push(
           card('月付金範圍（寬限後遞減）', `${formatTwd(s.minPayment)} ~ ${formatTwd(s.maxPayment)}`, {
             isCore: true,
-            compare: true,
-            compareKey: 'firstPayment',
-            compareLabel: '首期月付金',
             note: `${graceSummaryText}；寬限後首期 ${formatTwd(s.postGraceFirstPayment)}，最高 ${formatTwd(s.maxPayment)}`,
           }),
         );
@@ -416,9 +449,6 @@ export const mortgageTool: ToolDef = {
         ev.cards.push(
           card('一般月付金', formatTwd(s.firstPayment), {
             isCore: true,
-            compare: true,
-            compareKey: 'firstPayment',
-            compareLabel: '首期月付金',
             note: '每月固定還款（本息均攤）',
           }),
         );
@@ -426,9 +456,6 @@ export const mortgageTool: ToolDef = {
         ev.cards.push(
           card('月付金範圍（遞減）', `${formatTwd(s.minPayment)} ~ ${formatTwd(s.maxPayment)}`, {
             isCore: true,
-            compare: true,
-            compareKey: 'firstPayment',
-            compareLabel: '首期月付金',
             note: `首期 ${formatTwd(s.firstPayment)}，末期 ${formatTwd(result.schedule.rows[result.schedule.rows.length - 1].payment)}`,
           }),
         );
@@ -440,50 +467,74 @@ export const mortgageTool: ToolDef = {
         isCore: true,
         compare: true,
         compareKey: 'totalInterest',
+        compareLabel: '總利息支出',
         note: '依攤還期間逐期利息累計',
       }),
       card('含費用總支出', formatTwd(s.totalCost), {
         isCore: true,
         compare: true,
         compareKey: 'totalCost',
+        compareLabel: '含費用總支出',
         note: `償還本金 ${formatTwd(s.totalPrincipal)} + 利息與手續費（不含頭期款、稅金、保險等購屋成本）`,
       }),
     );
 
-    // --- 次要結果卡片 (Secondary Cards) ---
+    // --- 次要與比較表結果卡片 (每個 compareKey 只對應一項明確指標) ---
     if (d.price !== null && d.downPayment !== null) {
       ev.cards.push(
         card('房價總額', formatTwd(d.price)),
         card('頭期款', formatTwd(d.downPayment), { note: '頭期款不計入貸款利息' }),
       );
     }
-    ev.cards.push(card('貸款本金', formatTwd(d.principal), { compare: true, compareKey: 'principal' }));
+    ev.cards.push(card('貸款本金', formatTwd(d.principal), { compare: true, compareKey: 'principal', compareLabel: '貸款本金' }));
 
-    // 明確列出首期月付金（非中段估算）與最高月付金
+    // 1. 首期月付金 (始終為嚴格第 1 期)
     ev.cards.push(
       card('首期月付金', formatTwd(s.firstPayment), {
         compare: true,
         compareKey: 'firstPayment',
+        compareLabel: '首期月付金',
         note: g > 0 ? '寬限期內只付利息' : !s.paymentIsConstant ? '本金平均攤還首期金額最高' : undefined,
       }),
+    );
+
+    // 2. 最高月付金
+    ev.cards.push(
       card('最高月付金', formatTwd(s.maxPayment), {
         compare: true,
         compareKey: 'maxPayment',
+        compareLabel: '最高月付金',
+      }),
+    );
+
+    // 3. 月付金範圍
+    const paymentRangeStr = s.paymentIsConstant
+      ? `固定 ${formatTwd(s.firstPayment)}`
+      : `${formatTwd(s.minPayment)} ~ ${formatTwd(s.maxPayment)}`;
+    ev.cards.push(
+      card('月付金範圍', paymentRangeStr, {
+        compare: true,
+        compareKey: 'paymentRange',
+        compareLabel: '月付金範圍',
+        note: s.paymentIsConstant ? '攤還期間月付金固定' : '因分段利率或本金均攤而變動',
+      }),
+    );
+
+    // 4. 寬限期後首期月付金
+    const postGraceStr = g > 0 ? formatTwd(s.postGraceFirstPayment) : '無寬限期';
+    ev.cards.push(
+      card('寬限期結束後首期月付金', postGraceStr, {
+        compare: true,
+        compareKey: 'postGracePayment',
+        compareLabel: '寬限期後首期月付金',
+        note: g > 0 ? `相較寬限期末月付增加 ${formatTwd(s.postGraceFirstPayment - result.schedule.rows[g - 1].payment)}` : undefined,
       }),
     );
 
     if (g > 0) {
-      const lastGracePay = result.schedule.rows[g - 1].payment;
-      const diff = s.postGraceFirstPayment - lastGracePay;
       ev.cards.push(
         card('寬限期月付金', Math.abs(graceMax - graceMin) < 0.005 ? formatTwd(graceMin) : `${formatTwd(graceMin)} ~ ${formatTwd(graceMax)}`, {
           note: '寬限期間只繳利息，不還本金',
-        }),
-        card('寬限期結束後首期月付金', formatTwd(s.postGraceFirstPayment), {
-          compare: true,
-          compareKey: 'postGracePayment',
-          compareLabel: '寬限期後首期月付金',
-          note: `相較寬限期末月付增加 ${formatTwd(diff)}`,
         }),
       );
     }

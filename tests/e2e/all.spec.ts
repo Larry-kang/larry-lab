@@ -75,11 +75,11 @@ test.describe('V11-02 & A10: 首屏可見性與響應式排版', () => {
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
 
-    const firstInput = page.locator('.field input').first();
+    const firstInput = page.locator('select[data-path="scenarios.0.inputMode"]');
     const coreCards = page.locator('.card-featured');
 
-    await expect(firstInput).toBeVisible();
-    await expect(coreCards.first()).toBeVisible();
+    await expect(firstInput).toBeInViewport();
+    await expect(coreCards.first()).toBeInViewport();
   });
 });
 

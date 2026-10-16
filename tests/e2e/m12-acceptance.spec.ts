@@ -369,8 +369,8 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     expect(['INPUT', 'SELECT']).toContain(focusedTag);
   });
 
-  test('M12-10: 200% 縮放與無水平全頁捲動驗收', async ({ page }) => {
-    // 模擬 200% 縮放視窗寬度 640px
+  test('M12-10: 窄視口（640px）無水平全頁捲動檢核（真實 200% 縮放維持 NOT RUN）', async ({ page }) => {
+    // 檢核窄視口寬度 640px（真實 200% 原生 UI 縮放維持 NOT RUN）
     await page.setViewportSize({ width: 640, height: 480 });
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
