@@ -1,22 +1,30 @@
 # Cloudflare Pages 部署與交付
 
-## 預定設定
+## 正式設定（2026-10-17）
 
 | 設定 | 值 |
 | --- | --- |
 | Git 儲存庫 | `Larry-kang/larry-lab` |
 | 平台 | Cloudflare Pages，靜態網站 |
-| 希望使用的專案名稱 | `larry-lab`，建立時才能確認是否可用 |
+| 專案名稱 | `larry-lab` |
 | 正式環境分支 | `main` |
 | 框架 | Astro 靜態輸出 |
 | 建置指令 | `npm run build` |
 | 輸出目錄 | `dist` |
 | 專案根目錄 | 儲存庫根目錄 |
-| 執行環境 | 實作時鎖定仍受支援的 Node LTS，與 CI 一致 |
+| 執行環境 | `NODE_VERSION=22`，首次建置為 22.22.0，與 CI 主版本一致 |
 | 執行環境機密／資料庫 | 第一版不需要 |
-| 希望使用的網址 | `larry-lab.pages.dev`，尚未確認或上線 |
+| 正式網址 | <https://larry-lab.pages.dev/> |
 
-目前狀態：「尚未部署（NOT_DEPLOYED）」。初始設定任務沒有設定 Cloudflare 帳號／專案／整合。僅開啟 Cloudflare 分頁，不代表已核准串接或專案名稱可用。
+目前狀態：已部署（DEPLOYED）。使用者於 2026-10-17 授權免費部署，並在 GitHub 完成身分驗證；官方 Cloudflare Workers and Pages App 僅授權 `Larry-kang/larry-lab`。沒有購買網域或啟用付費服務。
+
+首次正式部署 commit：`08fc5ecc805b24d36a1d40d74c27051428cdf3d0`；Cloudflare deployment：`f609370d-96e3-4b7f-9156-152841e50de3`，Asia/Taipei 2026-10-17 10:31 確認成功。首頁與固定版本網址 HTTP 200，正式回應包含 CSP、nosniff、frame 與 referrer 安全標頭。Cloudflare 紀錄確認靜態輸出、無 Functions。
+
+## 正式網址收尾計畫
+
+依下方發布步驟第 6 點，另以 PR 補上 Astro `site`、不帶查詢參數的 canonical／Open Graph URL、11 條公開路由的 sitemap、robots.txt，以及 404 的 noindex。完成型別檢查、lint、建置與產物檢查後，等待該 PR 的 CI／預覽，再合併與驗證正式版本。公式、推薦內容與個人資訊不在本次網址收尾變更範圍。
+
+內容狀態：五項工具已上線；推薦區仍為空狀態，作者已提供的 17 項推薦資料尚待整合與連結查核。真人易用性、原生 200% 縮放及外部官方試算器交叉比對維持未驗證，不以部署成功取代這些驗收。
 
 ## 發布步驟
 
