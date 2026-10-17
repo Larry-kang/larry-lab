@@ -180,6 +180,7 @@ describe('recommendations', () => {
     sortOrder: 1,
     lastVerifiedAt: '2026-10-14',
     referralUrl: 'https://example.com/',
+    linkStatus: 'VERIFIED',
     ...over,
   });
 
@@ -247,7 +248,7 @@ describe('recommendations', () => {
     expect(hasUsableReferralLink(byId.get('bybit')!)).toBe(false);
   });
 
-  it('rejects malformed files, unsafe URLs, and unapproved hostnames', () => {
+  it('rejects malformed files, unsafe URLs, incoherent status combinations, and unapproved hostnames', () => {
     expect(() => validateRecommendations({})).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'javascript:alert(1)' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://example.com/' })] })).toThrow();
@@ -259,6 +260,10 @@ describe('recommendations', () => {
     expect(() => validateRecommendations({ items: [item({ enabled: 'yes' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ lastVerifiedAt: '2026/10/14' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ linkStatus: 'INVALID' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: undefined })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: 'CODE_ONLY' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: 'UNKNOWN', enabled: true })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: undefined, linkStatus: 'VERIFIED' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ providedAt: null })] })).toThrow();
     expect(isSafeHttpsUrl('https://example.com/')).toBe(true);
     expect(isSafeHttpsUrl('//example.com')).toBe(false);
@@ -266,13 +271,13 @@ describe('recommendations', () => {
     expect(isAllowedReferralHostname('https://evil.com/')).toBe(false);
   });
 
-  it('shows only enabled items that have a code or a link in activeRecommendations, in a fixed order', () => {
+  it('shows only enabled items that have a code or a verified link in activeRecommendations, in a fixed order', () => {
     const items = validateRecommendations({
       items: [
         item({ id: 'b', sortOrder: 2 }),
-        item({ id: 'a', sortOrder: 1, referralUrl: undefined, code: 'TEST123' }),
+        item({ id: 'a', sortOrder: 1, referralUrl: undefined, code: 'TEST123', linkStatus: 'CODE_ONLY' }),
         item({ id: 'c', sortOrder: 0, enabled: false, linkStatus: 'UNKNOWN' }),
-        item({ id: 'd', sortOrder: 3, referralUrl: undefined }),
+        item({ id: 'd', sortOrder: 3, referralUrl: undefined, linkStatus: undefined }),
         item({ id: 'e', sortOrder: 1 }),
       ],
     });
@@ -282,11 +287,13 @@ describe('recommendations', () => {
   });
 
   it('drops expired or unverified offers without inventing dates', () => {
+    expect(() => validateRecommendations({ items: [item({ offerText: '未驗證優惠' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ offerText: '未驗證優惠', offerStatus: 'UNVERIFIED' })] })).toThrow();
     const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14', offerStatus: 'VERIFIED' })] });
     expect(isOfferActive(withOffer, new Date('2026-10-14T15:00:00Z'))).toBe(true);
     expect(isOfferActive(withOffer, new Date('2026-10-15T16:30:00Z'))).toBe(false);
     expect(isOfferActive({ ...withOffer, offerStatus: 'UNVERIFIED' }, new Date('2026-10-14T15:00:00Z'))).toBe(false);
+    expect(isOfferActive({ ...withOffer, offerStatus: undefined }, new Date('2026-10-14T15:00:00Z'))).toBe(false);
     const [noOffer] = validateRecommendations({ items: [item()] });
     expect(isOfferActive(noOffer, new Date())).toBe(false);
   });

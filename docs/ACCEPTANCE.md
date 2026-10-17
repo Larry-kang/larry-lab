@@ -51,7 +51,7 @@
 | :--- | :--- | :--- | :---: | :--- |
 | **RF-01** | 17 項來源逐筆對照 | 6 數位銀行／1 證券開戶／2 台灣交易所／5 國際交易所／3 其他加密服務；15 個 URL、2 個碼，不遺漏或混用 | **通過 (PASS)** | `tests/unit/lib.test.ts` 逐筆核對 `docs/referrals.owner-provided.json` 與 `src/content/recommendations.json` 共 17 項、5 大分類筆數與內容完全一致。 |
 | **RF-02** | 原始 URL 參數與片段保留 | LINE Bank 的 `campaignId` 及 `uid`、New New Bank 的 hash 內 `pm` 及 `ID`、Richart 完整 query 均保留；實際 DOM `href` 與來源一致 | **通過 (PASS)** | `tests/unit/lib.test.ts` 與 Playwright `tests/e2e/all.spec.ts` 驗證實際渲染 DOM `a[href]` 完整保留大小寫、query 與 hash。 |
-| **RF-03** | 推薦碼複製與備援機制 | 複製 `HCPGD`（將來銀行）及 `YCB0Y6`（樂天銀行）大小寫正確；只有碼的卡片沒有假網址；失敗備援可操作 | **通過 (PASS)** | Playwright `tests/e2e/all.spec.ts` 驗證剪貼簿寫入值、無假外連，並模擬剪貼簿失敗驗證唯讀備援欄位自動展開。 |
+| **RF-03** | 推薦碼複製與備援機制 | 複製 `HCPGD`（將來銀行）及 `YCB0Y6`（樂天銀行）大小寫正確；只有碼的卡片沒有假網址；失敗備援可操作 | **通過 (PASS)** | Playwright `tests/e2e/all.spec.ts` 驗證剪貼簿寫入值、無假外連，並模擬剪貼簿失敗驗證自動選取 `<code>` 推薦碼文字且按鈕更新為「請手動複製（已選取）」。 |
 | **RF-04** | 15 個 URL 查核與 UNKNOWN 停用 | 15 個 URL 逐筆查核，短網址最終目的地另外記錄；不可用／反自動化（`bankee` HTTP 404、`bybit` HTTP 403）標記為 `UNKNOWN` 並停用外連 | **通過 (PASS)** | `docs/REFERRAL_INTEGRATION_PLAN.md` 完整記錄 15 筆查核與 3 筆短網址最終目的地；`bankee` 與 `bybit` 設為 `enabled: false, linkStatus: "UNKNOWN"`，UI 顯示「連結待確認」且無外連按鈕。 |
 | **RF-05** | 中性文案、日期分離與利益揭露 | 全部卡片不含未核實優惠／卡片支付支援；提供日期與查核日期分離；精簡利益揭露清楚可達 | **通過 (PASS)** | 全部卡片均分離顯示 `提供日期：2026-10-15`、`連結查核：2026-10-17 / 僅推薦碼`、`優惠查核：依平台公告`；移除施工空狀態與過度自我辯護文字。 |
 | **RF-06** | 共用側欄、推薦頁與響應式操作 | 桌機／手機每頁有共用入口，側欄最多 3 項，推薦頁可找到全部 17 項；折疊／鍵盤／焦點正常，不擋試算 | **通過 (PASS)** | Playwright `tests/e2e/all.spec.ts` 驗證側欄 3 項與推薦頁 17 項；360px 手機與 1440px 桌機無橫向溢位。 |

@@ -137,21 +137,39 @@ export function validateRecommendations(file: unknown): Recommendation[] {
       offerStatus = r.offerStatus as OfferStatus;
     }
 
-    if (r.referralUrl !== undefined && r.referralUrl !== null) {
+    const hasUrl = r.referralUrl !== undefined && r.referralUrl !== null;
+    const hasCode = r.code !== undefined && r.code !== null;
+
+    if (hasUrl) {
       if (!isSafeHttpsUrl(r.referralUrl)) {
         throw new Error(`${where}.referralUrl 必須為 HTTPS 網址`);
       }
       if (!isAllowedReferralHostname(r.referralUrl)) {
         throw new Error(`${where}.referralUrl 網域未列於允許清單`);
       }
+      if (linkStatus !== 'VERIFIED' && linkStatus !== 'UNKNOWN') {
+        throw new Error(`${where}.referralUrl 必須搭配 linkStatus 為 VERIFIED 或 UNKNOWN`);
+      }
+    } else if (linkStatus === 'VERIFIED') {
+      throw new Error(`${where}.linkStatus 為 VERIFIED 時必須提供 referralUrl`);
     }
-    if (r.code !== undefined && r.code !== null && !str(r.code, 80)) throw new Error(`${where}.code 無效`);
+
+    if (linkStatus === 'CODE_ONLY') {
+      if (hasUrl || !hasCode) {
+        throw new Error(`${where}.linkStatus 為 CODE_ONLY 時必須提供 code 且不可包含 referralUrl`);
+      }
+    }
+    if (linkStatus === 'UNKNOWN' && r.enabled) {
+      throw new Error(`${where}.linkStatus 為 UNKNOWN 時不可啟用 (enabled 必須為 false)`);
+    }
+
+    if (hasCode && !str(r.code, 80)) throw new Error(`${where}.code 無效`);
     if (r.offerExpiresAt !== undefined && (typeof r.offerExpiresAt !== 'string' || !DATE_PATTERN.test(r.offerExpiresAt))) {
       throw new Error(`${where}.offerExpiresAt 必須為 YYYY-MM-DD`);
     }
     if (r.offerText !== undefined) {
       if (!str(r.offerText, 200)) throw new Error(`${where}.offerText 無效`);
-      if (offerStatus !== undefined && offerStatus !== 'VERIFIED') {
+      if (offerStatus !== 'VERIFIED') {
         throw new Error(`${where}.offerText 僅允許在 offerStatus 為 VERIFIED 時提供`);
       }
     }
@@ -161,8 +179,8 @@ export function validateRecommendations(file: unknown): Recommendation[] {
       name,
       category,
       shortDescription,
-      code: r.code === undefined || r.code === null ? undefined : (r.code as string).trim(),
-      referralUrl: r.referralUrl === undefined || r.referralUrl === null ? undefined : (r.referralUrl as string),
+      code: !hasCode ? undefined : (r.code as string).trim(),
+      referralUrl: !hasUrl ? undefined : (r.referralUrl as string),
       enabled: r.enabled,
       disclosure,
       sortOrder: r.sortOrder,
@@ -186,7 +204,9 @@ export function publicRecommendations(items: Recommendation[]): Recommendation[]
   return items
     .filter(
       (item) =>
-        (item.enabled && (item.code !== undefined || item.referralUrl !== undefined)) ||
+        (item.enabled &&
+          ((item.linkStatus === 'VERIFIED' && item.referralUrl !== undefined) ||
+            (item.linkStatus === 'CODE_ONLY' && item.code !== undefined))) ||
         item.linkStatus === 'UNKNOWN',
     )
     .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
@@ -198,8 +218,8 @@ export function activeRecommendations(items: Recommendation[]): Recommendation[]
     .filter(
       (item) =>
         item.enabled &&
-        item.linkStatus !== 'UNKNOWN' &&
-        (item.code !== undefined || item.referralUrl !== undefined),
+        ((item.linkStatus === 'VERIFIED' && item.referralUrl !== undefined) ||
+          (item.linkStatus === 'CODE_ONLY' && item.code !== undefined)),
     )
     .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
 }
@@ -211,13 +231,12 @@ export function sidebarRecommendations(items: Recommendation[], maxCount: number
 
 /** Whether an item can render an active outbound referral link button. */
 export function hasUsableReferralLink(item: Recommendation): boolean {
-  return Boolean(item.enabled && item.referralUrl && item.linkStatus !== 'UNKNOWN');
+  return Boolean(item.enabled && item.referralUrl && item.linkStatus === 'VERIFIED');
 }
 
-/** An offer is shown only when verified (if offerStatus is set) and while it has not expired (end of the stated day, Asia/Taipei). */
+/** An offer is shown only when explicitly verified and while it has not expired (end of the stated day, Asia/Taipei). */
 export function isOfferActive(item: Recommendation, now: Date): boolean {
-  if (!item.offerText) return false;
-  if (item.offerStatus !== undefined && item.offerStatus !== 'VERIFIED') return false;
+  if (!item.offerText || item.offerStatus !== 'VERIFIED') return false;
   if (!item.offerExpiresAt) return true;
   const end = new Date(`${item.offerExpiresAt}T23:59:59+08:00`);
   return now.getTime() <= end.getTime();

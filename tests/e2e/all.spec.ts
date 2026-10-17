@@ -407,7 +407,7 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
       await page.goto(p);
       if (p.startsWith('/tools/') && p !== '/tools/') {
         await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
-        await expect(page.locator('.sample-tag')).toHaveText('示範情境（非財務建議）');
+        await expect(page.locator('.sample-tag')).toHaveText('示範情境（虛構範例）');
       }
       const bodyText = await page.locator('body').innerText();
       for (const phrase of forbiddenPhrases) {

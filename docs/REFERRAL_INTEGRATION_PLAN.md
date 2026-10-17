@@ -51,7 +51,7 @@
 | --- | --- | :---: | --- |
 | RF-01 | 17項來源逐筆對照，6銀行／1證券／2台灣交易所／5國際交易所／3其他加密服務；15個URL、2個碼，不遺漏或混用 | **PASS** | `tests/unit/lib.test.ts` 逐筆比對 `docs/referrals.owner-provided.json` 與 `src/content/recommendations.json` 共 17 項、5 大分類筆數（6/1/2/5/3）、15 個 URL 與 2 個推薦碼完全吻合。 |
 | RF-02 | LINE Bank的campaignId及uid、New New Bank的hash內pm及ID、Richart完整query均保留；實際DOM href與來源一致 | **PASS** | `tests/unit/lib.test.ts` 與 Playwright `tests/e2e/all.spec.ts` 驗證實際渲染之 DOM `a[href]` 完整保留大小寫、query 與 hash 片段。 |
-| RF-03 | 複製HCPGD及YCB0Y6大小寫正確；只有碼的卡片沒有假網址；失敗備援可操作 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證點擊複製按鈕後剪貼簿內容精確為 `HCPGD` 與 `YCB0Y6`，卡片無外連 `a[href]`，且在剪貼簿權限拒絕時自動顯示唯讀備援欄位並選取文字。 |
+| RF-03 | 複製HCPGD及YCB0Y6大小寫正確；只有碼的卡片沒有假網址；失敗備援可操作 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證點擊複製按鈕後剪貼簿內容精確為 `HCPGD` 與 `YCB0Y6`，卡片無外連 `a[href]`，且在剪貼簿權限拒絕時自動選取 `<code>` 推薦碼文字並將按鈕更新為「請手動複製（已選取）」。 |
 | RF-04 | 15個URL逐筆查核，短網址最終目的地另外記錄；不可用／需登入／反自動化為UNKNOWN，不捏造成功 | **PASS** | 如上表完整記錄 15 個 URL 查核結果與 3 個短網址／分享網址之最終目的地；`bankee`（HTTP 404）與 `bybit`（HTTP 403）標記為 `UNKNOWN` 並停用外連按鈕。 |
 | RF-05 | 全部卡片不含未核實優惠／卡片支付支援；提供日期與查核日期分離；利益揭露可達 | **PASS** | 全部 17 項均未設定 `offerText`，不含卡片或 AP/GP/LP 宣稱；明確分離顯示 `提供日期：2026-10-15`、`連結查核：2026-10-17 / 僅推薦碼`、`優惠查核：依平台公告`；利益揭露於側欄與推薦總覽清楚可達。 |
 | RF-06 | 桌機／手機每頁有共用入口，側欄最多3項，推薦頁可找到全部項目；折疊／鍵盤／焦點正常，不擋試算 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證桌機側欄與手機可折疊面板初始最多顯示 3 項並提供「查看全部 17 項推薦與利益揭露 →」連結；推薦總覽顯示全部 17 項；360px 手機與 1440px 桌機無全頁橫向溢位。 |
