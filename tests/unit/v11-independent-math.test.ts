@@ -181,4 +181,96 @@ describe('V11-09 投資組合獨立推導驗證', () => {
     expect(res.status).toBe('invalid');
     expect(res.errors.weightSum).toBeDefined();
   });
+
+  it('累積模式零報酬可手算獨立核算 (W=120k, C=1k, Y=2, r=0%): 每期投入與價值完全相等，收益精確為 0', () => {
+    const res = calculateAccumulation({
+      initial: 120000,
+      monthlyContribution: 1000,
+      years: 2,
+      assets: [
+        { name: '資產A', weight: 0.5, annualReturn: 0 },
+        { name: '資產B', weight: 0.5, annualReturn: 0 },
+      ],
+    });
+    expect(res.status).toBe('valid');
+    // 計算契約第 175 行獨立推導
+    // Year 0: 投入 120,000，期末價值 120,000，收益 0
+    expect(res.yearRows[0].contributed).toBe(120000);
+    expect(res.yearRows[0].value).toBe(120000);
+    expect(res.yearRows[0].gain).toBe(0);
+    // Year 1: 投入 120,000 + 1,000 * 12 = 132,000，價值 132,000，收益 0
+    expect(res.yearRows[1].contributed).toBe(132000);
+    expect(res.yearRows[1].value).toBe(132000);
+    expect(res.yearRows[1].gain).toBe(0);
+    // Year 2: 投入 120,000 + 1,000 * 24 = 144,000，價值 144,000，收益 0
+    expect(res.yearRows[2].contributed).toBe(144000);
+    expect(res.yearRows[2].value).toBe(144000);
+    expect(res.yearRows[2].gain).toBe(0);
+    expect(res.finalValue).toBe(144000);
+    expect(res.totalContributed).toBe(144000);
+    expect(res.gain).toBe(0);
+  });
+
+  it('累積模式正報酬依計算契約獨立推導核算 (W=100k, C=0, Y=2, r=12%): 複利年化終值精確為 125,440', () => {
+    const res = calculateAccumulation({
+      initial: 100000,
+      monthlyContribution: 0,
+      years: 2,
+      assets: [{ name: '單一資產', weight: 1.0, annualReturn: 0.12 }],
+    });
+    expect(res.status).toBe('valid');
+    // 計算契約第 175 行：W=100k, C=0, Y=1, r=12% => 期末 112,000；Y=2 => 100k * (1.12)^2 = 125,440
+    expect(res.yearRows[0].contributed).toBe(100000);
+    expect(res.yearRows[0].value).toBe(100000);
+    expect(res.yearRows[0].gain).toBe(0);
+
+    expect(res.yearRows[1].contributed).toBe(100000);
+    expect(res.yearRows[1].value).toBeCloseTo(112000, 2);
+    expect(res.yearRows[1].gain).toBeCloseTo(12000, 2);
+
+    expect(res.yearRows[2].contributed).toBe(100000);
+    expect(res.yearRows[2].value).toBeCloseTo(125440, 2);
+    expect(res.yearRows[2].gain).toBeCloseTo(25440, 2);
+    expect(res.finalValue).toBeCloseTo(125440, 2);
+    expect(res.gain).toBeCloseTo(25440, 2);
+  });
+});
+
+describe('退休逐月現金流與資產獨立推導核對 (契約第 134 行零報酬案例)', () => {
+  it('A=59, R=60, H=61, W=60k, C=5k, E=10k, r=0, p=0: 逐月關鍵資產 60k -> 90k -> 120k -> 110k -> 60k -> 0', () => {
+    const res = calculateRetirement({
+      currentAge: 59,
+      retireAge: 60,
+      endAge: 61,
+      assets: 60000,
+      monthlyContribution: 5000,
+      monthlySpending: 10000,
+      monthlyIncome: 0,
+      incomeStartAge: undefined,
+      inflation: 0,
+      returnBefore: 0,
+      returnAfter: 0,
+    });
+    expect(res.status).toBe('valid');
+    // 共 24 個月 + 初始點 = 25 點
+    expect(res.points).toHaveLength(25);
+    // 月份 0 (期初): 60,000
+    expect(res.points[0].month).toBe(0);
+    expect(res.points[0].realBalance).toBe(60000);
+    // 月份 6 (工作第 6 個月): 60,000 + 6 * 5,000 = 90,000
+    expect(res.points[6].month).toBe(6);
+    expect(res.points[6].realBalance).toBe(90000);
+    // 月份 12 (退休時點): 60,000 + 12 * 5,000 = 120,000
+    expect(res.points[12].month).toBe(12);
+    expect(res.points[12].realBalance).toBe(120000);
+    // 月份 13 (退休後首月): 120,000 - 10,000 = 110,000
+    expect(res.points[13].month).toBe(13);
+    expect(res.points[13].realBalance).toBe(110000);
+    // 月份 18 (退休第 6 個月): 120,000 - 6 * 10,000 = 60,000
+    expect(res.points[18].month).toBe(18);
+    expect(res.points[18].realBalance).toBe(60000);
+    // 月份 24 (規劃終期): 120,000 - 12 * 10,000 = 0
+    expect(res.points[24].month).toBe(24);
+    expect(res.points[24].realBalance).toBe(0);
+  });
 });

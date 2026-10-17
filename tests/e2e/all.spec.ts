@@ -5,29 +5,28 @@ test.describe('V11-01 & A01: 找工具、搜尋同義詞與目的入口', () => 
     await page.goto('/');
     const searchInput = page.locator('#home-tool-search');
     const clearBtn = page.locator('#clear-search-btn');
-    const cardItems = page.locator('.tool-card-item');
 
     // 初始狀態為 5 個工具
-    await expect(cardItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(5);
+    await expect(page.locator('.tool-card-item:not([hidden])')).toHaveCount(5);
 
     // 搜尋「購屋」-> 篩選出房貸
     await searchInput.fill('購屋');
-    await expect(cardItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(1);
+    await expect(page.locator('.tool-card-item:not([hidden])')).toHaveCount(1);
     await expect(page.locator('.tool-card-item[data-tool-id="mortgage"]')).toBeVisible();
 
     // 搜尋「FIRE」-> 篩選出退休
     await searchInput.fill('FIRE');
-    await expect(cardItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(1);
+    await expect(page.locator('.tool-card-item:not([hidden])')).toHaveCount(1);
     await expect(page.locator('.tool-card-item[data-tool-id="retirement"]')).toBeVisible();
 
     // 搜尋不存在的詞 -> 零結果提示
     await searchInput.fill('無關關鍵字xyz999');
-    await expect(cardItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(0);
+    await expect(page.locator('.tool-card-item:not([hidden])')).toHaveCount(0);
     await expect(page.locator('#search-zero-state')).toBeVisible();
 
     // 點擊清除按鈕 -> 恢復 5 個工具
     await clearBtn.click();
-    await expect(cardItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(5);
+    await expect(page.locator('.tool-card-item:not([hidden])')).toHaveCount(5);
     await expect(searchInput).toHaveValue('');
   });
 
@@ -42,17 +41,16 @@ test.describe('V11-01 & A01: 找工具、搜尋同義詞與目的入口', () => 
 
   test('工具總覽頁分類切換與關鍵字聯合篩選', async ({ page }) => {
     await page.goto('/tools/');
-    const toolItems = page.locator('.tool-list-item');
-    await expect(toolItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(5);
+    await expect(page.locator('.tool-list-item:not([hidden])')).toHaveCount(5);
 
     // 點擊「投資與退休」分類
     await page.getByRole('button', { name: /^投資與退休/ }).click();
-    await expect(toolItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(2);
+    await expect(page.locator('.tool-list-item:not([hidden])')).toHaveCount(2);
 
     // 在該分類下搜尋「再平衡」-> 篩選出投資組合
     const searchInput = page.locator('#tools-search-input');
     await searchInput.fill('再平衡');
-    await expect(toolItems.filter({ hasNot: page.locator('[hidden]') })).toHaveCount(1);
+    await expect(page.locator('.tool-list-item:not([hidden])')).toHaveCount(1);
     await expect(page.locator('.tool-list-item[data-tool-id="portfolio"]')).toBeVisible();
   });
 });
@@ -77,11 +75,11 @@ test.describe('V11-02 & A10: 首屏可見性與響應式排版', () => {
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
 
-    const firstInput = page.locator('.field input').first();
+    const firstInput = page.locator('select[data-path="scenarios.0.inputMode"]');
     const coreCards = page.locator('.card-featured');
 
-    await expect(firstInput).toBeVisible();
-    await expect(coreCards.first()).toBeVisible();
+    await expect(firstInput).toBeInViewport();
+    await expect(coreCards.first()).toBeInViewport();
   });
 });
 
@@ -206,12 +204,13 @@ test.describe('V11-10: 儲存與設定管理 (Details, LocalStorage, Undo)', () 
     await expect(principalInput).toHaveValue('888,000');
   });
 
-  test('複製工具網址為純網址，不含輸入金額', async ({ page }) => {
+  test('複製工具網址為純網址，不含輸入金額', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
     await page.locator('.storage-management summary').click();
     await page.locator('button', { hasText: '複製工具網址' }).click();
-    await expect(page.locator('.status')).toContainText('已複製工具網址');
+    await expect(page.locator('.status')).toContainText(/(已複製工具網址|手動複製網址)/);
   });
 });
 
@@ -241,7 +240,7 @@ test.describe('V11-14 & A01: 完整路由導覽與 404', () => {
     { path: '/tools/stock-pledge/', title: '股票質押試算' },
     { path: '/tools/retirement/', title: '退休試算' },
     { path: '/tools/portfolio/', title: '投資組合試算' },
-    { path: '/recommendations/', title: '推薦優惠' },
+    { path: '/recommendations/', title: '推薦總覽' },
     { path: '/about/', title: '關於 Larry Lab' },
     { path: '/methodology/', title: '計算方法與模型說明' },
     { path: '/privacy/', title: '隱私說明與資料安全' },

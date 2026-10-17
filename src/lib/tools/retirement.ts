@@ -110,6 +110,33 @@ export const retirementTool: ToolDef = {
       target.inflation = sourceA.inflation;
     },
   },
+  compareInputs(s: Values, _ev: Evaluation): Array<{ label: string; value: string }> {
+    const curAge = s.currentAge ? `${s.currentAge} 歲` : '—';
+    const retAge = s.retireAge ? `${s.retireAge} 歲` : '—';
+    const endAge = s.endAge ? `${s.endAge} 歲` : '—';
+    const assets = s.assets ? `${s.assets} 元` : '—';
+    const contrib = s.monthlyContribution ? `${s.monthlyContribution} 元/月` : '—';
+    const spending = s.monthlySpending ? `${s.monthlySpending} 元/月` : '—';
+    const inf = s.inflation ? `${s.inflation}%` : '—';
+    const retBefore = s.returnBefore ? `${s.returnBefore}%` : '—';
+    const retAfter = s.returnAfter ? `${s.returnAfter}%` : '—';
+    const pension = Number(String(s.monthlyIncome || '0').replace(/,/g, '')) > 0 ? `${s.monthlyIncome} 元/月` : '無';
+    const pensionStart = s.incomeStartAge ? `${s.incomeStartAge} 歲` : '—';
+
+    return [
+      { label: '目前年齡', value: curAge },
+      { label: '目標退休年齡', value: retAge },
+      { label: '規劃終止年齡', value: endAge },
+      { label: '現有可投資淨資產', value: assets },
+      { label: '退休前每月儲蓄投入', value: contrib },
+      { label: '退休後預估每月生活支出', value: spending },
+      { label: '預估年通膨率', value: inf },
+      { label: '退休前名目年報酬率', value: retBefore },
+      { label: '退休後名目年報酬率', value: retAfter },
+      { label: '其他退休月收入', value: pension },
+      { label: '月收入開始領取年齡', value: pensionStart },
+    ];
+  },
   evaluate(values, root): Evaluation {
     const r = new FieldReader(values);
     const input: RetirementInput = {

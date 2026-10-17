@@ -92,6 +92,16 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         s.name = `${def.scenarioNoun} ${letters[i] || i + 1}`;
       }
     });
+    if (def.id === 'mortgage') {
+      scenarios().forEach((s) => {
+        if (!Array.isArray(s.segments) || s.segments.length === 0) {
+          s.segments = [{ startMonth: '1', annualRate: typeof s.fixedRate === 'string' ? s.fixedRate : '' }];
+        }
+        if (s.fixedRate === undefined || s.fixedRate === '') {
+          s.fixedRate = (s.segments[0] as Values)?.annualRate || '';
+        }
+      });
+    }
     if (active >= scenarios().length) active = 0;
   }
   normalize();
@@ -102,10 +112,11 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   const topEl = h('div', { class: 'tool-top' });
   const formEl = h('form', { class: 'tool-form', novalidate: true, 'aria-label': '輸入欄位' });
   const resultsEl = h('section', { class: 'tool-results', 'aria-labelledby': 'results-heading' });
+  const workspaceEl = h('div', { class: 'tool-workspace' }, formEl, resultsEl);
   const compareEl = h('section', { class: 'tool-compare', 'aria-label': `${def.scenarioNoun}比較` });
   const storageEl = h('details', { class: 'storage-management' });
 
-  container.replaceChildren(statusEl, tabsEl, topEl, formEl, resultsEl, compareEl, storageEl);
+  container.replaceChildren(statusEl, tabsEl, topEl, workspaceEl, compareEl, storageEl);
 
   formEl.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -232,6 +243,112 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         onValue(path, select.value, spec, scenario);
       });
       control = select;
+    } else if (spec.unitToggle?.type === 'year-month') {
+      const unitKey = `_unit_${spec.key}`;
+      const targetObj = scenario ?? values;
+      if (!targetObj[unitKey]) targetObj[unitKey] = spec.unitToggle.defaultUnit || 'year';
+      const currentUnit = targetObj[unitKey];
+
+      const input = h('input', {
+        id,
+        type: 'text',
+        'data-path': path,
+        'data-kind': 'integer',
+        inputmode: 'numeric',
+        autocomplete: 'off',
+        placeholder: spec.placeholder,
+        maxlength: '40',
+      });
+
+      const m = Number(String(current || '0').replace(/,/g, ''));
+      if (currentUnit === 'year') {
+        if (current === '' || current === undefined || current === null) {
+          input.value = '';
+        } else if (m % 12 === 0) {
+          input.value = String(m / 12);
+        } else {
+          input.value = `${Math.floor(m / 12)}年${m % 12}個月`;
+        }
+      } else {
+        input.value = typeof current === 'string' ? current : '';
+      }
+
+      const equivEl = h('span', { class: 'unit-equiv' });
+      const updateEquiv = () => {
+        const valStr = values[spec.key];
+        const valNum = Number(String(valStr || '0').replace(/,/g, ''));
+        if (!valStr || isNaN(valNum) || valNum <= 0) {
+          equivEl.textContent = '';
+          return;
+        }
+        if (targetObj[unitKey] === 'year') {
+          equivEl.textContent = `（等值 ${valNum} 個月）`;
+        } else {
+          const y = Math.floor(valNum / 12);
+          const rem = valNum % 12;
+          equivEl.textContent = `（等值 ${y > 0 ? `${y} 年 ` : ''}${rem} 個月）`;
+        }
+      };
+      updateEquiv();
+
+      const yearBtn = h('button', { type: 'button', class: `btn-unit ${currentUnit === 'year' ? 'active' : ''}` }, '年');
+      const monthBtn = h('button', { type: 'button', class: `btn-unit ${currentUnit === 'month' ? 'active' : ''}` }, '個月');
+
+      yearBtn.addEventListener('click', () => {
+        if (targetObj[unitKey] === 'year') return;
+        targetObj[unitKey] = 'year';
+        yearBtn.classList.add('active');
+        monthBtn.classList.remove('active');
+        const val = values[spec.key];
+        const num = Number(String(val || '0').replace(/,/g, ''));
+        if (val && num > 0) {
+          if (num % 12 === 0) input.value = String(num / 12);
+          else input.value = `${Math.floor(num / 12)}年${num % 12}個月`;
+        } else {
+          input.value = '';
+        }
+        updateEquiv();
+      });
+
+      monthBtn.addEventListener('click', () => {
+        if (targetObj[unitKey] === 'month') return;
+        targetObj[unitKey] = 'month';
+        monthBtn.classList.add('active');
+        yearBtn.classList.remove('active');
+        input.value = values[spec.key] ? String(values[spec.key]) : '';
+        updateEquiv();
+      });
+
+      input.addEventListener('input', () => {
+        const text = input.value.trim();
+        if (text === '') {
+          onValue(path, '', spec, scenario);
+          updateEquiv();
+          return;
+        }
+        if (targetObj[unitKey] === 'year') {
+          const y = Number(text.replace(/,/g, ''));
+          if (!isNaN(y)) {
+            const months = Math.round(y * 12);
+            onValue(path, String(months), spec, scenario);
+          } else {
+            onValue(path, text, spec, scenario);
+          }
+        } else {
+          onValue(path, text, spec, scenario);
+        }
+        updateEquiv();
+      });
+
+      input.addEventListener('blur', () => {
+        touched.add(path);
+        updateErrors();
+      });
+
+      const toggleGroup = h('span', { class: 'unit-toggle-group' }, yearBtn, monthBtn);
+      const inputWrap = h('div', { class: 'field-input-unit-wrap' }, input, toggleGroup);
+      label.append(equivEl);
+      control = inputWrap;
     } else {
       const input = h('input', {
         id,
@@ -277,6 +394,9 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         const rm = h('button', { type: 'button', class: 'btn subtle small' }, `刪除${spec.itemLabel} ${index + 1}`);
         rm.addEventListener('click', () => {
           items.splice(index, 1);
+          if (def.id === 'mortgage' && spec.key === 'segments' && items.length === 1) {
+            scenario.fixedRate = (items[0] as Values).annualRate || '';
+          }
           renderForm();
           refresh();
           setStatus(`已刪除${spec.itemLabel} ${index + 1}。`);
@@ -378,6 +498,29 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   function onValue(path: string, value: string, spec: FieldSpec, scenario: Values | null): void {
     setPath(root, path.split('.'), value);
     touched.add(path);
+
+    const currentScenario = scenario || scenarios()[active];
+    if (def.id === 'mortgage' && currentScenario) {
+      if (path.endsWith('.fixedRate')) {
+        if (!Array.isArray(currentScenario.segments) || currentScenario.segments.length === 0) {
+          currentScenario.segments = [{ startMonth: '1', annualRate: value }];
+        } else {
+          (currentScenario.segments[0] as Values).annualRate = value;
+        }
+        const partnerPath = path.replace(/\.fixedRate$/, '.segments.0.annualRate');
+        const partnerInput = formEl.querySelector<HTMLInputElement>(`input[data-path="${partnerPath}"]`);
+        if (partnerInput && partnerInput.value !== value) {
+          partnerInput.value = value;
+        }
+      } else if (path.endsWith('.segments.0.annualRate')) {
+        currentScenario.fixedRate = value;
+        const partnerPath = path.replace(/\.segments\.0\.annualRate$/, '.fixedRate');
+        const partnerInput = formEl.querySelector<HTMLInputElement>(`input[data-path="${partnerPath}"]`);
+        if (partnerInput && partnerInput.value !== value) {
+          partnerInput.value = value;
+        }
+      }
+    }
 
     if (spec.kind === 'select' && spec.clearsHidden && scenario) {
       for (const other of selectSpecs(def.scenarioFields)) {
@@ -534,21 +677,19 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         }
         t.append(body);
         wrap.append(t);
-
-        // 下載 CSV 按鈕直接放在明細表格旁
-        const csv = ev.csv;
-        if (csv) {
-          const csvBtn = h('button', { type: 'button', class: 'btn small' }, `下載 CSV 明細（${csv.filename}）`);
-          csvBtn.addEventListener('click', () => {
-            download(csv.filename, toCsv(csv.rows), 'text/csv;charset=utf-8');
-            setStatus('已在你的本機產生 CSV 檔案，未上傳任何資料。');
-          });
-          parts.push(h('div', { class: 'table-action-row' }, wrap, csvBtn));
-        } else {
-          parts.push(wrap);
-        }
-
+        parts.push(wrap);
         if (table.note) parts.push(h('p', { class: 'hint' }, table.note));
+      }
+
+      // 下載 CSV 按鈕：只要結果具有 CSV 即必定渲染，保證無表格工具（如退休試算）亦正常具備
+      const csv = ev.csv;
+      if (csv) {
+        const csvBtn = h('button', { type: 'button', class: 'btn small btn-csv-download' }, `下載 CSV 明細（${csv.filename}）`);
+        csvBtn.addEventListener('click', () => {
+          download(csv.filename, toCsv(csv.rows), 'text/csv;charset=utf-8');
+          setStatus('已在你的本機產生 CSV 檔案，未上傳任何資料。');
+        });
+        parts.push(h('div', { class: 'table-action-row' }, csvBtn));
       }
 
       if (ev.assumptions.length > 0) {
@@ -578,12 +719,19 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     const checkKeys: Record<string, string> = {
       principal: '貸款本金',
       price: '房屋總價',
+      downPayment: '頭期款',
+      ltv: '貸款成數',
       currentAge: '目前年齡',
       retireAge: '退休年齡',
+      endAge: '終止年齡',
       monthlyContribution: '每月投入',
       monthlySpending: '每月支出',
       assets: '可投資資產',
       collateralValue: '擔保品市值',
+      loanAmount: '借款金額',
+      monthlyIncome: '每月收入',
+      otherMonthlyDebt: '其他債務',
+      inflation: '通膨率',
     };
 
     for (const [k, label] of Object.entries(checkKeys)) {
@@ -596,33 +744,80 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       }
     }
 
-    const labels: string[] = [];
+    // 針對房貸工具檢查衍生貸款本金
+    if (def.id === 'mortgage') {
+      const p0 = evals[0]?.cards.find((c) => c.compareKey === 'principal')?.value;
+      for (let i = 1; i < evals.length; i += 1) {
+        const pi = evals[i]?.cards.find((c) => c.compareKey === 'principal')?.value;
+        if (p0 && pi && p0 !== pi) {
+          if (!baseDifferences.includes('貸款本金')) baseDifferences.push('貸款本金');
+        }
+      }
+    }
+
+    const table = h('table');
+    table.append(h('caption', {}, `${def.scenarioNoun}比較（各${def.scenarioNoun}輸入完全獨立）`));
+    const head = h('tr', {}, h('th', { scope: 'col' }, '項目'));
+    scenarios().forEach((s) => {
+      const badge = def.scenarioBadge ? def.scenarioBadge(s) : '';
+      head.append(
+        h(
+          'th',
+          { scope: 'col' },
+          String(s.name),
+          badge ? h('span', { class: 'compare-badge' }, badge) : null,
+        ),
+      );
+    });
+    table.append(h('thead', {}, head));
+    const body = h('tbody');
+
+    // 1. 輸入條件與假設區塊 (Inputs & Assumptions)
+    if (def.compareInputs) {
+      const baseInputs = def.compareInputs(scenarios()[0], evals[0]);
+      for (let rowIdx = 0; rowIdx < baseInputs.length; rowIdx += 1) {
+        const itemLabel = baseInputs[rowIdx].label;
+        const vals = scenarios().map((s, idx) => {
+          const list = def.compareInputs!(s, evals[idx]);
+          return list[rowIdx]?.value ?? '—';
+        });
+        const isDiff = vals.some((v) => v !== vals[0]);
+        const tr = h('tr', { class: isDiff ? 'compare-row-diff' : '' });
+        tr.append(h('th', { scope: 'row' }, itemLabel, isDiff ? h('span', { class: 'diff-tag' }, '（不同）') : null));
+        vals.forEach((v) => tr.append(h('td', { class: 'num' }, v)));
+        body.append(tr);
+      }
+    }
+
+    // 2. 試算結果指標區塊 (Results & Metrics)
+    interface MetricItem {
+      key: string;
+      label: string;
+    }
+    const metricItems: MetricItem[] = [];
     evals.forEach((ev) => {
       if (Object.keys(ev.errors).length === 0) {
         ev.cards.filter((c) => c.compare).forEach((c) => {
-          if (!labels.includes(c.label)) labels.push(c.label);
+          const key = c.compareKey || c.label;
+          if (!metricItems.some((m) => m.key === key)) {
+            metricItems.push({ key, label: c.compareLabel || c.label });
+          }
         });
       }
     });
 
-    const table = h('table');
-    table.append(h('caption', {}, `${def.scenarioNoun}比較（各${def.scenarioNoun}輸入完全獨立）`));
-    const head = h('tr', {}, h('th', { scope: 'col' }, '指標項目'));
-    scenarios().forEach((s) => head.append(h('th', { scope: 'col' }, String(s.name))));
-    table.append(h('thead', {}, head));
-    const body = h('tbody');
-
-    for (const label of labels) {
-      const tr = h('tr', {}, h('th', { scope: 'row' }, label));
+    for (const item of metricItems) {
+      const tr = h('tr');
+      tr.append(h('th', { scope: 'row' }, item.label));
       evals.forEach((ev) => {
         const invalid = Object.keys(ev.errors).length > 0;
-        const card = invalid ? undefined : ev.cards.find((c) => c.label === label);
+        const card = invalid ? undefined : ev.cards.find((c) => (c.compareKey || c.label) === item.key);
         tr.append(h('td', { class: 'num' }, invalid ? '輸入無效' : (card?.value ?? '—')));
       });
       body.append(tr);
     }
 
-    if (labels.length === 0) {
+    if (metricItems.length === 0 && (!def.compareInputs || def.compareInputs(scenarios()[0], evals[0]).length === 0)) {
       body.append(h('tr', {}, h('td', { colspan: String(scenarios().length + 1) }, `尚無可比較的有效${def.scenarioNoun}，請先修正輸入。`)));
     }
     table.append(body);

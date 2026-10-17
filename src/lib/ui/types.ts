@@ -19,6 +19,11 @@ export interface FieldSpec {
   clearsHidden?: boolean;
   /** 是否歸類為進階設定 */
   isAdvanced?: boolean;
+  /** 提供年/月等單位切換輸入便利控制，底層仍保存整數月 */
+  unitToggle?: {
+    type: 'year-month';
+    defaultUnit?: 'year' | 'month';
+  };
 }
 
 export interface ListSpec {
@@ -49,6 +54,10 @@ export interface Card {
   tone?: 'neutral' | 'good' | 'warn' | 'bad';
   /** Included in the scenario comparison table. */
   compare?: boolean;
+  /** 跨方案穩定對齊的指標識別鍵（例如 'firstPayment', 'totalInterest' 等） */
+  compareKey?: string;
+  /** 比較表中使用的欄位標題，若未提供則使用 label */
+  compareLabel?: string;
   /** 是否為前三項核心重點指標 */
   isCore?: boolean;
 }
@@ -130,6 +139,8 @@ export interface ToolDef {
   syncFromA?: SyncFromAConfig;
   /** 額外預設情境載入操作（例如退休工具的「載入三組報酬範例」） */
   presetScenariosAction?: PresetActionConfig;
+  /** 自訂方案比較表格中的輸入欄位項目與摘要 */
+  compareInputs?: (scenario: Values, evaluation: Evaluation) => Array<{ label: string; value: string }>;
 }
 
 export function emptyEvaluation(): Evaluation {

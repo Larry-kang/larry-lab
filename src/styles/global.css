@@ -592,6 +592,28 @@ fieldset.list-item > legend {
   margin-top: 24px;
 }
 
+/* ---------- tool workspace layout ---------- */
+.tool-workspace {
+  margin: 12px 0;
+}
+
+@media (min-width: 1280px) {
+  .tool-workspace {
+    display: grid;
+    grid-template-columns: minmax(360px, 460px) minmax(400px, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .tool-workspace > .tool-form {
+    margin: 0;
+  }
+
+  .tool-workspace > .tool-results {
+    margin-top: 0;
+  }
+}
+
 .results-title-row {
   display: flex;
   align-items: center;
@@ -1126,12 +1148,48 @@ tbody th {
 
 @media (max-width: 640px) {
   .layout {
-    padding: 14px 14px 0;
+    padding: 10px 12px 0;
+  }
+
+  .header-inner {
+    padding: 4px 14px;
+    min-height: 48px;
+  }
+
+  main > h1 {
+    font-size: 1.6rem;
+    margin: 6px 0 4px;
+  }
+
+  .lead {
+    font-size: 0.96rem;
+    margin: 2px 0 4px;
+  }
+
+  .scenario-tabs {
+    margin: 8px 0;
+    gap: 6px;
+  }
+
+  .compare-nav {
+    margin: 6px 0;
   }
 
   .tool-form,
   .tool-top {
-    padding: 12px 14px;
+    padding: 10px 12px;
+    margin: 8px 0;
+  }
+
+  .hint {
+    font-size: 0.84rem;
+    margin: 2px 0 4px;
+    line-height: 1.35;
+  }
+
+  .tab {
+    min-height: 38px;
+    padding: 4px 12px;
   }
 
   .btn-row .btn {
@@ -1154,3 +1212,76 @@ tbody th {
     scroll-behavior: auto !important;
   }
 }
+
+.field-input-unit-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.field-input-unit-wrap input {
+  flex: 1 1 auto;
+}
+
+.unit-toggle-group {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.btn-unit {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--muted);
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-unit:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.btn-unit.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.unit-equiv {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-left: 8px;
+  font-weight: 400;
+}
+
+.compare-badge {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.compare-row-diff {
+  background: rgba(234, 179, 8, 0.06);
+}
+
+.diff-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b45309;
+  margin-left: 4px;
+}
+
