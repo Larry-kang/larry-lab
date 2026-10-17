@@ -6,6 +6,7 @@ export interface Recommendation {
   name: string;
   category: string;
   shortDescription: string;
+  logo?: string;
   code?: string;
   referralUrl?: string;
   enabled: boolean;
@@ -27,6 +28,7 @@ export interface RecommendationFile {
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/;
+const LOGO_PATH_PATTERN = /^\/logos\/[a-z0-9-]+\.(png|svg)$/i;
 const VALID_LINK_STATUS = new Set<LinkStatus>(['VERIFIED', 'CODE_ONLY', 'UNKNOWN']);
 const VALID_OFFER_STATUS = new Set<OfferStatus>(['UNVERIFIED', 'VERIFIED', 'EXPIRED']);
 
@@ -115,6 +117,13 @@ export function validateRecommendations(file: unknown): Recommendation[] {
     if (typeof r.lastVerifiedAt !== 'string' || !DATE_PATTERN.test(r.lastVerifiedAt)) {
       throw new Error(`${where}.lastVerifiedAt 必須為 YYYY-MM-DD`);
     }
+    let logo: string | undefined;
+    if (r.logo !== undefined) {
+      if (typeof r.logo !== 'string' || !LOGO_PATH_PATTERN.test(r.logo)) {
+        throw new Error(`${where}.logo 必須為 /logos/<id>.png 或 .svg 本機路徑`);
+      }
+      logo = r.logo;
+    }
 
     const providedAt = validateNullableDate(r.providedAt, where, 'providedAt');
     if (providedAt === null) throw new Error(`${where}.providedAt 不可為 null`);
@@ -179,6 +188,7 @@ export function validateRecommendations(file: unknown): Recommendation[] {
       name,
       category,
       shortDescription,
+      logo,
       code: !hasCode ? undefined : (r.code as string).trim(),
       referralUrl: !hasUrl ? undefined : (r.referralUrl as string),
       enabled: r.enabled,
@@ -224,8 +234,8 @@ export function activeRecommendations(items: Recommendation[]): Recommendation[]
     .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
 }
 
-/** Desktop sidebar shows at most 3 enabled items in fixed sortOrder. */
-export function sidebarRecommendations(items: Recommendation[], maxCount: number = 3): Recommendation[] {
+/** Sidebar and mobile drawer show enabled items in fixed sortOrder (default all 17). */
+export function sidebarRecommendations(items: Recommendation[], maxCount: number = 17): Recommendation[] {
   return activeRecommendations(items).slice(0, maxCount);
 }
 

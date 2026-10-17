@@ -224,9 +224,10 @@ test.describe('V11-13 & A11: 隱私安全與 Cloudflare Pages 標頭驗證', () 
     expect(headers?.['content-security-policy']).toContain("frame-ancestors 'none'");
   });
 
-  test('確認隱私說明明確指出 LocalStorage 為未經加密純文字 JSON', async ({ page }) => {
+  test('確認隱私說明明確指出 LocalStorage 為未經加密純文字 JSON，並區分一般網頁連線與試算輸入不外傳', async ({ page }) => {
     await page.goto('/privacy/');
     await expect(page.locator('body')).toContainText('未經加密的純文字 JSON 格式');
+    await expect(page.locator('body')).toContainText('靜態網站連線紀錄');
     await expect(page.locator('body')).not.toContainText('加密存放在你個人瀏覽器');
   });
 });
@@ -262,8 +263,8 @@ test.describe('V11-14 & A01: 完整路由導覽與 404', () => {
   });
 });
 
-test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援與正式產品文案驗收', () => {
-  test('RF-01, RF-02, RF-04, RF-05, RF-07: 推薦總覽呈現全部 17 項，保留完整 href 參數、標示待確認、分離日期並具正確外連屬性', async ({ page }) => {
+test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo、緊湊側欄與正式產品文案驗收', () => {
+  test('RF-01, RF-02, RF-04, RF-05, RF-07: 推薦總覽呈現全部 17 項與官方 Logo，保留完整 href 參數並具正確外連屬性', async ({ page }) => {
     await page.goto('/recommendations/');
     const fullPanel = page.locator('.rec-full');
     await expect(fullPanel).toBeVisible();
@@ -272,16 +273,22 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     await expect(page.locator('[data-testid="rec-empty"]')).toHaveCount(0);
     await expect(page.locator('body')).not.toContainText('推薦資訊整理中');
 
-    // 總共 17 張推薦卡片
+    // 總共 17 張推薦卡片與 17 個官方 Logo
     const cards = fullPanel.locator('.rec-card');
     await expect(cards).toHaveCount(17);
+    const logos = fullPanel.locator('img.rec-logo-lg');
+    await expect(logos).toHaveCount(17);
+    const allLogosLoaded = await logos.evaluateAll((imgs) =>
+      imgs.every((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0),
+    );
+    expect(allLogosLoaded).toBe(true);
 
-    // 核對五大分類標題
+    // 核對五大分類標題（HOYA BIT 歸入台灣交易所，共 6/1/3/5/2）
     await expect(fullPanel.locator('.rec-category', { hasText: '數位銀行（6）' })).toBeVisible();
     await expect(fullPanel.locator('.rec-category', { hasText: '證券開戶（1）' })).toBeVisible();
-    await expect(fullPanel.locator('.rec-category', { hasText: '台灣交易所（2）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '台灣交易所（3）' })).toBeVisible();
     await expect(fullPanel.locator('.rec-category', { hasText: '國際交易所（5）' })).toBeVisible();
-    await expect(fullPanel.locator('.rec-category', { hasText: '其他加密服務（3）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '其他加密服務（2）' })).toBeVisible();
 
     // RF-02: 驗證實際 DOM href 完整保留 query、大小寫與 hash
     const lineLink = fullPanel.locator('.rec-card[data-rec-id="line-bank"] a');
@@ -319,12 +326,10 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     await expect(fullPanel.locator('[data-testid="rec-status-pending"]')).toHaveCount(0);
     await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(15);
 
-    // RF-05: 檢查日期分離與精簡利益揭露，不含未查核之簽帳卡或 AP/GP/LP 宣稱
-    await expect(fullPanel).toContainText('作者提供：2026-10-15');
-    await expect(fullPanel).toContainText('作者提供：2026-10-17');
-    await expect(fullPanel).toContainText('連結檢查：2026-10-17');
-    await expect(fullPanel).toContainText('優惠檢查：依平台公告');
+    // RF-05: 檢查精簡利益揭露，且公開卡片不再顯示工程查核日期，亦不含未查核之簽帳卡或 AP/GP/LP 宣稱
     await expect(fullPanel).toContainText('透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。');
+    await expect(fullPanel).not.toContainText('作者提供：');
+    await expect(fullPanel).not.toContainText('連結檢查：');
     await expect(page.locator('body')).not.toContainText('AP/GP/LP');
     await expect(page.locator('body')).not.toContainText('Apple Pay');
   });
@@ -368,7 +373,7 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     expect(selectedText).toBe('YCB0Y6');
   });
 
-  test('RF-06: 桌機側欄最多 3 項且附查看全部入口，手機版可折疊且不遮擋試算工具', async ({ page, isMobile }) => {
+  test('RF-06: 桌機側欄與手機版可折疊推薦區一次呈現全部 17 項與官方 Logo，且手機版預設收合不遮擋試算工具', async ({ page, isMobile }) => {
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
 
@@ -380,15 +385,31 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
       // 展開手機版推薦區
       await mobileDetails.locator('summary').click();
       await expect(mobileDetails).toHaveAttribute('open', '');
-      await expect(mobileDetails.locator('.rec-card')).toHaveCount(3);
+      await expect(mobileDetails.locator('.rec-compact-cat')).toHaveCount(5);
+      await expect(mobileDetails.locator('.rec-card')).toHaveCount(17);
+      await expect(mobileDetails.locator('img.rec-logo-sm')).toHaveCount(17);
       await expect(mobileDetails.locator('.rec-more a')).toContainText('查看全部 17 項推薦');
+      const mobileClipped = await mobileDetails.evaluate((el) => el.scrollWidth > el.clientWidth);
+      expect(mobileClipped).toBe(false);
+      const mobileBtnHeights = await mobileDetails
+        .locator('.btn.tiny')
+        .evaluateAll((els) => els.map((el) => (el as HTMLElement).offsetHeight));
+      expect(mobileBtnHeights.every((h) => h >= 44)).toBe(true);
     } else {
       const aside = page.locator('[data-testid="rec-aside"]');
       await expect(aside).toBeVisible();
-      await expect(aside.locator('.rec-card')).toHaveCount(3);
+      await expect(aside.locator('.rec-compact-cat')).toHaveCount(5);
+      await expect(aside.locator('.rec-card')).toHaveCount(17);
+      await expect(aside.locator('img.rec-logo-sm')).toHaveCount(17);
       const moreLink = aside.locator('.rec-more a');
       await expect(moreLink).toContainText('查看全部 17 項推薦');
       await expect(moreLink).toHaveAttribute('href', '/recommendations/');
+      const asideClipped = await aside.evaluate((el) => el.scrollWidth > el.clientWidth);
+      expect(asideClipped).toBe(false);
+      const asideBtnHeights = await aside
+        .locator('.btn.tiny')
+        .evaluateAll((els) => els.map((el) => (el as HTMLElement).offsetHeight));
+      expect(asideBtnHeights.every((h) => h >= 44)).toBe(true);
     }
 
     // 360px 視口無全頁橫向溢位
@@ -398,7 +419,23 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     expect(overflow).toBe(false);
   });
 
-  test('文案驗收: 全站公開頁面移除過時空狀態、誇大宣稱與未實作功能字眼', async ({ page }) => {
+  test('品牌識別與文案驗收: Geometric L 品牌 Logo、OG Image 與全站公開頁面文案整理', async ({ page }) => {
+    await page.goto('/');
+    const brandLogo = page.locator('.brand img.brand-logo');
+    await expect(brandLogo).toBeVisible();
+    await expect(brandLogo).toHaveAttribute('src', '/app-icon.svg');
+    const logoLoaded = await brandLogo.evaluate(
+      (img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+    );
+    expect(logoLoaded).toBe(true);
+
+    await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/app-icon.svg');
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/icon-180.png');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://larry-lab.pages.dev/og-image.png',
+    );
+
     const pagesToCheck = ['/', '/tools/', '/tools/mortgage/', '/recommendations/', '/about/', '/methodology/', '/privacy/'];
     const forbiddenPhrases = [
       '推薦資訊整理中',
@@ -408,6 +445,9 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
       '真實使用體驗與獨立評估',
       '不會捏造優惠或連結',
       '虛構示範範例，非個人財務保證',
+      '已實作功能與技術架構',
+      'AI 協作開發說明',
+      '原始碼（GitHub）',
     ];
 
     for (const p of pagesToCheck) {
@@ -423,4 +463,5 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     }
   });
 });
+
 
