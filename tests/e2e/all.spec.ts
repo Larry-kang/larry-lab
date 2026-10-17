@@ -227,7 +227,7 @@ test.describe('V11-13 & A11: 隱私安全與 Cloudflare Pages 標頭驗證', () 
   test('確認隱私說明明確指出 LocalStorage 為未經加密純文字 JSON，並區分一般網頁連線與試算輸入不外傳', async ({ page }) => {
     await page.goto('/privacy/');
     await expect(page.locator('body')).toContainText('未經加密的純文字 JSON 格式');
-    await expect(page.locator('body')).toContainText('一般網頁連線與試算資料分離');
+    await expect(page.locator('body')).toContainText('靜態網站連線紀錄');
     await expect(page.locator('body')).not.toContainText('加密存放在你個人瀏覽器');
   });
 });
