@@ -13,6 +13,8 @@ interface Props {
 }
 const { title, description, nav, toolCategory } = Astro.props;
 const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
+const isNotFound = /^\/404(?:\.html|\/)?$/.test(Astro.url.pathname);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -24,6 +26,8 @@ const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${ti
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {isNotFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonicalUrl} />}
+    {!isNotFound && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:locale" content="zh_TW" />

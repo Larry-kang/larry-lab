@@ -1,8 +1,8 @@
 import { defineConfig } from 'astro/config';
 
-// Static output for Cloudflare Pages. `site` is intentionally unset until the real URL is confirmed,
-// so no fake canonical URL, sitemap or robots.txt is generated.
+// Cloudflare Pages 正式網址；預覽環境也使用正式網址作為 canonical。
 export default defineConfig({
+  site: 'https://larry-lab.pages.dev',
   output: 'static',
   trailingSlash: 'always',
   build: {
