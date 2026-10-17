@@ -1,6 +1,6 @@
 # Larry Lab 驗收追蹤表（ACCEPTANCE）
 
-版本：2.2（推薦資訊整合與正式產品文案整理版）· 日期：2026-10-17 · 狀態：已實作與工程驗證通過 (IMPLEMENTED & VERIFIED) / 已部署 (DEPLOYED) / 真人易用性未執行 (NOT RUN) / 部分外部連結與外部官方比對未知 (UNKNOWN)
+版本：2.2（推薦資訊整合與正式產品文案整理版）· 日期：2026-10-17 · 狀態：已實作與工程驗證通過 (IMPLEMENTED & VERIFIED) / 預覽已部署 (PREVIEW DEPLOYED) / 待合併正式站 (PENDING MAIN MERGE) / 真人易用性未執行 (NOT RUN) / 部分外部連結與外部官方比對未知 (UNKNOWN)
 
 依據 `SPEC.md`、`docs/CALCULATION_CONTRACT.md`、`docs/NEXT_VERSION_SPEC.md`、`docs/MORTGAGE_IMPROVEMENT_PLAN.md` 與 `docs/REFERRAL_INTEGRATION_PLAN.md`，以下完整記錄原第一版 A01–A14、第二版 V11-01–V11-14、第三版 M12-01–M12-11 與第四版推薦整合及文案整理 RF-01–RF-08 之需求對照、驗收標準、執行結果與客觀證據。
 
@@ -77,7 +77,7 @@
 | **A11** | 隱私與安全防護 | **通過 (PASS)** | 純本機運算、零外傳、CSV 防公式注入、CSP 安全標頭、未加密儲存明確載明。 |
 | **A12** | 工程交付與檢查門檻 | **通過 (PASS)** | check/lint/unit/build/e2e 全部通過，README 與文檔皆同步更新。 |
 | **A13** | 內容真實性與利益揭露 | **通過 (PASS)** | 17 項推薦資料逐筆查核並分離提供日／連結檢查日／優惠檢查日；精簡利益揭露清楚可達；正式產品文案移除過時施工語氣與未驗證宣稱。 |
-| **A14** | 正式部署與線上驗證 | **通過 (PASS)** | `output: 'static'`，已透過 Cloudflare Pages 部署至 <https://larry-lab.pages.dev/> 並完成線上驗證（詳見 `docs/DEPLOYMENT.md`）。 |
+| **A14** | 部署設定與預覽驗證 | **通過 (PASS)** | `output: 'static'`，正式站基線（`08fc5ec` / `f992e3a`）已部署於 <https://larry-lab.pages.dev/>；本輪推薦整合（PR #7）已通過 Cloudflare Pages 預覽部署（`06863e2b`），待合併 `main` 後執行正式站最終驗證（詳見 `docs/DEPLOYMENT.md`）。 |
 
 ---
 

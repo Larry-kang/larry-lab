@@ -33,12 +33,12 @@
 | 4 | `next-bank` | 將來商業銀行 NEXT BANK | 數位銀行 | 推薦碼：`HCPGD`（無網址） | `CODE_ONLY` | 是（僅複製碼） | 僅提供推薦碼複製與手動選取備援，不猜測網址 |
 | 5 | `rakuten-bank` | 樂天國際商業銀行 | 數位銀行 | 推薦碼：`YCB0Y6`（無網址） | `CODE_ONLY` | 是（僅複製碼） | 僅提供推薦碼複製與手動選取備援，不猜測網址 |
 | 6 | `bankee` | 遠東商銀 Bankee 社群銀行 | 數位銀行 | `https://www.bankee.tw/webview/app2/M00300/JLG12` | `UNKNOWN` | **否（停用外連）** | 伺服器回傳 HTTP 404 Not Found；標記 `UNKNOWN` 並停用外連，顯示「連結待確認」 |
-| 7 | `sinotrade` | 永豐金證券 大戶投 | 證券開戶 | `https://www.sinotrade.com.tw/openact?strProd=0102&strWeb=0009&utm_campaign=NewWeb_Share&utm_source=OP_Share&utm_medium=referral&strOt=E9J` | `VERIFIED` | 是 | HTTP 200，正常載入永豐金證券線上開戶頁 |
-| 8 | `bitopro` | BitoPro 幣託交易所 | 台灣交易所 | `https://www.bitopro.com/users/referrer/2066949235` | `VERIFIED` | 是 | HTTP 200，導向 `https://www.bitopro.com/ns/Landing` 官方推薦著陸頁 |
-| 9 | `max` | MAX 數位資產交易所 | 台灣交易所 | `https://max.maicoin.com/signup?r=58d5c9a8` | `VERIFIED` | 是 | HTTP 200，正常載入 MAX 註冊頁 |
-| 10 | `binance` | Binance | 國際交易所 | `https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00TNLH8TXZ` | `VERIFIED` | 是 | HTTP 200，正常載入 Binance 邀請註冊頁 |
+| 7 | `sinotrade` | 永豐金證券 大戶投 | 證券開戶 | `https://www.sinotrade.com.tw/richclub/join/openact?invt=95DT7` | `VERIFIED` | 是 | HTTP 200，轉址至 `https://www.sinotrade.com.tw/openact?invt=95DT7&invt_src=b21dea68c71c69ef2b1814eecf7b5c53&strProd=0129&strWeb=0248&utm_campaign=MGM_inchannel&utm_medium=share_1126&utm_source=dawhotouAPP` 線上開戶頁 |
+| 8 | `bitopro` | BitoPro 幣託交易所 | 台灣交易所 | `https://www.bitopro.com/users/sign_up?referrer=1637741422` | `VERIFIED` | 是 | HTTP 200，正常載入 `https://www.bitopro.com/users/sign_up?referrer=1637741422` 官方推薦註冊頁 |
+| 9 | `max` | MAX 數位資產交易所 | 台灣交易所 | `https://max.maicoin.com/signup?r=4705d2fe` | `VERIFIED` | 是 | HTTP 200，正常載入 `https://max.maicoin.com/signup?r=4705d2fe` 官方推薦註冊頁 |
+| 10 | `binance` | Binance | 國際交易所 | `https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00TNLH8TXZ` | `VERIFIED` | 是 | HTTP 200，轉址至 `https://www.binance.com/zh-TC/activity/referral/offers/claim?ref=CPA_00TNLH8TXZ` 官方邀請註冊頁 |
 | 11 | `okx` | OKX | 國際交易所 | `https://okx.com/join/66386555` | `VERIFIED` | 是 | HTTP 200，導向 `https://www.okx.com/zh-hant/join/66386555` 官方註冊頁 |
-| 12 | `crypto-com` | Crypto.com | 國際交易所 | `https://crypto.com/app/my9m72jntc` | `VERIFIED` | 是 | HTTP 200，導向 `https://crypto.com/en/ referral` 官方頁面 |
+| 12 | `crypto-com` | Crypto.com | 國際交易所 | `https://crypto.com/app/my9m72jntc` | `VERIFIED` | 是 | HTTP 200，導向 `https://accounts.crypto.com/zh-TW/signup?...&referral_code=my9m72jntc` 官方註冊頁 |
 | 13 | `bitget` | Bitget | 國際交易所 | `https://share.bitget.com/u/T1X2F2SE` | `VERIFIED` | 是 | 短網址經真實瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://www.bitget.com/zh-TC/referral/register?clacCode=7E3PSW6K&from=%2Fzh-TC%2Fevents%2Freferral&source=events` |
 | 14 | `bybit` | Bybit | 國際交易所 | `https://www.bybit.com/invite?ref=Z6KMRD3` | `UNKNOWN` | **否（停用外連）** | 受反自動化／CDN 防護阻擋（HTTP 403 / `ERR_HTTP2_PROTOCOL_ERROR`）；標記 `UNKNOWN` 並停用外連，顯示「連結待確認」 |
 | 15 | `redotpay` | RedotPay | 其他加密服務 | `https://url.hk/i/tw/ig6sj` | `VERIFIED` | 是 | 短網址經真實瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://wap.redotpay.com/tw/invite/?referralId=ig6sj&poster_id=3` |
