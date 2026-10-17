@@ -638,7 +638,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     const ev = evals[active];
     const name = String(scenarios()[active].name);
     const heading = h('h2', { id: 'results-heading', tabindex: '-1' }, `試算結果：${name}`);
-    const sampleBadge = h('span', { class: 'sample-tag' }, '虛構示範範例，非個人財務保證');
+    const sampleBadge = h('span', { class: 'sample-tag' }, '示範情境（虛構範例）');
     const parts: Node[] = [h('div', { class: 'results-title-row' }, heading, sampleBadge)];
 
     const errorKeys = Object.keys(ev.errors);
@@ -847,7 +847,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     exampleBtn.addEventListener('click', () => {
       root = clone(def.example());
       resetView();
-      setStatus('已載入虛構示範範例。');
+      setStatus('已載入示範情境範例。');
     });
 
     const resetBtn = h('button', { type: 'button', class: 'btn' }, '清空重設');

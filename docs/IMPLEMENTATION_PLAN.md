@@ -76,3 +76,19 @@
   - [x] 更新 `NEXT_VERSION_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `ACCEPTANCE.md`, `VALIDATION.md`, `README.md`。
   - [x] 標明真人易用性測試為未執行（NOT RUN）。
   - [x] 使用 GitHub noreply 提交並推送至 `origin/feat/next-version-spec`，建立 PR。
+
+### 階段六：推薦資訊整合與正式產品文案整理（2026-10-17 完成）
+- [x] **17 項推薦資料集中整合與驗證 (`recommendations.json` & `recommendations.ts`)**：
+  - [x] 整合 6 項數位銀行、1 項證券開戶、2 項台灣交易所、5 項國際交易所、3 項其他加密服務至單一來源 `src/content/recommendations.json`。
+  - [x] 實作 `ALLOWED_REFERRAL_HOSTNAMES` 域名白名單、`LinkStatus`（`VERIFIED` / `CODE_ONLY` / `UNKNOWN`）與日期分離欄位（`providedAt`, `linkCheckedAt`, `offerCheckedAt`）。
+  - [x] 透過真實瀏覽器逐筆查核 15 個 URL（含 `bitget`、`redotpay`、`ether.fi` 短網址／分享網址轉址最終目的地）；將回應 HTTP 404 之 `bankee` 與回應 HTTP 403 之 `bybit` 標記為 `UNKNOWN` 並停用外連按鈕。
+  - [x] 將來銀行（`HCPGD`）與樂天銀行（`YCB0Y6`）僅提供推薦碼複製與手動選取備援，不猜測推薦網址。
+- [x] **共用推薦區與推薦總覽升級 (`RecommendationPanel.astro` & `/recommendations/`)**：
+  - [x] 桌機右側欄與手機底部可折疊面板初始最多顯示 3 項，附「查看全部 17 項推薦與利益揭露 →」入口。
+  - [x] 推薦總覽完整呈現 17 項分類卡片、外連 `rel="sponsored noopener noreferrer"` 與「（另開新分頁）」提示。
+- [x] **正式產品文案整理**：
+  - [x] 移除過時施工空狀態（「推薦資訊整理中」、「作者尚未提供」）、過度自我辯護（「絕不造假」、「拒絕黑箱」）、未實作功能（「蒙地卡羅模擬」）、誇大安全隱私宣稱（「無伺服器維運安全風險」）及未經核實之個人背書。
+  - [x] 簡化試算頁範例標示為「示範情境（虛構範例）」，統一精簡利益揭露文案。
+- [x] **測試與正式站交付驗證**：
+  - [x] 擴充單元測試（133 項）與 Playwright E2E 測試（102 項）涵蓋 `RF-01` 至 `RF-08`。
+

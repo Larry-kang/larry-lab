@@ -4,11 +4,16 @@ import { MAX_IMPORT_BYTES, buildExport, parseImport, sanitize, type Schema } fro
 import { FieldReader, parseNumberText } from '../../src/lib/parse';
 import { clearAllTools, loadTool, saveTool } from '../../src/lib/storage';
 import recommendationsFile from '../../src/content/recommendations.json';
+import ownerProvidedFile from '../../docs/referrals.owner-provided.json';
 import {
   activeRecommendations,
   groupByCategory,
+  hasUsableReferralLink,
+  isAllowedReferralHostname,
   isOfferActive,
   isSafeHttpsUrl,
+  publicRecommendations,
+  sidebarRecommendations,
   validateRecommendations,
 } from '../../src/lib/recommendations';
 
@@ -174,46 +179,127 @@ describe('recommendations', () => {
     disclosure: '測試用揭露',
     sortOrder: 1,
     lastVerifiedAt: '2026-10-14',
-    referralUrl: 'https://example.com/',
+    referralUrl: 'https://www.linebank.com.tw/R/mgm-portal',
+    linkStatus: 'VERIFIED',
     ...over,
   });
 
-  it('production data ships with no active item', () => {
+  it('RF-01 & RF-02: production data contains all 17 owner-provided items with exact URLs and codes', () => {
     const items = validateRecommendations(recommendationsFile);
-    expect(activeRecommendations(items)).toHaveLength(0);
+    expect(items).toHaveLength(17);
+    expect(publicRecommendations(items)).toHaveLength(17);
+    expect(groupByCategory(publicRecommendations(items)).map((g) => [g.category, g.items.length])).toEqual([
+      ['數位銀行', 6],
+      ['證券開戶', 1],
+      ['台灣交易所', 2],
+      ['國際交易所', 5],
+      ['其他加密服務', 3],
+    ]);
+
+    // 15 enabled items (13 verified URLs + 2 code-only) and 2 UNKNOWN items (bankee, bybit)
+    const active = activeRecommendations(items);
+    expect(active).toHaveLength(15);
+    expect(sidebarRecommendations(items)).toHaveLength(3);
+
+    const byId = new Map(items.map((x) => [x.id, x]));
+    expect(byId.size).toBe(17);
+
+    // Compare every item against docs/referrals.owner-provided.json
+    expect(ownerProvidedFile.items).toHaveLength(17);
+    for (const src of ownerProvidedFile.items) {
+      const target = byId.get(src.id);
+      expect(target, `Missing item ${src.id}`).toBeDefined();
+      expect(target!.name).toBe(src.name);
+      expect(target!.providedAt).toBe('2026-10-15');
+      expect(target!.offerCheckedAt).toBeNull();
+      expect(target!.offerText).toBeUndefined();
+
+      if (src.code !== null) {
+        expect(target!.code).toBe(src.code);
+        expect(target!.referralUrl).toBeUndefined();
+        expect(target!.linkStatus).toBe('CODE_ONLY');
+        expect(target!.linkCheckedAt).toBeNull();
+      } else {
+        expect(target!.code).toBeUndefined();
+        expect(target!.referralUrl).toBe(src.url);
+        expect(target!.linkCheckedAt).toBe('2026-10-17');
+      }
+    }
+
+    // RF-03: next-bank & rakuten-bank code-only verification
+    expect(byId.get('next-bank')?.code).toBe('HCPGD');
+    expect(byId.get('next-bank')?.referralUrl).toBeUndefined();
+    expect(byId.get('rakuten-bank')?.code).toBe('YCB0Y6');
+    expect(byId.get('rakuten-bank')?.referralUrl).toBeUndefined();
+
+    // RF-02: exact query/hash preservation on key URLs
+    expect(byId.get('line-bank')?.referralUrl).toBe('https://www.linebank.com.tw/R/mgm-portal?campaignId=2&uid=bfQnUx');
+    expect(byId.get('new-new-bank')?.referralUrl).toBe('https://newnewbank.ubot.com.tw/web/#/S0101001?pm=3&ID=ANIDEZI');
+    expect(byId.get('richart')?.referralUrl).toBe(
+      'https://richart.tw/TSDIB_RichartWeb/RC07/RC070100?sn=IPE2U&utm_source=richart&utm_medium=app&utm_campaign=richart_mgm_20230701',
+    );
+
+    // RF-04: UNKNOWN items disable outbound link
+    expect(byId.get('bankee')?.linkStatus).toBe('UNKNOWN');
+    expect(byId.get('bankee')?.enabled).toBe(false);
+    expect(hasUsableReferralLink(byId.get('bankee')!)).toBe(false);
+    expect(byId.get('bybit')?.linkStatus).toBe('UNKNOWN');
+    expect(byId.get('bybit')?.enabled).toBe(false);
+    expect(hasUsableReferralLink(byId.get('bybit')!)).toBe(false);
   });
-  it('rejects malformed files and unsafe URLs', () => {
+
+  it('rejects malformed files, unsafe URLs, incoherent status combinations, and unapproved hostnames', () => {
     expect(() => validateRecommendations({})).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'javascript:alert(1)' })] })).toThrow();
-    expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://www.linebank.com.tw/' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'data:text/html,x' })] })).toThrow();
-    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://user:pw@example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://user:pw@www.linebank.com.tw/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://untrusted-phishing.example.org/' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ id: 'Bad Id' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item(), item()] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ enabled: 'yes' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ lastVerifiedAt: '2026/10/14' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: 'INVALID' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: undefined })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: 'CODE_ONLY' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ linkStatus: 'UNKNOWN', enabled: true })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: undefined, linkStatus: 'VERIFIED' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ providedAt: null })] })).toThrow();
     expect(isSafeHttpsUrl('https://example.com/')).toBe(true);
     expect(isSafeHttpsUrl('//example.com')).toBe(false);
+    expect(isAllowedReferralHostname('https://www.linebank.com.tw/R/mgm-portal')).toBe(true);
+    expect(isAllowedReferralHostname('https://example.com/')).toBe(false);
+    expect(isAllowedReferralHostname('https://evil.com/')).toBe(false);
   });
-  it('shows only enabled items that have a code or a link, in a fixed order', () => {
+
+  it('shows only enabled items that have a code or a verified link in activeRecommendations, in a fixed order', () => {
     const items = validateRecommendations({
       items: [
         item({ id: 'b', sortOrder: 2 }),
-        item({ id: 'a', sortOrder: 1, referralUrl: undefined, code: 'TEST123' }),
-        item({ id: 'c', sortOrder: 0, enabled: false }),
-        item({ id: 'd', sortOrder: 3, referralUrl: undefined }),
+        item({ id: 'a', sortOrder: 1, referralUrl: undefined, code: 'TEST123', linkStatus: 'CODE_ONLY' }),
+        item({ id: 'c', sortOrder: 0, enabled: false, linkStatus: 'UNKNOWN' }),
+        item({ id: 'd', sortOrder: 3, referralUrl: undefined, linkStatus: undefined }),
         item({ id: 'e', sortOrder: 1 }),
       ],
     });
     expect(activeRecommendations(items).map((x) => x.id)).toEqual(['a', 'e', 'b']);
+    expect(publicRecommendations(items).map((x) => x.id)).toEqual(['c', 'a', 'e', 'b']);
+    expect(sidebarRecommendations(items, 2).map((x) => x.id)).toEqual(['a', 'e']);
   });
-  it('drops expired offers without inventing dates', () => {
-    const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14' })] });
+
+  it('drops expired or unverified offers without inventing dates', () => {
+    expect(() => validateRecommendations({ items: [item({ offerText: '未驗證優惠' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ offerText: '未驗證優惠', offerStatus: 'UNVERIFIED' })] })).toThrow();
+    const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14', offerStatus: 'VERIFIED' })] });
     expect(isOfferActive(withOffer, new Date('2026-10-14T15:00:00Z'))).toBe(true);
     expect(isOfferActive(withOffer, new Date('2026-10-15T16:30:00Z'))).toBe(false);
+    expect(isOfferActive({ ...withOffer, offerStatus: 'UNVERIFIED' }, new Date('2026-10-14T15:00:00Z'))).toBe(false);
+    expect(isOfferActive({ ...withOffer, offerStatus: undefined }, new Date('2026-10-14T15:00:00Z'))).toBe(false);
     const [noOffer] = validateRecommendations({ items: [item()] });
     expect(isOfferActive(noOffer, new Date())).toBe(false);
   });
+
   it('groups by category keeping order', () => {
     const items = validateRecommendations({ items: [item({ id: 'a', category: 'X' }), item({ id: 'b', category: 'Y' }), item({ id: 'c', category: 'X' })] });
     expect(groupByCategory(items).map((g) => [g.category, g.items.map((i) => i.id)])).toEqual([

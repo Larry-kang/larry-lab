@@ -170,7 +170,7 @@ export const retirementTool: ToolDef = {
       ev.notices.push({ tone: 'bad', text: `在這些假設下，約 ${result.firstShortfallAge} 歲（第 ${result.firstShortfallMonth} 個月）首次資金不足，之後的支出沒有資金支應。` });
     }
     if (result.earliestRetireAge === null) {
-      ev.notices.push({ tone: 'warn', text: '規劃期間內，在這些假設下沒有任何整歲年齡可以退休而不發生資金不足（不顯示捏造的年齡）。' });
+      ev.notices.push({ tone: 'warn', text: '規劃期間內，在這些假設下沒有任何整歲年齡可以退休而不發生資金不足。' });
     }
     if (result.noAccumulation) {
       ev.notices.push({ tone: 'info', text: '目標退休年齡等於目前年齡，沒有累積期：每月應存金額不適用，請看資金缺口。' });
@@ -249,7 +249,7 @@ export const retirementTool: ToolDef = {
       '退休月收入從輸入的實際年齡開始，不是退休後的相對年數；工作期間的收入已包含在每月投入（淨儲蓄）內。',
       '資金不足時停止足額支應，不把負餘額畫成可用資產；圖表後段會維持 0。',
       '未計入：稅負、投資費用、醫療與長照支出的不確定性、自住房屋（除非你假設可變現）及報酬的波動。不提供 Monte Carlo 成功機率。',
-      '情境中的報酬與通膨皆為假設，不是保證報酬，也不是個人化建議。',
+      '預設數值與情境中的報酬、通膨皆為虛構範例假設，不是保證報酬，也不是個人化建議。',
     ];
     return ev;
   },

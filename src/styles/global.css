@@ -306,6 +306,10 @@ a:hover {
   font-size: 0.9rem;
 }
 
+.rec-group {
+  margin-bottom: 20px;
+}
+
 .rec-list {
   list-style: none;
   padding: 0;
@@ -316,20 +320,77 @@ a:hover {
 .rec-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rec-card-pending {
+  background: #fafcfb;
+  border-style: dashed;
 }
 
 .rec-card p {
-  margin: 4px 0;
+  margin: 2px 0;
+}
+
+.rec-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .rec-name {
   font-weight: 700;
+  color: var(--text);
+}
+
+.rec-cat-tag {
+  font-size: 0.76rem;
+  color: var(--muted);
+  background: #eef3f3;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.rec-status-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--warn);
+  background: var(--warn-bg);
+  border: 1px solid #ecc695;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.rec-pending-note {
+  font-size: 0.85rem;
+  color: var(--warn);
+  font-weight: 600;
 }
 
 .rec-offer {
   color: var(--warn);
+}
+
+.rec-code {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rec-code code {
+  background: #eef2f4;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .rec-meta,
@@ -340,13 +401,13 @@ a:hover {
 }
 
 .rec-category {
-  font-size: 0.95rem;
-  color: var(--muted);
-  margin: 12px 0 4px;
+  font-size: 1.05rem;
+  color: var(--accent-strong);
+  margin: 14px 0 8px;
 }
 
 .rec-full .rec-list {
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
 /* ---------- buttons ---------- */

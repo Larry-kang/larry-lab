@@ -4,10 +4,10 @@ import RecommendationPanel from '../../components/RecommendationPanel.astro';
 import { site } from '../../config/site';
 ---
 
-<BaseLayout title="推薦總覽" description="Larry Lab 推薦的好用服務與工具清單，附帶完整的利益揭露與空狀態說明。" nav="recommendations">
+<BaseLayout title="推薦總覽" description="整理作者提供的數位銀行、證券開戶與加密資產服務推薦連結與推薦碼，並附完整利益揭露說明。" nav="recommendations">
   <h1>推薦總覽</h1>
   <p class="lead">
-    這裡整理作者個人使用過、覺得對開發或生活有實質幫助的工具、平台與優惠推薦。
+    以下整理作者提供的數位銀行、證券與加密資產服務推薦連結及邀請碼。所有試算工具皆獨立運作，不受推薦資訊或排序影響。
   </p>
 
   <div class="panel">
@@ -15,19 +15,19 @@ import { site } from '../../config/site';
   </div>
 
   <section id="disclosure" aria-labelledby="disclosure-heading" class="panel">
-    <h2 id="disclosure-heading">利益揭露與推薦原則</h2>
+    <h2 id="disclosure-heading">利益揭露與使用說明</h2>
     <div class="prose">
       <p>
-        <strong>透明原則：</strong>
+        <strong>利益揭露：</strong>
         {site.referralNotice}
       </p>
       <p>
-        <strong>推薦標準：</strong>
-        所有列出的項目均基於真實使用體驗與獨立評估，絕不因為分潤多寡而調整排序或評價。若作者尚未取得優惠或真實推薦碼，該項目將保持停用或不顯示，絕不捏造虛構優惠。
+        <strong>查核與狀態說明：</strong>
+        各卡片分別標示作者提供日期、連結檢查日期與優惠檢查狀態。僅提供推薦碼的項目可點擊複製並於申請時自行填入；外部連結若因平台限制無法自動確認，將標示為「連結待確認」並暫停外連按鈕。
       </p>
       <p>
-        <strong>免責聲明：</strong>
-        推薦項目與平台之實際服務條款、優惠期限及收費標準請以該平台官方公告為準，Larry Lab 不承擔任何第三方平台交易風險。
+        <strong>風險與條件提醒：</strong>
+        金融開戶、借貸與虛擬資產服務均具相應風險與資格限制，實際活動內容、費率、開戶條件與服務範圍請以各平台官方最新公告為準。
       </p>
     </div>
   </section>

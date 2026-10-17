@@ -2,11 +2,11 @@ export const site = {
   name: 'Larry Lab',
   tagline: '把假設算清楚，再做決定',
   subtitle: '免登入，財金試算在你的瀏覽器完成',
-  description: 'Larry Lab 是公開的個人財金工具箱，提供房貸、信貸、股票質押、退休與投資組合試算，所有計算均在瀏覽器本機完成，無後端儲存、零追蹤。',
+  description: 'Larry Lab 是公開的個人財金試算工具箱，提供房貸、信貸、股票質押、退休與投資組合試算，所有計算均在瀏覽器本機完成，無後端儲存與第三方追蹤。',
   author: 'Larry｜C#／.NET 後端工程師，關注系統整合、交易可靠性與 AI 協作。',
   githubProfile: 'https://github.com/Larry-kang',
   githubRepo: 'https://github.com/Larry-kang/larry-lab',
-  referralNotice: '透過部分連結註冊，我可能獲得推薦獎勵；請自行確認平台條件。',
+  referralNotice: '透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。',
 } as const;
 
 export interface ToolMeta {
