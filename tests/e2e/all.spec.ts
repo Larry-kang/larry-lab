@@ -305,16 +305,23 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援�
     const bitgetLink = fullPanel.locator('.rec-card[data-rec-id="bitget"] a');
     await expect(bitgetLink).toHaveAttribute('href', 'https://share.bitget.com/u/T1X2F2SE');
 
-    // RF-04: 無法確認的連結 (bankee, bybit) 標示「連結待確認」且不渲染外連 a 標籤
-    for (const pendingId of ['bankee', 'bybit']) {
-      const pendingCard = fullPanel.locator(`.rec-card[data-rec-id="${pendingId}"]`);
-      await expect(pendingCard).toBeVisible();
-      await expect(pendingCard.locator('[data-testid="rec-status-pending"]')).toHaveText('連結待確認');
-      await expect(pendingCard.locator('a')).toHaveCount(0);
-    }
+    const bankeeLink = fullPanel.locator('.rec-card[data-rec-id="bankee"] a');
+    await expect(bankeeLink).toHaveAttribute('href', 'https://www.bankee.tw/webview/app3/M00300/JLG12');
+    await expect(bankeeLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
+    await expect(bankeeLink).toHaveAttribute('target', '_blank');
+
+    const bybitLink = fullPanel.locator('.rec-card[data-rec-id="bybit"] a');
+    await expect(bybitLink).toHaveAttribute('href', 'https://partner.bybit.com/b/157345');
+    await expect(bybitLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
+    await expect(bybitLink).toHaveAttribute('target', '_blank');
+
+    // 全部 15 個網址皆已驗證啟用，無待確認項目
+    await expect(fullPanel.locator('[data-testid="rec-status-pending"]')).toHaveCount(0);
+    await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(15);
 
     // RF-05: 檢查日期分離與精簡利益揭露，不含未查核之簽帳卡或 AP/GP/LP 宣稱
     await expect(fullPanel).toContainText('作者提供：2026-10-15');
+    await expect(fullPanel).toContainText('作者提供：2026-10-17');
     await expect(fullPanel).toContainText('連結檢查：2026-10-17');
     await expect(fullPanel).toContainText('優惠檢查：依平台公告');
     await expect(fullPanel).toContainText('透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。');
