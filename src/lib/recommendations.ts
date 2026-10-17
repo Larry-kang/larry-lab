@@ -32,7 +32,7 @@ const VALID_OFFER_STATUS = new Set<OfferStatus>(['UNVERIFIED', 'VERIFIED', 'EXPI
 
 /**
  * Only explicitly verified official domains or verified referral share domains are allowed
- * in production referral URLs. Test fixture domains (example.com) are allowed for unit tests.
+ * in production referral URLs.
  */
 export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
   'www.linebank.com.tw',
@@ -53,7 +53,6 @@ export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
   'wap.redotpay.com',
   'hoyabit.com',
   'www.ether.fi',
-  'example.com',
 ]);
 
 function str(value: unknown, max: number): string | undefined {

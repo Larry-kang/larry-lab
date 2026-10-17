@@ -179,7 +179,7 @@ describe('recommendations', () => {
     disclosure: '測試用揭露',
     sortOrder: 1,
     lastVerifiedAt: '2026-10-14',
-    referralUrl: 'https://example.com/',
+    referralUrl: 'https://www.linebank.com.tw/R/mgm-portal',
     linkStatus: 'VERIFIED',
     ...over,
   });
@@ -251,9 +251,10 @@ describe('recommendations', () => {
   it('rejects malformed files, unsafe URLs, incoherent status combinations, and unapproved hostnames', () => {
     expect(() => validateRecommendations({})).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'javascript:alert(1)' })] })).toThrow();
-    expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'http://www.linebank.com.tw/' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'data:text/html,x' })] })).toThrow();
-    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://user:pw@example.com/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://user:pw@www.linebank.com.tw/' })] })).toThrow();
+    expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://example.com/' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ referralUrl: 'https://untrusted-phishing.example.org/' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item({ id: 'Bad Id' })] })).toThrow();
     expect(() => validateRecommendations({ items: [item(), item()] })).toThrow();
@@ -268,6 +269,7 @@ describe('recommendations', () => {
     expect(isSafeHttpsUrl('https://example.com/')).toBe(true);
     expect(isSafeHttpsUrl('//example.com')).toBe(false);
     expect(isAllowedReferralHostname('https://www.linebank.com.tw/R/mgm-portal')).toBe(true);
+    expect(isAllowedReferralHostname('https://example.com/')).toBe(false);
     expect(isAllowedReferralHostname('https://evil.com/')).toBe(false);
   });
 

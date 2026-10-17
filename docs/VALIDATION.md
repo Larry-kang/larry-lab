@@ -1,6 +1,6 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
-> 2026-10-17 推薦資訊整合與正式產品文案整理更新：已完成 17 項推薦資料集中整合（13 項 URL 已驗證啟用、2 項純推薦碼啟用、2 項 `bankee`/`bybit` 標記為 `UNKNOWN` 並停用外連）、正式產品文案整理與 `RF-01`–`RF-08` 驗收測試。本機執行 `npm run check`（62 檔 0 錯誤）、`npm run lint`（0 錯誤）、`npm test`（11 檔 133 項單元測試通過）、`npm run build`（12 頁靜態輸出）、`npm run test:e2e`（102 項 E2E 測試通過）。詳細連結查核結果見 `docs/REFERRAL_INTEGRATION_PLAN.md`，正式部署與線上驗證見 `docs/DEPLOYMENT.md`。
+> 2026-10-17 推薦資訊整合與正式產品文案整理更新（分支 `feat/referral-and-product-copy`，驗證 commit `625079b71ce1422ab6447ae7f83b4f5349d7149d`）：已完成 17 項推薦資料集中整合（13 項 URL 已驗證啟用、2 項純推薦碼啟用、2 項 `bankee`/`bybit` 標記為 `UNKNOWN` 並停用外連）、正式產品文案整理與 `RF-01`–`RF-08` 驗收測試。於該 commit 樹執行 `npm run check`（64 檔 0 錯誤）、`npm run lint`（0 錯誤）、`npm test`（11 檔 133 項單元測試通過）、`npm run build`（12 頁靜態輸出）、`npm run test:e2e`（102 項 E2E 測試通過）；GitHub Actions CI runs `39000500867`、`39000504209` 與 Cloudflare Pages 預覽部署 `fb39aca1-e122-4ad5-8b05-2983a966dae1` 全數通過。詳細連結查核結果見 `docs/REFERRAL_INTEGRATION_PLAN.md`，正式部署與線上驗證見 `docs/DEPLOYMENT.md`。
 >
 > 2026-10-17 首次部署更新：使用者已授權合併及免費部署；PR #5 → #4 → #3 已依序合併，各層最新 CI 通過。正式網站為 <https://larry-lab.pages.dev/>，首次部署 `08fc5ec`，網址收尾部署 `f992e3a`（PR #6）。以下 2026-10-16「未授權／尚未部署／UNKNOWN」為當時的歷史紀錄，現況以 `docs/DEPLOYMENT.md` 為準。
 
