@@ -24,7 +24,7 @@
 
 依下方發布步驟第 6 點，另以 PR 補上 Astro `site`、不帶查詢參數的 canonical／Open Graph URL、11 條公開路由的 sitemap、robots.txt，以及 404 的 noindex。完成型別檢查、lint、建置與產物檢查後，等待該 PR 的 CI／預覽，再合併與驗證正式版本。公式、推薦內容與個人資訊不在本次網址收尾變更範圍。
 
-內容狀態：正式分支 `main` 已依序部署 `08fc5ec`（首次部署）、`f992e3a`（PR #6 網址收尾）與 `e870d1570b88c558f19410b6cccadb1a5ac436b1`（PR #7 推薦資訊整合與正式產品文案整理，Cloudflare Pages deployment `b83ccd5c-c344-49f1-9b0e-cb9028d970ae`）；目前分支 `feat/update-bankee-bybit-referrals`（PR #8，驗證 commit `50ff77d93de210ab9bfb0f8c6b1e8c4f8bb395d5`）進一步補上作者於 2026-10-17 新提供的 `bankee`（`https://www.bankee.tw/webview/app3/M00300/JLG12`）與 `bybit`（`https://partner.bybit.com/b/157345`）驗證通過連結，使全部 17 項推薦（15 項連結、2 項推薦碼）皆為啟用狀態，並已通過 CI（`39006743489`、`39006746683`）與 Cloudflare Pages 預覽部署 `1bdf9f9a-fc28-49e4-ab5f-db6ea099de07`（<https://1bdf9f9a.larry-lab.pages.dev>），待本 PR 審查通過合併 `main` 後更新至正式站。真人易用性、原生 200% 縮放及外部官方試算器交叉比對維持未驗證（`NOT RUN` / `UNKNOWN`），不以部署成功取代這些驗收。
+內容狀態：正式分支 `main` 已依序部署 `08fc5ec`（首次部署）、`f992e3a`（PR #6 網址收尾）、`e870d1570b88c558f19410b6cccadb1a5ac436b1`（PR #7 推薦資訊整合與正式產品文案整理，Cloudflare Pages deployment `b83ccd5c-c344-49f1-9b0e-cb9028d970ae`）與 `038e939a003a280a5e9dc68fb085a2cf1f34c0be`（PR #8 補上 `bankee` 與 `bybit` 推薦連結，Cloudflare Pages deployment `bf84e301-2351-4a47-98b4-39e2ca5d1be2`）；目前分支 `feat/brand-logos-and-product-polish` 進一步整合 Larry Lab「Geometric L」品牌標誌素材、補齊全部 17 項推薦平台之官方品牌圖示（`/logos/<id>.png`）、調整 `HOYA BIT` 至「台灣交易所」、將桌機側欄與手機可折疊面板升級為完整 17 項高密度分類列表，並整理關於頁與公開產品文案，待本 PR 審查與 CI 通過合併 `main` 後更新至正式站。真人易用性、原生 200% 縮放及外部官方試算器交叉比對維持未驗證（`NOT RUN` / `UNKNOWN`），不以部署成功取代這些驗收。
 
 ## 正式站首次煙霧測試（2026-10-17，`08fc5ec`）
 

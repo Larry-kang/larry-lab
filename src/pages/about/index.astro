@@ -3,51 +3,45 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { site } from '../../config/site';
 ---
 
-<BaseLayout title="關於 Larry Lab" description="認識 Larry Lab 的網站理念、作者背景、技術架構以及 AI 協作開發模式。" nav="about">
+<BaseLayout title="關於 Larry Lab" description="認識 Larry Lab 的設計初衷、五大個人財務試算工具與使用方式。" nav="about">
   <h1>關於 Larry Lab</h1>
   <p class="lead">
-    打造公開、透明、易讀的個人實用決策工具箱。
+    把假設算清楚，再做決定 —— 專為日常財務與資產決策打造的實用試算工具箱。
   </p>
+
+  <section class="panel">
+    <h2>產品介紹與五大試算工具</h2>
+    <div class="prose">
+      <p>
+        面對買房貸款、資金周轉、質押維持率、退休準備或資產配置時，常見的試算工具往往只給出單一結果，難以看清背後的假設條件或並排比較不同方案。Larry Lab 將五項最常使用的個人財務決策工具整合於同一處：
+      </p>
+      <ul>
+        <li><strong><a href="/tools/mortgage/">房貸試算</a></strong>：支援本息均攤與本金均攤、寬限期、多段利率與收支負擔比（DTI），並可同時比較多組購屋或轉貸方案。</li>
+        <li><strong><a href="/tools/personal-loan/">信貸試算</a></strong>：將開辦手續費納入現金流，直接算出實際可拿到手的資金與有效年化成本，看清表面利率以外的真實借款成本。</li>
+        <li><strong><a href="/tools/stock-pledge/">股票質押試算</a></strong>：即時計算擔保維持率、追繳門檻與可承受跌幅，並分別列出「現金還款」與「追加擔保品」兩種回復維持率所需金額。</li>
+        <li><strong><a href="/tools/retirement/">退休試算</a></strong>：結合通膨率、退休前後報酬率與其他年金收入，以今天購買力或未來名目金額推估目標退休本金與最早可退休年齡。</li>
+        <li><strong><a href="/tools/portfolio/">投資組合試算</a></strong>：提供「配置與壓力測試」及「長期定期定額與年度再平衡」兩種模式，協助檢視資產部位風險與長期累積走勢。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>設計原則</h2>
+    <div class="prose">
+      <ul>
+        <li><strong>本機即時試算</strong>：所有計算都在你的瀏覽器內即時完成，不需註冊登入，也不會將你輸入的財務數值上傳至外部伺服器。</li>
+        <li><strong>公式與假設透明</strong>：每項工具皆清楚列出採用的計算公式、時間基準與適用限制，完整說明可參閱<a href="/methodology/">計算方法</a>。</li>
+        <li><strong>多方案並排比較與匯出</strong>：支援在同一畫面建立多個情境方案並排對照，並可將試算明細匯出為 CSV 表格或備份設定檔。</li>
+      </ul>
+    </div>
+  </section>
 
   <section class="panel">
     <h2>關於作者</h2>
     <div class="prose">
       <p>{site.author}</p>
       <p>
-        我是一位專注於 C# / .NET 後端開發的工程師，平時關注分散式架構、交易可靠性設計與自動化開發流程。面對個人財務與生活決策時，常見的試算工具往往缺乏清楚的假設說明與多方案比較功能，因此建立了 Larry Lab，提供直接在瀏覽器本機運作的試算工具箱。
-      </p>
-      <p>
-        GitHub 個人主頁：<a href={site.githubProfile} target="_blank" rel="noopener noreferrer">{site.githubProfile}</a><br />
-        本站開源儲存庫：<a href={site.githubRepo} target="_blank" rel="noopener noreferrer">{site.githubRepo}</a>
-      </p>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>已實作功能與技術架構</h2>
-    <div class="prose">
-      <ul>
-        <li><strong>五大財務試算器</strong>：涵蓋房貸分期、信用貸款成本、股票質押維持率與追繳壓力、退休目標與現金流推估，以及多資產配置與定期定額年度再平衡。</li>
-        <li><strong>靜態網頁架構</strong>：採用 Astro 框架預先建置靜態頁面（SSG），搭配 TypeScript 純函式計算模組，減少非必要的執行環境複雜度。</li>
-        <li><strong>本機計算與無追蹤設計</strong>：所有試算公式皆在使用者裝置的瀏覽器記憶體中執行，不設後端資料庫，亦不載入第三方分析或追蹤腳本。</li>
-        <li><strong>公開計算契約與測試驗證</strong>：各工具的數學公式、時間基準與簡化假設均整理於<a href="/methodology/">計算方法</a>，並搭配獨立單元測試與端對端測試驗證。</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>AI 協作開發說明</h2>
-    <div class="prose">
-      <p>
-        本專案採用「作者定義規格與驗收、AI 協助實作與測試」的協作模式：
-      </p>
-      <ul>
-        <li><strong>需求與規格定義</strong>：由作者（Larry）定義產品範圍、使用者流程、數值計算契約與驗收標準。</li>
-        <li><strong>程式碼實作與測試</strong>：由 AI 代理依規格撰寫 TypeScript／Astro 程式碼、單元測試與瀏覽器自動化測試。</li>
-        <li><strong>審查與交付驗收</strong>：由作者審核功能變更、數值驗證證據與公開內容，確認符合規格後發布。</li>
-      </ul>
-      <p>
-        本站據實說明人機協作分工，不宣稱所有程式碼皆由作者逐行手寫。
+        本身為軟體工程師，在規劃個人房貸、借貸成本與長期資產配置時，希望有一套版面乾淨、沒有廣告干擾、能把假設條件攤開來比較的工具，因此建立了 Larry Lab 並公開分享給有相同需求的朋友使用。
       </p>
     </div>
   </section>

@@ -17,14 +17,14 @@ const { variant } = Astro.props;
 
 const allValidated = validateRecommendations(recommendationsFile);
 const totalPublicCount = publicRecommendations(allValidated).length;
-const items = variant === 'full' ? publicRecommendations(allValidated) : sidebarRecommendations(allValidated, 3);
+const items = variant === 'full' ? publicRecommendations(allValidated) : sidebarRecommendations(allValidated, 17);
 const now = new Date();
 const groups = groupByCategory(items);
 const prefix = variant;
 ---
 
 <div class={`rec rec-${variant}`} data-rec-variant={variant}>
-  {variant !== 'full' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦資訊</h2>}
+  {variant !== 'full' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦開戶與平台</h2>}
   {
     items.length === 0 ? (
       <div class="rec-empty" data-testid="rec-empty">
@@ -38,18 +38,24 @@ const prefix = variant;
             {group.items.map((item) => {
               const isUnknown = item.linkStatus === 'UNKNOWN' || !item.enabled;
               const canLink = hasUsableReferralLink(item);
-              const metaParts: string[] = [];
-              if (item.providedAt) metaParts.push(`作者提供：${item.providedAt}`);
-              if (item.linkCheckedAt) metaParts.push(`連結檢查：${item.linkCheckedAt}`);
-              else if (item.linkStatus === 'CODE_ONLY') metaParts.push('連結檢查：僅提供推薦碼');
-              else metaParts.push(`資料核對：${item.lastVerifiedAt}`);
-              if (item.offerCheckedAt) metaParts.push(`優惠檢查：${item.offerCheckedAt}`);
-              else metaParts.push('優惠檢查：依平台公告');
 
               return (
                 <li class={`rec-card${isUnknown ? ' rec-card-pending' : ''}`} data-rec-id={item.id} data-rec-status={item.linkStatus ?? 'VERIFIED'}>
                   <div class="rec-card-head">
-                    <p class="rec-name">{item.name}</p>
+                    <div class="rec-brand-row">
+                      {item.logo && (
+                        <img
+                          src={item.logo}
+                          alt=""
+                          width="40"
+                          height="40"
+                          class="rec-logo-lg"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      <p class="rec-name">{item.name}</p>
+                    </div>
                     {isUnknown && <span class="rec-status-badge" data-testid="rec-status-pending">連結待確認</span>}
                   </div>
                   <p class="rec-desc">{item.shortDescription}</p>
@@ -75,10 +81,8 @@ const prefix = variant;
                     </p>
                   )}
                   {isUnknown && (
-                    <p class="rec-pending-note">外部連結目前無法自動確認，已暫停外連按鈕。</p>
+                    <p class="rec-pending-note">連結整理中，暫不提供外連按鈕。</p>
                   )}
-                  <p class="rec-meta">{metaParts.join(' · ')}</p>
-                  <p class="rec-meta">{item.disclosure}</p>
                 </li>
               );
             })}
@@ -86,41 +90,72 @@ const prefix = variant;
         </section>
       ))
     ) : (
-      <ul class="rec-list">
-        {items.map((item) => {
-          const canLink = hasUsableReferralLink(item);
-          return (
-            <li class="rec-card" data-rec-id={item.id}>
-              <div class="rec-card-head">
-                <p class="rec-name">{item.name}</p>
-                <span class="rec-cat-tag">{item.category}</span>
-              </div>
-              <p class="rec-desc">{item.shortDescription}</p>
-              {item.code && (
-                <p class="rec-code">
-                  推薦碼：<code data-copy-code={item.code}>{item.code}</code>{' '}
-                  <button type="button" class="btn small" data-copy={item.code} aria-label={`複製 ${item.name} 推薦碼 ${item.code}`}>
-                    複製推薦碼
-                  </button>
-                </p>
-              )}
-              {canLink && item.referralUrl && (
-                <p class="rec-action">
-                  <a class="btn small" href={item.referralUrl} target="_blank" rel="sponsored noopener noreferrer">
-                    前往 {item.name}（另開新分頁）
-                  </a>
-                </p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <div class="rec-compact-groups">
+        {groups.map((group) => (
+          <section aria-label={group.category} class="rec-compact-group">
+            <h3 class="rec-compact-cat">{group.category}</h3>
+            <ul class="rec-compact-list">
+              {group.items.map((item) => {
+                const canLink = hasUsableReferralLink(item);
+                return (
+                  <li class="rec-card rec-compact-item" data-rec-id={item.id}>
+                    <div class="rec-compact-main">
+                      {item.logo && (
+                        <img
+                          src={item.logo}
+                          alt=""
+                          width="28"
+                          height="28"
+                          class="rec-logo-sm"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      <div class="rec-compact-info">
+                        <span class="rec-name">{item.name}</span>
+                        {item.code && (
+                          <span class="rec-compact-code-wrap">
+                            推薦碼 <code data-copy-code={item.code}>{item.code}</code>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div class="rec-compact-act">
+                      {item.code && (
+                        <button
+                          type="button"
+                          class="btn tiny"
+                          data-copy={item.code}
+                          aria-label={`複製 ${item.name} 推薦碼 ${item.code}`}
+                        >
+                          複製
+                        </button>
+                      )}
+                      {canLink && item.referralUrl && (
+                        <a
+                          class="btn tiny"
+                          href={item.referralUrl}
+                          target="_blank"
+                          rel="sponsored noopener noreferrer"
+                          aria-label={`前往 ${item.name}（另開新分頁）`}
+                        >
+                          前往 ↗
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+      </div>
     )
   }
   <p class="rec-notice">{site.referralNotice}</p>
   {variant !== 'full' && (
     <p class="rec-more">
-      <a href="/recommendations/">查看全部 {totalPublicCount} 項推薦與利益揭露 →</a>
+      <a href="/recommendations/">查看全部 {totalPublicCount} 項推薦與完整介紹 →</a>
     </p>
   )}
 </div>

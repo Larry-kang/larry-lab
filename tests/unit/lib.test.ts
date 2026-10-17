@@ -191,15 +191,16 @@ describe('recommendations', () => {
     expect(groupByCategory(publicRecommendations(items)).map((g) => [g.category, g.items.length])).toEqual([
       ['數位銀行', 6],
       ['證券開戶', 1],
-      ['台灣交易所', 2],
+      ['台灣交易所', 3],
       ['國際交易所', 5],
-      ['其他加密服務', 3],
+      ['其他加密服務', 2],
     ]);
 
     // All 17 items enabled (15 verified URLs + 2 code-only)
     const active = activeRecommendations(items);
     expect(active).toHaveLength(17);
-    expect(sidebarRecommendations(items)).toHaveLength(3);
+    expect(sidebarRecommendations(items)).toHaveLength(17);
+    expect(sidebarRecommendations(items, 3)).toHaveLength(3);
 
     const byId = new Map(items.map((x) => [x.id, x]));
     expect(byId.size).toBe(17);
@@ -210,6 +211,7 @@ describe('recommendations', () => {
       const target = byId.get(src.id);
       expect(target, `Missing item ${src.id}`).toBeDefined();
       expect(target!.name).toBe(src.name);
+      expect(target!.logo).toBe(`/logos/${src.id}.png`);
       const expectedProvidedAt = (src as { providedAt?: string }).providedAt ?? ownerProvidedFile.providedAt;
       expect(target!.providedAt).toBe(expectedProvidedAt);
       expect(target!.offerCheckedAt).toBeNull();

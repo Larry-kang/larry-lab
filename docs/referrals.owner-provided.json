@@ -21,7 +21,7 @@
     { "id": "okx", "category": "加密服務", "sourceGroup": "國際交易所", "name": "OKX", "url": "https://okx.com/join/66386555", "code": null },
     { "id": "bitget", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Bitget", "url": "https://share.bitget.com/u/T1X2F2SE", "code": null },
     { "id": "redotpay", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "RedotPay", "url": "https://url.hk/i/tw/ig6sj", "code": null },
-    { "id": "hoyabit", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "HOYA BIT", "url": "https://hoyabit.com/signup?refCode=CjJH8Sgd", "code": null },
+    { "id": "hoyabit", "category": "加密服務", "sourceGroup": "台灣交易所", "name": "HOYA BIT", "url": "https://hoyabit.com/signup?refCode=CjJH8Sgd", "code": null },
     { "id": "ether-fi", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "ether.fi", "url": "https://www.ether.fi/@65a6f169", "code": null }
   ]
 }

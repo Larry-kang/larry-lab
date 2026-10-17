@@ -8,19 +8,19 @@
 
 網址保留原參數與片段；僅將貼上格式的跳脫ampersand還原成正常URL。不得任意移除utm、ref、uid、ID或hash，避免破壞推薦歸屬。
 
-推薦主分類：數位銀行（6項）、證券開戶（1項）、台灣交易所（2項）、國際交易所（5項）、其他加密服務（3項）。分類已依官方服務定位調整為中性描述，避免未經查核的支付牌照、地區資格或服務能力宣稱。
+推薦主分類：數位銀行（6項）、證券開戶（1項）、台灣交易所（3項）、國際交易所（5項）、其他加密服務（2項）。分類已依官方服務定位調整為中性描述（其中 HOYA BIT 歸入台灣交易所），避免未經查核的支付牌照、地區資格或服務能力宣稱。
 
 ## 必要行為
 
 1. 整合至當前版本集中管理的推薦資料（`src/content/recommendations.json`），維持每頁共用側欄及推薦總覽，計算器不得讀取或受推薦排序影響。
-2. 每項區分：作者提供日期（`providedAt: "2026-10-15"`）、連結檢查日期（`linkCheckedAt: "2026-10-17"` 或純推薦碼為 `null`）、優惠查核日期（`offerCheckedAt: null`）與狀態。未檢查日期使用 `null`，不把本次整理日期當成優惠已查核。
-3. 未驗證優惠時顯示中性平台名稱與「作者提供的推薦連結／推薦碼；優惠與適用資格請以平台公告為準」。不杜撰返利、減費、開戶獎金或期限。
+2. 每項於 JSON schema 內區分：作者提供日期（`providedAt: "2026-10-15"` 或 `"2026-10-17"`）、連結檢查日期（`linkCheckedAt: "2026-10-17"` 或純推薦碼為 `null`）、優惠查核日期（`offerCheckedAt: null`）與狀態；不在公開卡片顯示內部工程查核日期文字。
+3. 未驗證優惠時顯示中性平台名稱與簡短定位說明；不杜撰返利、減費、開戶獎金或期限。
 4. 將來銀行（`HCPGD`）、樂天國際銀行（`YCB0Y6`）目前只有碼：顯示複製碼，不提供假的註冊按鈕；不猜測官方網址。其他URL參數中的字串不自動當成可手動填入的推薦碼。
 5. 作者提到的Bybit／Crypto.com卡片與AP／GP／LP支援僅保存在待查核備註；未經當期官方資料確認，不放成公開功能或優惠標籤。
 6. RedotPay、Bitget、Bybit 與 ether.fi 等分享／短網址／代理網址已透過真實瀏覽器導覽查核最終目的地，確認仍屬預期官方服務；遠銀 Bankee 亦由作者於 2026-10-17 補上新版 `app3` 網址並經真實瀏覽器驗證通過。若未來有無法確認之連結則標記為 `UNKNOWN` 並停用外連，顯示「連結待確認」。
 7. 檢查HTTPS、允許的hostname（`ALLOWED_REFERRAL_HOSTNAMES` 白名單）、大小寫敏感參數與完整href；只允許明確官方來源或已查核分享域名。
-8. 共用側欄初始最多3項，附「查看全部 17 項推薦與利益揭露 →」通往推薦頁，不把17項完整堆到每個工具旁。手機推薦在主要結果後可折疊。
-9. 外連明確標示「前往官方推薦頁（另開新分頁）」，採 `rel="sponsored noopener noreferrer"`。利益揭露：「透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。」
+8. 全部 17 項配備本機靜態官方品牌圖示（`/logos/<id>.png`），桌機共用側欄與手機可折疊面板依五大分類完整呈現全部 17 項高密度單行列表，並附「查看全部 17 項推薦 →」通往推薦總覽頁；手機推薦面板預設收合於主要結果後，不遮擋試算工具。
+9. 外連明確標示另開新分頁，採 `rel="sponsored noopener noreferrer"`。利益揭露：「透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。」
 10. 複製功能只寫入使用者點選的碼，提供成功／失敗回饋與手動選取備援。
 
 ## 17 項推薦資料連結查核紀錄（2026-10-17）
@@ -42,19 +42,20 @@
 | 13 | `bitget` | Bitget | 國際交易所 | `https://share.bitget.com/u/T1X2F2SE` | `VERIFIED` | 是 | 短網址經真實瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://www.bitget.com/zh-TC/referral/register?clacCode=7E3PSW6K&from=%2Fzh-TC%2Fevents%2Freferral&source=events` |
 | 14 | `bybit` | Bybit | 國際交易所 | `https://partner.bybit.com/b/157345` | `VERIFIED` | 是 | 作者於 2026-10-17 補上官方代理推薦連結；經真實 Microsoft Edge 瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://www.bybit.com/zh-TW/sign-up?affiliate_id=157345&group_id=1800858&group_type=1&ref_code=157345` |
 | 15 | `redotpay` | RedotPay | 其他加密服務 | `https://url.hk/i/tw/ig6sj` | `VERIFIED` | 是 | 短網址經真實瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://wap.redotpay.com/tw/invite/?referralId=ig6sj&poster_id=3` |
-| 16 | `hoyabit` | HOYA BIT | 其他加密服務 | `https://hoyabit.com/signup?refCode=CjJH8Sgd` | `VERIFIED` | 是 | HTTP 200，正常載入 HOYA BIT 官方註冊頁 |
+| 16 | `hoyabit` | HOYA BIT | 台灣交易所 | `https://hoyabit.com/signup?refCode=CjJH8Sgd` | `VERIFIED` | 是 | HTTP 200，正常載入 HOYA BIT 官方註冊頁 |
 | 17 | `ether-fi` | ether.fi | 其他加密服務 | `https://www.ether.fi/@65a6f169` | `VERIFIED` | 是 | 分享網址經真實瀏覽器導覽 HTTP 200 轉址至官方目的地：`https://www.ether.fi/app/cash/referral?ref_code=65a6f169` |
 
 ## 驗收清單（RF-01 – RF-08）
 
 | ID | 預期與必要證據 | 狀態 | 驗證證據 |
 | --- | --- | :---: | --- |
-| RF-01 | 17項來源逐筆對照，6銀行／1證券／2台灣交易所／5國際交易所／3其他加密服務；15個URL、2個碼，不遺漏或混用 | **PASS** | `tests/unit/lib.test.ts` 逐筆比對 `docs/referrals.owner-provided.json` 與 `src/content/recommendations.json` 共 17 項、5 大分類筆數（6/1/2/5/3）、15 個 URL 與 2 個推薦碼完全吻合。 |
+| RF-01 | 17項來源逐筆對照，6銀行／1證券／3台灣交易所／5國際交易所／2其他加密服務；15個URL、2個碼，不遺漏或混用 | **PASS** | `tests/unit/lib.test.ts` 逐筆比對 `docs/referrals.owner-provided.json` 與 `src/content/recommendations.json` 共 17 項、5 大分類筆數（6/1/3/5/2）、官方 Logo（`/logos/<id>.png`）、15 個 URL 與 2 個推薦碼完全吻合。 |
 | RF-02 | LINE Bank的campaignId及uid、New New Bank的hash內pm及ID、Richart完整query均保留；實際DOM href與來源一致 | **PASS** | `tests/unit/lib.test.ts` 與 Playwright `tests/e2e/all.spec.ts` 驗證實際渲染之 DOM `a[href]` 完整保留大小寫、query 與 hash 片段。 |
 | RF-03 | 複製HCPGD及YCB0Y6大小寫正確；只有碼的卡片沒有假網址；失敗備援可操作 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證點擊複製按鈕後剪貼簿內容精確為 `HCPGD` 與 `YCB0Y6`，卡片無外連 `a[href]`，且在剪貼簿權限拒絕時自動選取 `<code>` 推薦碼文字並將按鈕更新為「請手動複製（已選取）」。 |
 | RF-04 | 15個URL逐筆查核，短網址最終目的地另外記錄；不可用／需登入／反自動化為UNKNOWN，不捏造成功 | **PASS** | 如上表完整記錄 15 個 URL 查核結果與短網址／代理網址之最終目的地；`bankee` 與 `bybit` 已由作者補上新版連結並通過真實瀏覽器查核，全數 15 個 URL 均為 `VERIFIED`。 |
-| RF-05 | 全部卡片不含未核實優惠／卡片支付支援；提供日期與查核日期分離；利益揭露可達 | **PASS** | 全部 17 項均未設定 `offerText`，不含未核實利率、卡片或 AP/GP/LP 宣稱；明確分離顯示 `作者提供：2026-10-15 / 2026-10-17`、`連結檢查：2026-10-17 / 僅提供推薦碼`、`優惠檢查：依平台公告`；利益揭露於側欄與推薦總覽清楚可達。 |
-| RF-06 | 桌機／手機每頁有共用入口，側欄最多3項，推薦頁可找到全部項目；折疊／鍵盤／焦點正常，不擋試算 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證桌機側欄與手機可折疊面板初始最多顯示 3 項並提供「查看全部 17 項推薦與利益揭露 →」連結；推薦總覽顯示全部 17 項；360px 手機與 1440px 桌機無全頁橫向溢位。 |
-| RF-07 | URL輸入／文字顯示安全；未查核域名不自動放行；外連屬性與新分頁提示正確 | **PASS** | `src/lib/recommendations.ts` 實作 `ALLOWED_REFERRAL_HOSTNAMES` 白名單與 HTTPS 驗證；所有外連均具 `target="_blank" rel="sponsored noopener noreferrer"` 並標明「（另開新分頁）」。 |
+| RF-05 | 全部卡片不含未核實優惠／卡片支付支援；結構化資料分離提供日與檢查日；公開畫面簡潔可達利益揭露 | **PASS** | 全部 17 項均未設定 `offerText`，不含未核實利率、卡片或 AP/GP/LP 宣稱；JSON schema 嚴格分離 `providedAt`、`linkCheckedAt`、`offerCheckedAt`；公開卡片移除內部工程日期字串，統一於頂部呈現精簡利益揭露。 |
+| RF-06 | 桌機側欄與手機可折疊面板依分類完整呈現全部 17 項與官方 Logo，推薦頁可找到全部項目；折疊／鍵盤／焦點正常，不擋試算 | **PASS** | Playwright `tests/e2e/all.spec.ts` 驗證桌機側欄與手機可折疊面板呈現 5 大分類與全部 17 項（含 17 個官方 Logo）並提供「查看全部 17 項推薦 →」連結；手機面板預設收合不遮擋試算；360px 手機與 1440px 桌機無全頁橫向溢位。 |
+| RF-07 | URL輸入／文字顯示安全；未查核域名不自動放行；外連屬性與新分頁提示正確 | **PASS** | `src/lib/recommendations.ts` 實作 `ALLOWED_REFERRAL_HOSTNAMES` 白名單與 HTTPS 驗證；所有外連均具 `target="_blank" rel="sponsored noopener noreferrer"` 並標明新分頁提示。 |
 | RF-08 | 必要check／lint／build／focused tests／真實瀏覽器通過；試算數值與無第三方追蹤界線未改變 | **PASS** | `npm run check`（0 errors）、`npm run lint`（0 errors）、`npm test`（133 passed）、`npm run build`（12 pages）、`npm run test:e2e`（102 passed）全數通過，五項試算工具數值零變動。 |
+
 

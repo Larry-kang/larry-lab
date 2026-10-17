@@ -2,21 +2,21 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="隱私說明與資料安全" description="了解 Larry Lab 的本機計算設計、選用本機儲存原則與檔案處理方式。">
+<BaseLayout title="隱私說明與資料安全" description="了解 Larry Lab 的本機計算設計、選用本機儲存原則與個人資料保護方式。">
   <h1>隱私說明與資料安全</h1>
   <p class="lead">
-    Larry Lab 的試算工具皆在你的瀏覽器本機執行，不要求註冊登入，也不將試算輸入傳送至後端伺服器。
+    Larry Lab 的試算工具皆在你的瀏覽器本機執行，不要求註冊登入，也不會將你輸入的財務數值傳送至外部伺服器。
   </p>
 
   <section class="panel">
     <h2>1. 試算資料留在本機瀏覽器</h2>
     <div class="prose">
       <p>
-        當你在試算工具輸入房價、薪資、資產金額或借款條件時，所有計算皆透過瀏覽器內的 JavaScript 程式即時完成。
+        當你在試算工具輸入房價、薪資、資產金額或借款條件時，所有計算皆在你的裝置瀏覽器內即時完成。
       </p>
       <ul>
-        <li><strong>無後端資料庫</strong>：網站未設置接收試算資料的後端 API 或資料庫。</li>
-        <li><strong>無試算參數外傳</strong>：你輸入的金額與假設不會寫入網址查詢參數（Query String），也不會傳送給外部分析服務。</li>
+        <li><strong>不收集試算數值</strong>：網站不保存你輸入的金額或試算結果。</li>
+        <li><strong>網址不含敏感金額</strong>：複製工具網址時僅包含頁面路徑，不會將你輸入的財務數字附加於網址參數中。</li>
       </ul>
     </div>
   </section>
@@ -28,7 +28,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         預設情況下，試算輸入僅保存在當頁記憶體中，關閉或重新整理分頁即會還原為預設示範情境。
       </p>
       <p>
-        若你主動勾選<strong>「記住此工具設定」</strong>，系統會將該工具的輸入假設以<strong>未經加密的純文字 JSON 格式</strong>儲存在你目前瀏覽器的 LocalStorage 中，方便下次開啟時自動帶入。同來源（Same-Origin）的網頁程式以及任何能使用該瀏覽器的人皆可讀取這些內容。
+        若你主動勾選<strong>「記住此工具設定」</strong>，系統會將該工具的輸入假設以<strong>未經加密的純文字 JSON 格式</strong>儲存在你目前瀏覽器的 LocalStorage 中，方便下次開啟時自動帶入。
       </p>
       <p>
         <strong>共用裝置提醒：</strong> 若在公共電腦或他人裝置上使用本站，請勿勾選記住設定。你可隨時在各工具底部的「儲存與設定管理」區點擊「刪除已儲存設定」，或使用下方按鈕清除本站所有本機儲存資料。
@@ -41,27 +41,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </section>
 
   <section class="panel">
-    <h2>3. 檔案匯入、匯出與 CSV 下載</h2>
+    <h2>3. 設定檔備份與外部連結</h2>
     <div class="prose">
       <p>
-        本站支援將試算假設匯出為 JSON 設定檔，或將試算明細下載為 CSV 檔案。
-      </p>
-      <ul>
-        <li><strong>JSON 匯出</strong>：僅包含該工具的試算假設欄位，不含個人識別資訊或系統憑證。</li>
-        <li><strong>JSON 匯入</strong>：檔案大小上限為 100 KB，匯入時只讀取符合工具規格的定義欄位；格式不符時不會覆寫既有設定。</li>
-        <li><strong>CSV 公式字元轉義</strong>：下載 CSV 時，文字欄位若以 <code>=</code>、<code>+</code>、<code>-</code>、<code>@</code> 等字元開頭，系統會自動加上單引號前綴，避免試算表軟體誤將文字當成公式執行。</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>4. 網站託管與外部連結</h2>
-    <div class="prose">
-      <p>
-        <strong>靜態網站連線紀錄：</strong> 本站託管於 Cloudflare Pages 靜態主機。瀏覽器載入網頁檔案時，託管平台會依標準 HTTPS 連線處理請求（包含連線 IP、瀏覽器 User-Agent 與請求路徑），這屬於一般網頁連線，不包含你在頁面內輸入的試算數值。
+        <strong>設定檔匯出與 CSV 下載：</strong> 你可將試算假設匯出為 JSON 備份檔，或將試算明細下載為 CSV 表格於個人裝置保存，整個過程均在瀏覽器本機完成。
       </p>
       <p>
-        <strong>外部網站與推薦連結：</strong> 本站提供前往第三方金融機構或服務平台的外部連結。當你點擊離開本站時，目的網站將依其自身的隱私權政策與 Cookie 規範處理你的瀏覽行為。
+        <strong>外部網站與推薦連結：</strong> 本站提供前往第三方金融機構或服務平台的外部連結。當你點擊離開本站時，目標網站將依其自身的隱私權政策與服務條款處理你的瀏覽與申辦行為。
       </p>
     </div>
   </section>
