@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "purpose": "推薦整合交接資料，非網站啟用設定",
+  "providedAt": "2026-10-15",
+  "source": "作者於對話提供，尚未驗證連結或優惠",
+  "linkCheckedAt": null,
+  "offerCheckedAt": null,
+  "items": [
+    { "id": "line-bank", "category": "銀行", "name": "LINE Bank", "url": "https://www.linebank.com.tw/R/mgm-portal?campaignId=2&uid=bfQnUx", "code": null },
+    { "id": "new-new-bank", "category": "銀行", "name": "聯邦 New New Bank 數位帳戶", "url": "https://newnewbank.ubot.com.tw/web/#/S0101001?pm=3&ID=ANIDEZI", "code": null },
+    { "id": "bankee", "category": "銀行", "name": "遠銀 Bankee", "url": "https://www.bankee.tw/webview/app2/M00300/JLG12", "code": null },
+    { "id": "richart", "category": "銀行", "name": "台新 Richart", "url": "https://richart.tw/TSDIB_RichartWeb/RC07/RC070100?sn=IPE2U&utm_source=richart&utm_medium=app&utm_campaign=richart_mgm_20230701", "code": null },
+    { "id": "next-bank", "category": "銀行", "name": "將來銀行", "url": null, "code": "HCPGD" },
+    { "id": "rakuten-bank", "category": "銀行", "name": "樂天國際銀行", "url": null, "code": "YCB0Y6" },
+    { "id": "sinotrade", "category": "證券", "name": "永豐金證券", "url": "https://www.sinotrade.com.tw/richclub/join/openact?invt=95DT7", "code": null },
+    { "id": "bitopro", "category": "加密服務", "sourceGroup": "台灣交易所", "name": "BitoPro", "url": "https://www.bitopro.com/users/sign_up?referrer=1637741422", "code": null },
+    { "id": "max", "category": "加密服務", "sourceGroup": "台灣交易所", "name": "MAX", "url": "https://max.maicoin.com/signup?r=4705d2fe", "code": null },
+    { "id": "binance", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Binance", "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00TNLH8TXZ", "code": null },
+    { "id": "bybit", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Bybit", "url": "https://www.bybit.com/invite?ref=Z6KMRD3", "code": null, "unverifiedOwnerNote": "作者先前記錄可辦簽帳卡並綁AP/GP/LP；現況及地區資格待官方查核，未核實前不公開此功能宣稱" },
+    { "id": "crypto-com", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Crypto.com", "url": "https://crypto.com/app/my9m72jntc", "code": null, "unverifiedOwnerNote": "作者先前記錄可辦簽帳卡；現況及地區資格待官方查核，未核實前不公開此功能宣稱" },
+    { "id": "okx", "category": "加密服務", "sourceGroup": "國際交易所", "name": "OKX", "url": "https://okx.com/join/66386555", "code": null },
+    { "id": "bitget", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Bitget", "url": "https://share.bitget.com/u/T1X2F2SE", "code": null },
+    { "id": "redotpay", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "RedotPay", "url": "https://url.hk/i/tw/ig6sj", "code": null },
+    { "id": "hoyabit", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "HOYA BIT", "url": "https://hoyabit.com/signup?refCode=CjJH8Sgd", "code": null },
+    { "id": "ether-fi", "category": "加密服務", "sourceGroup": "支付與其他服務", "name": "ether.fi", "url": "https://www.ether.fi/@65a6f169", "code": null }
+  ]
+}

@@ -1,3 +1,6 @@
+export type LinkStatus = 'VERIFIED' | 'CODE_ONLY' | 'UNKNOWN';
+export type OfferStatus = 'UNVERIFIED' | 'VERIFIED' | 'EXPIRED';
+
 export interface Recommendation {
   id: string;
   name: string;
@@ -9,6 +12,11 @@ export interface Recommendation {
   disclosure: string;
   sortOrder: number;
   lastVerifiedAt: string;
+  providedAt?: string;
+  linkCheckedAt?: string | null;
+  linkStatus?: LinkStatus;
+  offerCheckedAt?: string | null;
+  offerStatus?: OfferStatus;
   offerText?: string;
   offerExpiresAt?: string;
 }
@@ -19,6 +27,34 @@ export interface RecommendationFile {
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/;
+const VALID_LINK_STATUS = new Set<LinkStatus>(['VERIFIED', 'CODE_ONLY', 'UNKNOWN']);
+const VALID_OFFER_STATUS = new Set<OfferStatus>(['UNVERIFIED', 'VERIFIED', 'EXPIRED']);
+
+/**
+ * Only explicitly verified official domains or verified referral share domains are allowed
+ * in production referral URLs. Test fixture domains (example.com) are allowed for unit tests.
+ */
+export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
+  'www.linebank.com.tw',
+  'newnewbank.ubot.com.tw',
+  'www.bankee.tw',
+  'richart.tw',
+  'www.sinotrade.com.tw',
+  'www.bitopro.com',
+  'max.maicoin.com',
+  'www.binance.com',
+  'www.bybit.com',
+  'crypto.com',
+  'okx.com',
+  'www.okx.com',
+  'share.bitget.com',
+  'www.bitget.com',
+  'url.hk',
+  'wap.redotpay.com',
+  'hoyabit.com',
+  'www.ether.fi',
+  'example.com',
+]);
 
 function str(value: unknown, max: number): string | undefined {
   return typeof value === 'string' && value.trim() !== '' && value.length <= max ? value.trim() : undefined;
@@ -33,6 +69,24 @@ export function isSafeHttpsUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+export function isAllowedReferralHostname(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return ALLOWED_REFERRAL_HOSTNAMES.has(url.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+function validateNullableDate(value: unknown, where: string, field: string): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== 'string' || !DATE_PATTERN.test(value)) {
+    throw new Error(`${where}.${field} 必須為 YYYY-MM-DD 或 null`);
+  }
+  return value;
 }
 
 /** Validate raw JSON content. Throws a descriptive error for malformed data so builds fail loudly. */
@@ -61,36 +115,98 @@ export function validateRecommendations(file: unknown): Recommendation[] {
     if (typeof r.lastVerifiedAt !== 'string' || !DATE_PATTERN.test(r.lastVerifiedAt)) {
       throw new Error(`${where}.lastVerifiedAt 必須為 YYYY-MM-DD`);
     }
-    if (r.referralUrl !== undefined && !isSafeHttpsUrl(r.referralUrl)) {
-      throw new Error(`${where}.referralUrl 必須為 HTTPS 網址`);
+
+    const providedAt = validateNullableDate(r.providedAt, where, 'providedAt');
+    if (providedAt === null) throw new Error(`${where}.providedAt 不可為 null`);
+    const linkCheckedAt = validateNullableDate(r.linkCheckedAt, where, 'linkCheckedAt');
+    const offerCheckedAt = validateNullableDate(r.offerCheckedAt, where, 'offerCheckedAt');
+
+    let linkStatus: LinkStatus | undefined;
+    if (r.linkStatus !== undefined) {
+      if (typeof r.linkStatus !== 'string' || !VALID_LINK_STATUS.has(r.linkStatus as LinkStatus)) {
+        throw new Error(`${where}.linkStatus 無效`);
+      }
+      linkStatus = r.linkStatus as LinkStatus;
     }
-    if (r.code !== undefined && !str(r.code, 80)) throw new Error(`${where}.code 無效`);
+
+    let offerStatus: OfferStatus | undefined;
+    if (r.offerStatus !== undefined) {
+      if (typeof r.offerStatus !== 'string' || !VALID_OFFER_STATUS.has(r.offerStatus as OfferStatus)) {
+        throw new Error(`${where}.offerStatus 無效`);
+      }
+      offerStatus = r.offerStatus as OfferStatus;
+    }
+
+    if (r.referralUrl !== undefined && r.referralUrl !== null) {
+      if (!isSafeHttpsUrl(r.referralUrl)) {
+        throw new Error(`${where}.referralUrl 必須為 HTTPS 網址`);
+      }
+      if (!isAllowedReferralHostname(r.referralUrl)) {
+        throw new Error(`${where}.referralUrl 網域未列於允許清單`);
+      }
+    }
+    if (r.code !== undefined && r.code !== null && !str(r.code, 80)) throw new Error(`${where}.code 無效`);
     if (r.offerExpiresAt !== undefined && (typeof r.offerExpiresAt !== 'string' || !DATE_PATTERN.test(r.offerExpiresAt))) {
       throw new Error(`${where}.offerExpiresAt 必須為 YYYY-MM-DD`);
     }
     if (r.offerText !== undefined && !str(r.offerText, 200)) throw new Error(`${where}.offerText 無效`);
+
     return {
       id,
       name,
       category,
       shortDescription,
-      code: r.code === undefined ? undefined : (r.code as string).trim(),
-      referralUrl: r.referralUrl as string | undefined,
+      code: r.code === undefined || r.code === null ? undefined : (r.code as string).trim(),
+      referralUrl: r.referralUrl === undefined || r.referralUrl === null ? undefined : (r.referralUrl as string),
       enabled: r.enabled,
       disclosure,
       sortOrder: r.sortOrder,
       lastVerifiedAt: r.lastVerifiedAt,
+      providedAt,
+      linkCheckedAt,
+      linkStatus,
+      offerCheckedAt,
+      offerStatus,
       offerText: r.offerText as string | undefined,
       offerExpiresAt: r.offerExpiresAt as string | undefined,
     };
   });
 }
 
-/** Enabled items that have something real to show (a code or a valid link), in a fixed order. */
+/**
+ * Items shown on the public recommendations overview page (in fixed sortOrder),
+ * including enabled items and items whose link status is pending confirmation (UNKNOWN).
+ */
+export function publicRecommendations(items: Recommendation[]): Recommendation[] {
+  return items
+    .filter(
+      (item) =>
+        (item.enabled && (item.code !== undefined || item.referralUrl !== undefined)) ||
+        item.linkStatus === 'UNKNOWN',
+    )
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
+}
+
+/** Enabled items that have something actionable to show (a code or a verified link), in a fixed order. */
 export function activeRecommendations(items: Recommendation[]): Recommendation[] {
   return items
-    .filter((item) => item.enabled && (item.code !== undefined || item.referralUrl !== undefined))
+    .filter(
+      (item) =>
+        item.enabled &&
+        item.linkStatus !== 'UNKNOWN' &&
+        (item.code !== undefined || item.referralUrl !== undefined),
+    )
     .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
+}
+
+/** Desktop sidebar shows at most 3 enabled items in fixed sortOrder. */
+export function sidebarRecommendations(items: Recommendation[], maxCount: number = 3): Recommendation[] {
+  return activeRecommendations(items).slice(0, maxCount);
+}
+
+/** Whether an item can render an active outbound referral link button. */
+export function hasUsableReferralLink(item: Recommendation): boolean {
+  return Boolean(item.enabled && item.referralUrl && item.linkStatus !== 'UNKNOWN');
 }
 
 /** An offer is shown only while it has not expired (end of the stated day, Asia/Taipei). */

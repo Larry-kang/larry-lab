@@ -170,7 +170,7 @@ export const retirementTool: ToolDef = {
       ev.notices.push({ tone: 'bad', text: `在這些假設下，約 ${result.firstShortfallAge} 歲（第 ${result.firstShortfallMonth} 個月）首次資金不足，之後的支出沒有資金支應。` });
     }
     if (result.earliestRetireAge === null) {
-      ev.notices.push({ tone: 'warn', text: '規劃期間內，在這些假設下沒有任何整歲年齡可以退休而不發生資金不足（不顯示捏造的年齡）。' });
+      ev.notices.push({ tone: 'warn', text: '規劃期間內，在這些假設下沒有任何整歲年齡可以退休而不發生資金不足。' });
     }
     if (result.noAccumulation) {
       ev.notices.push({ tone: 'info', text: '目標退休年齡等於目前年齡，沒有累積期：每月應存金額不適用，請看資金缺口。' });

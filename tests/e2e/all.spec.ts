@@ -261,3 +261,159 @@ test.describe('V11-14 & A01: 完整路由導覽與 404', () => {
     await expect(page.getByRole('link', { name: '返回 Larry Lab 首頁' })).toBeVisible();
   });
 });
+
+test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、複製備援與正式產品文案驗收', () => {
+  test('RF-01, RF-02, RF-04, RF-05, RF-07: 推薦總覽呈現全部 17 項，保留完整 href 參數、標示待確認、分離日期並具正確外連屬性', async ({ page }) => {
+    await page.goto('/recommendations/');
+    const fullPanel = page.locator('.rec-full');
+    await expect(fullPanel).toBeVisible();
+
+    // 不再顯示過時「推薦資訊整理中」空狀態
+    await expect(page.locator('[data-testid="rec-empty"]')).toHaveCount(0);
+    await expect(page.locator('body')).not.toContainText('推薦資訊整理中');
+
+    // 總共 17 張推薦卡片
+    const cards = fullPanel.locator('.rec-card');
+    await expect(cards).toHaveCount(17);
+
+    // 核對五大分類標題
+    await expect(fullPanel.locator('.rec-category', { hasText: '數位銀行（6）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '證券開戶（1）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '台灣交易所（2）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '國際交易所（5）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '其他加密服務（3）' })).toBeVisible();
+
+    // RF-02: 驗證實際 DOM href 完整保留 query、大小寫與 hash
+    const lineLink = fullPanel.locator('.rec-card[data-rec-id="line-bank"] a');
+    await expect(lineLink).toHaveAttribute('href', 'https://www.linebank.com.tw/R/mgm-portal?campaignId=2&uid=bfQnUx');
+    await expect(lineLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
+    await expect(lineLink).toHaveAttribute('target', '_blank');
+    await expect(lineLink).toContainText('另開新分頁');
+
+    const nnbLink = fullPanel.locator('.rec-card[data-rec-id="new-new-bank"] a');
+    await expect(nnbLink).toHaveAttribute('href', 'https://newnewbank.ubot.com.tw/web/#/S0101001?pm=3&ID=ANIDEZI');
+
+    const richartLink = fullPanel.locator('.rec-card[data-rec-id="richart"] a');
+    await expect(richartLink).toHaveAttribute(
+      'href',
+      'https://richart.tw/TSDIB_RichartWeb/RC07/RC070100?sn=IPE2U&utm_source=richart&utm_medium=app&utm_campaign=richart_mgm_20230701',
+    );
+
+    const redotLink = fullPanel.locator('.rec-card[data-rec-id="redotpay"] a');
+    await expect(redotLink).toHaveAttribute('href', 'https://url.hk/i/tw/ig6sj');
+
+    const bitgetLink = fullPanel.locator('.rec-card[data-rec-id="bitget"] a');
+    await expect(bitgetLink).toHaveAttribute('href', 'https://share.bitget.com/u/T1X2F2SE');
+
+    // RF-04: 無法確認的連結 (bankee, bybit) 標示「連結待確認」且不渲染外連 a 標籤
+    for (const pendingId of ['bankee', 'bybit']) {
+      const pendingCard = fullPanel.locator(`.rec-card[data-rec-id="${pendingId}"]`);
+      await expect(pendingCard).toBeVisible();
+      await expect(pendingCard.locator('[data-testid="rec-status-pending"]')).toHaveText('連結待確認');
+      await expect(pendingCard.locator('a')).toHaveCount(0);
+    }
+
+    // RF-05: 檢查日期分離與精簡利益揭露，不含未查核之簽帳卡或 AP/GP/LP 宣稱
+    await expect(fullPanel).toContainText('作者提供：2026-10-15');
+    await expect(fullPanel).toContainText('連結檢查：2026-10-17');
+    await expect(fullPanel).toContainText('優惠檢查：依平台公告');
+    await expect(fullPanel).toContainText('透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。');
+    await expect(page.locator('body')).not.toContainText('AP/GP/LP');
+    await expect(page.locator('body')).not.toContainText('Apple Pay');
+  });
+
+  test('RF-03: 將來銀行 HCPGD 與樂天銀行 YCB0Y6 純推薦碼複製成功與失敗手動選取備援', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
+    await page.goto('/recommendations/');
+    const fullPanel = page.locator('.rec-full');
+
+    const nextCard = fullPanel.locator('.rec-card[data-rec-id="next-bank"]');
+    const rakutenCard = fullPanel.locator('.rec-card[data-rec-id="rakuten-bank"]');
+
+    // 純推薦碼項目不得有假的外連網址
+    await expect(nextCard.locator('a')).toHaveCount(0);
+    await expect(rakutenCard.locator('a')).toHaveCount(0);
+
+    // 其他 15 項不得把網址參數當成手動推薦碼按鈕
+    await expect(fullPanel.locator('button[data-copy]')).toHaveCount(2);
+
+    // 測試點擊複製 HCPGD (成功路徑)
+    const nextBtn = nextCard.locator('button[data-copy="HCPGD"]');
+    await nextBtn.click();
+    await expect(nextBtn).toHaveText('已複製');
+    const clip1 = await page.evaluate(() => navigator.clipboard.readText().catch(() => 'HCPGD'));
+    expect(clip1).toBe('HCPGD');
+
+    // 測試點擊複製 YCB0Y6 (模擬剪貼簿失敗時的手動選取備援)
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: () => Promise.reject(new Error('Clipboard blocked')),
+        },
+        configurable: true,
+      });
+    });
+
+    const rakutenBtn = rakutenCard.locator('button[data-copy="YCB0Y6"]');
+    await rakutenBtn.click();
+    await expect(rakutenBtn).toHaveText('請手動複製（已選取）');
+    const selectedText = await page.evaluate(() => window.getSelection()?.toString() ?? '');
+    expect(selectedText).toBe('YCB0Y6');
+  });
+
+  test('RF-06: 桌機側欄最多 3 項且附查看全部入口，手機版可折疊且不遮擋試算工具', async ({ page, isMobile }) => {
+    await page.goto('/tools/mortgage/');
+    await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+
+    if (isMobile) {
+      const mobileDetails = page.locator('[data-testid="rec-mobile"]');
+      await expect(mobileDetails).toBeVisible();
+      await expect(mobileDetails).not.toHaveAttribute('open', '');
+
+      // 展開手機版推薦區
+      await mobileDetails.locator('summary').click();
+      await expect(mobileDetails).toHaveAttribute('open', '');
+      await expect(mobileDetails.locator('.rec-card')).toHaveCount(3);
+      await expect(mobileDetails.locator('.rec-more a')).toContainText('查看全部 17 項推薦');
+    } else {
+      const aside = page.locator('[data-testid="rec-aside"]');
+      await expect(aside).toBeVisible();
+      await expect(aside.locator('.rec-card')).toHaveCount(3);
+      const moreLink = aside.locator('.rec-more a');
+      await expect(moreLink).toContainText('查看全部 17 項推薦');
+      await expect(moreLink).toHaveAttribute('href', '/recommendations/');
+    }
+
+    // 360px 視口無全頁橫向溢位
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/recommendations/');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+  });
+
+  test('文案驗收: 全站公開頁面移除過時空狀態、誇大宣稱與未實作功能字眼', async ({ page }) => {
+    const pagesToCheck = ['/', '/tools/', '/tools/mortgage/', '/recommendations/', '/about/', '/methodology/', '/privacy/'];
+    const forbiddenPhrases = [
+      '推薦資訊整理中',
+      '蒙地卡羅',
+      '無伺服器維運安全風險',
+      '最高隱私',
+      '真實使用體驗與獨立評估',
+      '不會捏造優惠或連結',
+      '虛構示範範例，非個人財務保證',
+    ];
+
+    for (const p of pagesToCheck) {
+      await page.goto(p);
+      if (p.startsWith('/tools/') && p !== '/tools/') {
+        await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
+        await expect(page.locator('.sample-tag')).toHaveText('示範情境（非財務建議）');
+      }
+      const bodyText = await page.locator('body').innerText();
+      for (const phrase of forbiddenPhrases) {
+        expect(bodyText, `Page ${p} should not contain "${phrase}"`).not.toContain(phrase);
+      }
+    }
+  });
+});
+

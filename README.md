@@ -3,9 +3,9 @@
 公開的個人工具大全網站：把假設算清楚，再做決定。
 
 正式網站：<https://larry-lab.pages.dev/>（Cloudflare Pages 免費方案，`main` 自動部署）。
-部署與驗證紀錄見 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。推薦區目前為整理中空狀態。
+部署與驗證紀錄見 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
-Larry Lab 專為台灣使用者打造，提供房貸、信貸、股票質押、退休及投資組合五大實用財金試算器。所有計算完全在瀏覽器本機記憶體完成，無後端伺服器儲存、零追蹤腳本，絕不串接或讀取任何外部金融帳戶，確保個人資料最高隱私。
+Larry Lab 為台灣使用者提供房貸、信貸、股票質押、退休及投資組合五大財金試算器，並整合數位銀行、證券與加密資產服務推薦資訊。所有試算皆在瀏覽器本機記憶體完成，無後端伺服器儲存、無第三方追蹤腳本，亦不串接外部金融帳戶。
 
 ---
 
@@ -66,8 +66,8 @@ Larry Lab 專為台灣使用者打造，提供房貸、信貸、股票質押、�
 - **語言**：TypeScript (純函數計算核心，明確邊界與型別定義)
 - **樣式**：原生現代 CSS（Custom Properties、Grid、Flexbox，極輕量載入無 Runtime 負擔）
 - **測試**：
-  - [Vitest](https://vitest.dev/)：111 項單元測試，包含獨立數學推導比對 `docs/CALCULATION_CONTRACT.md`（殘差 <= 0.01 元）。
-  - [Playwright](https://playwright.dev/)：56 項端對端整合測試，涵蓋 Desktop (1440x900) 與 Mobile (360x740) 完整操作流程。
+  - [Vitest](https://vitest.dev/)：133 項單元測試，包含獨立數學推導比對 `docs/CALCULATION_CONTRACT.md`（殘差 <= 0.01 元）與推薦資料完整性查核。
+  - [Playwright](https://playwright.dev/)：102 項端對端整合測試，涵蓋 Desktop (1440x900) 與 Mobile (360x740 / 360x800) 完整操作流程、推薦複製與外連驗證。
 - **代碼規範**：ESLint (flat config) 與 Astro Check。
 
 ---
