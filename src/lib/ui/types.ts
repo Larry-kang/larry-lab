@@ -17,6 +17,13 @@ export interface FieldSpec {
   visibleIf?: (scenario: Values, root: Values) => boolean;
   /** For select fields: when changed, clear the values of fields that become hidden. */
   clearsHidden?: boolean;
+  /** 是否歸類為進階設定 */
+  isAdvanced?: boolean;
+  /** 提供年/月等單位切換輸入便利控制，底層仍保存整數月 */
+  unitToggle?: {
+    type: 'year-month';
+    defaultUnit?: 'year' | 'month';
+  };
 }
 
 export interface ListSpec {
@@ -30,6 +37,8 @@ export interface ListSpec {
   fields: FieldSpec[];
   defaultItem: () => Values;
   visibleIf?: (scenario: Values, root: Values) => boolean;
+  /** 是否歸類為進階設定 */
+  isAdvanced?: boolean;
 }
 
 export type Spec = FieldSpec | ListSpec;
@@ -45,6 +54,12 @@ export interface Card {
   tone?: 'neutral' | 'good' | 'warn' | 'bad';
   /** Included in the scenario comparison table. */
   compare?: boolean;
+  /** 跨方案穩定對齊的指標識別鍵（例如 'firstPayment', 'totalInterest' 等） */
+  compareKey?: string;
+  /** 比較表中使用的欄位標題，若未提供則使用 label */
+  compareLabel?: string;
+  /** 是否為前三項核心重點指標 */
+  isCore?: boolean;
 }
 
 export interface Notice {
@@ -87,6 +102,21 @@ export interface Evaluation {
   assumptions: string[];
 }
 
+export interface SyncFromAConfig {
+  /** 操作按鈕標籤，如「以 A 的基本條件套用至其他情境」 */
+  buttonLabel: string;
+  /** 會被同步覆寫的欄位中文名稱說明清單，供確認對話框顯示 */
+  description: string;
+  /** 具體執行同步（深拷貝指定欄位由 sourceA 至 target） */
+  apply: (target: Values, sourceA: Values) => void;
+}
+
+export interface PresetActionConfig {
+  label: string;
+  description: string;
+  load: () => Values[];
+}
+
 export interface ToolDef {
   id: string;
   /** Shown in compare/CSV messages, e.g. "方案" or "情境". */
@@ -101,6 +131,16 @@ export interface ToolDef {
   /** Fictional example data. */
   example: () => Values;
   evaluate: (scenario: Values, root: Values) => Evaluation;
+  /** 動態產生情境徽章文字（如「年利率 2.15%」或「年報酬 6%」），非寫死固定字樣 */
+  scenarioBadge?: (scenario: Values) => string;
+  /** 進階折疊按鈕旁顯示的即時摘要文字（如「通膨 3%、退休後報酬 5%」） */
+  advancedSummary?: (scenario: Values, root: Values) => string;
+  /** 以 A 基本條件套用至其他情境之設定 */
+  syncFromA?: SyncFromAConfig;
+  /** 額外預設情境載入操作（例如退休工具的「載入三組報酬範例」） */
+  presetScenariosAction?: PresetActionConfig;
+  /** 自訂方案比較表格中的輸入欄位項目與摘要 */
+  compareInputs?: (scenario: Values, evaluation: Evaluation) => Array<{ label: string; value: string }>;
 }
 
 export function emptyEvaluation(): Evaluation {

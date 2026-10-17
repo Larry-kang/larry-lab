@@ -1,29 +1,59 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { tools } from '../../config/site';
-
-const loanTools = tools.filter((t) => t.category === '買房與借貸');
-const investTools = tools.filter((t) => t.category === '投資與退休');
 ---
 
-<BaseLayout title="工具總覽" description="Larry Lab 提供的財金與生活實用試算工具一覽，涵蓋買房、信貸、質押、退休與投資組合。" nav="tools">
-  <h1>工具總覽</h1>
+<BaseLayout title="工具大全" description="Larry Lab 提供的財金與生活實用試算工具一覽，涵蓋買房、信貸、質押、退休與投資組合。" nav="tools">
+  <h1>工具大全</h1>
   <p class="lead">
     全站工具皆採訪客手動輸入假設、瀏覽器本機計算。未計入的費用、稅負與政策限制均有清楚註記，不作為個人化財務建議。
   </p>
 
-  <section aria-labelledby="loan-tools-heading" class="panel">
-    <h2 id="loan-tools-heading">買房與借貸</h2>
-    <p class="prose">
-      評估購屋負擔、利息支出與擔保品風險，協助在不同貸款條件與市場情境下建立清晰的財務安全邊際。
-    </p>
-    <ul class="card-grid">
+  <!-- 搜尋與分類按鈕 -->
+  <section class="tools-filter-section" aria-label="工具篩選與搜尋">
+    <div class="search-box-wrap" role="search" aria-label="工具搜尋">
+      <div class="search-input-group">
+        <input
+          type="search"
+          id="tools-search-input"
+          class="search-input"
+          placeholder="搜尋工具名稱或同義詞（例如：購屋、FIRE、質押、再平衡…）"
+          aria-label="搜尋試算工具"
+          autocomplete="off"
+        />
+        <button type="button" id="tools-clear-btn" class="btn" hidden>清除</button>
+      </div>
+      <div class="search-meta">
+        <span id="tools-search-count" aria-live="polite">顯示全部 5 項工具</span>
+        <span>純本地比對，不外傳任何資料</span>
+      </div>
+    </div>
+
+    <div class="category-tabs" role="group" aria-label="工具分類篩選">
+      <button type="button" class="category-tab active" data-category="全部">全部 (5)</button>
+      <button type="button" class="category-tab" data-category="買房與借貸">買房與借貸 (3)</button>
+      <button type="button" class="category-tab" data-category="投資與退休">投資與退休 (2)</button>
+    </div>
+  </section>
+
+  <!-- 工具列表 -->
+  <section aria-labelledby="tools-list-heading" class="panel">
+    <h2 id="tools-list-heading">試算工具清單</h2>
+    <div id="tools-zero-state" class="notice notice-warn" hidden>
+      <p>找不到符合條件的工具。請嘗試切換分類為「全部」，或更換搜尋關鍵字。</p>
+    </div>
+    <ul class="card-grid" id="tools-grid">
       {
-        loanTools.map((t) => (
-          <li>
+        tools.map((t) => (
+          <li class="tool-list-item" data-tool-id={t.id} data-category={t.category}>
             <a class="tool-card" href={t.path}>
-              <h3>{t.name}</h3>
-              <p>{t.summary}</p>
+              <div>
+                <p class="eyebrow">{t.category}</p>
+                <h3>{t.name}</h3>
+                <p class="tool-card-problem">{t.problemSolved}</p>
+                <p class="tool-card-outputs">重點產出：{t.mainOutputs}</p>
+              </div>
+              <span class="tool-card-action">開始試算 →</span>
             </a>
           </li>
         ))
@@ -31,25 +61,7 @@ const investTools = tools.filter((t) => t.category === '投資與退休');
     </ul>
   </section>
 
-  <section aria-labelledby="invest-tools-heading" class="panel">
-    <h2 id="invest-tools-heading">投資與退休</h2>
-    <p class="prose">
-      規劃長期資產成長、退休現金流缺口與多資產再平衡配置，避免因單一樂觀假設而低估未來風險。
-    </p>
-    <ul class="card-grid">
-      {
-        investTools.map((t) => (
-          <li>
-            <a class="tool-card" href={t.path}>
-              <h3>{t.name}</h3>
-              <p>{t.summary}</p>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
+  <!-- 使用說明與限制 -->
   <section class="panel">
     <h2>使用說明與限制</h2>
     <ul class="prose">
@@ -58,4 +70,97 @@ const investTools = tools.filter((t) => t.category === '投資與退休');
       <li><strong>隱私保護</strong>：無第三方追蹤程式碼，詳見<a href="/privacy/">隱私說明</a>。</li>
     </ul>
   </section>
+
+  <style>
+    .tools-filter-section {
+      margin: 16px 0 20px;
+    }
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .category-tab {
+      min-height: 44px;
+      padding: 6px 16px;
+      border: 1px solid #9eb0af;
+      border-radius: 999px;
+      background: #fff;
+      font: inherit;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .category-tab:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .category-tab.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+      box-shadow: inset 0 0 0 1.5px var(--accent);
+    }
+  </style>
+
+  <script>
+    import { filterTools } from '../../config/site';
+
+    const searchInput = document.getElementById('tools-search-input') as HTMLInputElement | null;
+    const clearBtn = document.getElementById('tools-clear-btn') as HTMLButtonElement | null;
+    const countEl = document.getElementById('tools-search-count');
+    const zeroState = document.getElementById('tools-zero-state');
+    const categoryButtons = document.querySelectorAll<HTMLButtonElement>('.category-tab');
+    const toolItems = document.querySelectorAll<HTMLElement>('.tool-list-item');
+
+    let currentCategory = '全部';
+
+    function applyFilter() {
+      const q = searchInput?.value || '';
+      if (clearBtn) clearBtn.hidden = !q.trim();
+
+      const matched = filterTools(q, currentCategory);
+      const matchedIds = new Set(matched.map((t) => t.id));
+
+      let visibleCount = 0;
+      toolItems.forEach((item) => {
+        const id = item.dataset.toolId || '';
+        const isMatch = matchedIds.has(id);
+        item.hidden = !isMatch;
+        if (isMatch) visibleCount += 1;
+      });
+
+      if (countEl) {
+        if (!q.trim() && currentCategory === '全部') {
+          countEl.textContent = '顯示全部 5 項工具';
+        } else {
+          const catText = currentCategory === '全部' ? '' : `（分類：${currentCategory}）`;
+          countEl.textContent = `找到 ${visibleCount} 項工具${catText}`;
+        }
+      }
+
+      if (zeroState) {
+        zeroState.hidden = visibleCount > 0;
+      }
+    }
+
+    searchInput?.addEventListener('input', applyFilter);
+    clearBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      applyFilter();
+    });
+
+    categoryButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        categoryButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category || '全部';
+        applyFilter();
+      });
+    });
+  </script>
 </BaseLayout>

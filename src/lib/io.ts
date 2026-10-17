@@ -1,4 +1,4 @@
-import type { Values } from './parse';
+import { parseNumberText, type Values } from './parse';
 
 export const SCHEMA_VERSION = 1;
 export const MAX_IMPORT_BYTES = 100 * 1024;
@@ -96,6 +96,81 @@ export function buildExport(toolId: string, inputs: Values): string {
   return `${JSON.stringify(file, null, 2)}\n`;
 }
 
+function parseRateValue(text: string): { ok: true; value: number } | { ok: false; error: string } {
+  const outcome = parseNumberText(text, { percent: true });
+  if (outcome.kind !== 'ok') {
+    return { ok: false, error: '格式不正確或含有非數字字元' };
+  }
+  const val = outcome.value;
+  if (!Number.isFinite(val) || val < 0 || val > 100) {
+    return { ok: false, error: '年利率必須介於 0% 至 100% 之間' };
+  }
+  return { ok: true, value: val };
+}
+
+export function migrateMortgageInputs(inputs: unknown): SanitizeResult<unknown> {
+  if (!isPlainObject(inputs)) return { ok: false, error: '輸入資料格式不正確' };
+  if (!Array.isArray(inputs.scenarios)) return { ok: true, value: inputs };
+
+  for (let i = 0; i < inputs.scenarios.length; i += 1) {
+    const sc = inputs.scenarios[i];
+    if (!isPlainObject(sc)) continue;
+
+    const fixedRateStr = typeof sc.fixedRate === 'string' ? sc.fixedRate.trim() : undefined;
+    const hasFixed = fixedRateStr !== undefined && fixedRateStr !== '';
+    const segmentsArr = Array.isArray(sc.segments) ? sc.segments : undefined;
+    const hasSegments = segmentsArr !== undefined && segmentsArr.length > 0;
+    const seg0 = hasSegments && isPlainObject(segmentsArr[0]) ? segmentsArr[0] : null;
+    const firstSegRate = seg0 && typeof seg0.annualRate === 'string' && seg0.annualRate.trim() !== ''
+      ? seg0.annualRate.trim()
+      : undefined;
+
+    // 若有提供 fixedRate，嚴格檢查格式、有限值與範圍
+    let fixedNum: number | undefined;
+    if (hasFixed) {
+      const parsed = parseRateValue(fixedRateStr!);
+      if (!parsed.ok) {
+        return { ok: false, error: `方案 ${i + 1} 的固定年利率無效（${parsed.error}）` };
+      }
+      fixedNum = parsed.value;
+    }
+
+    // 若有提供 firstSegRate，嚴格檢查格式、有限值與範圍
+    let seg0Num: number | undefined;
+    if (firstSegRate !== undefined) {
+      const parsed = parseRateValue(firstSegRate);
+      if (!parsed.ok) {
+        return { ok: false, error: `方案 ${i + 1} 的第一段年利率無效（${parsed.error}）` };
+      }
+      seg0Num = parsed.value;
+    }
+
+    // 衝突檢核：若同時提供固定利率與首段利率，且兩者數值不同，必須拒絕以防偷偷覆蓋
+    if (fixedNum !== undefined && seg0Num !== undefined) {
+      if (Math.abs(fixedNum - seg0Num) > 1e-7) {
+        return {
+          ok: false,
+          error: `方案 ${i + 1} 的固定年利率（${fixedRateStr}%）與第一段利率（${firstSegRate}%）設定衝突，未覆寫目前設定`,
+        };
+      }
+      // 數值等值：以首段利率格式為準同步 fixedRate，維持完全一致
+      sc.fixedRate = firstSegRate;
+    }
+
+    // 遷移：如果舊版/外部檔案只有 fixedRate 而無 segments
+    if (hasFixed && !hasSegments) {
+      sc.segments = [{ startMonth: '1', annualRate: fixedRateStr }];
+    }
+
+    // 遷移：如果舊版只有 segments 而無 fixedRate，以首段利率補齊 fixedRate
+    if (firstSegRate !== undefined && !hasFixed) {
+      sc.fixedRate = firstSegRate;
+    }
+  }
+
+  return { ok: true, value: inputs };
+}
+
 /** Validate an imported JSON document. Never throws; the caller keeps its current state on error. */
 export function parseImport(text: string, toolId: string, schema: Schema): SanitizeResult<Values> {
   if (new TextEncoder().encode(text).length > MAX_IMPORT_BYTES) {
@@ -110,5 +185,11 @@ export function parseImport(text: string, toolId: string, schema: Schema): Sanit
   if (!isPlainObject(data)) return { ok: false, error: '檔案格式不正確' };
   if (data.schemaVersion !== SCHEMA_VERSION) return { ok: false, error: '不支援的檔案版本' };
   if (data.toolId !== toolId) return { ok: false, error: '此檔案不屬於這個工具' };
+
+  if (toolId === 'mortgage') {
+    const mig = migrateMortgageInputs(data.inputs);
+    if (!mig.ok) return mig as SanitizeResult<Values>;
+  }
+
   return sanitize(schema, data.inputs);
 }

@@ -16,18 +16,52 @@ const mimeTypes = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+function parseHeadersFile(headersPath) {
+  if (!fs.existsSync(headersPath)) return [];
+  const content = fs.readFileSync(headersPath, 'utf8');
+  const lines = content.split(/\r?\n/);
+  const rules = [];
+  let currentPattern = null;
+  let currentHeaders = {};
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    if (!rawLine.startsWith(' ') && !rawLine.startsWith('\t')) {
+      if (currentPattern) {
+        rules.push({ pattern: currentPattern, headers: currentHeaders });
+      }
+      currentPattern = line;
+      currentHeaders = {};
+    } else if (currentPattern) {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx > 0) {
+        const key = line.slice(0, colonIdx).trim();
+        const value = line.slice(colonIdx + 1).trim();
+        currentHeaders[key] = value;
+      }
+    }
+  }
+  if (currentPattern) {
+    rules.push({ pattern: currentPattern, headers: currentHeaders });
+  }
+  return rules;
+}
+
+const headerRules = parseHeadersFile(path.join(distDir, '_headers'));
+
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url || '/', `http://${req.headers.host}`);
   let pathname = decodeURIComponent(parsedUrl.pathname);
 
-  // Security headers per SPEC section 8
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-ancestors 'none';",
-  );
+  // Apply security headers parsed from dist/_headers
+  for (const rule of headerRules) {
+    if (rule.pattern === '/*' || pathname.startsWith(rule.pattern.replace('/*', ''))) {
+      for (const [k, v] of Object.entries(rule.headers)) {
+        res.setHeader(k, v);
+      }
+    }
+  }
 
   let filePath = path.join(distDir, pathname);
 

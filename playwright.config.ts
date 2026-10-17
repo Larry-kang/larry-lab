@@ -31,7 +31,7 @@ export default defineConfig({
   webServer: {
     command: 'node scripts/serve-dist.mjs',
     url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 10000,
   },
 });
