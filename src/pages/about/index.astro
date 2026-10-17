@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+---
+
+<BaseLayout title="關於 Larry Lab" description="認識 Larry Lab 的網站理念、作者背景以及負責任的 AI 協作開發模式。" nav="about">
+  <h1>關於 Larry Lab</h1>
+  <p class="lead">
+    打造公開、透明、易讀的個人實用決策工具箱。
+  </p>
+
+  <section class="panel">
+    <h2>關於作者</h2>
+    <div class="prose">
+      <p>{site.author}</p>
+      <p>
+        我是一位專注於 C# / .NET 後端開發的工程師，平時關注分散式架構、交易可靠性設計與自動化開發流程。在面對個人金融與生涯決策時，我發現市面上的試算工具往往隱藏過多假設、缺乏方案比較功能，甚至強迫收集使用者個資。因此我建立了 Larry Lab，希望能提供一個純粹、透明且尊重隱私的工具箱。
+      </p>
+      <p>
+        GitHub 個人主頁：<a href={site.githubProfile} target="_blank" rel="noopener noreferrer">{site.githubProfile}</a><br />
+        本站開源儲存庫：<a href={site.githubRepo} target="_blank" rel="noopener noreferrer">{site.githubRepo}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>已實作功能與技術取捨</h2>
+    <div class="prose">
+      <ul>
+        <li><strong>五大實用試算器</strong>：涵蓋房貸分期、信用貸款成本 (IRR)、股票質押維持率與追繳壓力、退休目標與現金流耗盡年齡，以及多資產配置與定期定額年度再平衡。</li>
+        <li><strong>純靜態 SSG 輸出架構</strong>：採用現代 Astro 框架進行完全靜態化建置，極速載入且無伺服器維運安全風險。</li>
+        <li><strong>零後端、零追蹤</strong>：所有數學公式與蒙地卡羅/複利運算均在使用者裝置的瀏覽器記憶體中執行，不設任何後端資料庫，亦無第三方追蹤 Cookie。</li>
+        <li><strong>獨立驗證與計算契約</strong>：數值邏輯遵循明確的計算契約，並以獨立數學推導之單元測試嚴格保護，拒絕黑箱估算。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>AI 協作開發聲明</h2>
+    <div class="prose">
+      <p>
+        本專案採現代化「人類主導設計與驗收、AI 協助實作與測試」的負責任人機協作模式：
+      </p>
+      <ul>
+        <li><strong>需求與規格定義</strong>：由作者（Larry）明確定義產品願景、使用者流程、數值契約與驗收邊界。</li>
+        <li><strong>程式碼實作與測試</strong>：由 AI 代理人協助撰寫符合規格之 TypeScript / Astro 程式碼、單元測試與自動化檢查。</li>
+        <li><strong>品質審查與驗收</strong>：由作者親自審核每一項功能變更、測試證據與文件完整度，確保交付品質符合專業標準。</li>
+      </ul>
+      <p>
+        本站不會宣稱所有程式碼皆由人類逐行手寫，而是如實體現人機協作的高效、透明與工程嚴謹性。
+      </p>
+    </div>
+  </section>
+</BaseLayout>

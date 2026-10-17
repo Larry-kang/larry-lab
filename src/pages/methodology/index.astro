@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
+---
+
+<BaseLayout title="計算方法與模型說明" description="Larry Lab 各工具採用的數學模型、時間約定、邊界假設與限制說明。">
+  <h1>計算方法與模型說明</h1>
+  <p class="lead">
+    本站所有試算工具均遵循公開、可查核的數學定義。以下說明各工具的核心公式、計算假定及適用邊界。
+  </p>
+  <p class="hint">當前模型版本：{MODEL_VERSION} · 最後更新日期：{MODEL_UPDATED_AT} · 貨幣基準：新台幣 (TWD)</p>
+
+  <section class="panel">
+    <h2>1. 房貸試算模型 (Mortgage)</h2>
+    <div class="prose">
+      <p><strong>核心公式：</strong></p>
+      <ul>
+        <li>
+          <strong>本息平均攤還：</strong> 月付金 <code>payment = P × i / (1 - (1+i)^(-n))</code>（其中 <code>P</code> 為本金，<code>i = 年利率 / 12</code>，<code>n</code> 為剩餘期數）。當利率為 0 時退化為 <code>P / n</code>。
+        </li>
+        <li>
+          <strong>本金平均攤還：</strong> 寬限期後每期償還固定本金 <code>P / (N - g)</code>，每期利息以期初餘額乘以月利率，因此月付金隨本金減少而逐期遞減。
+        </li>
+        <li>
+          <strong>寬限期：</strong> <code>g</code> 個月內僅支付當期利息，不償還本金。總期數維持 <code>N</code> 期不變。
+        </li>
+        <li>
+          <strong>分段利率：</strong> 第一段必須自第 1 個月起算。利率變動時，本息平均攤還依當時剩餘本金及剩餘期數重新推算後續月付金。
+        </li>
+      </ul>
+      <p><strong>限制與邊界：</strong> 還款時間約定為月底支付；一次性費用於期初支付，不計入本金複利；最後一期以實際餘額清償，避免四捨五入尾差。</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>2. 信貸試算與現金流年化成本 (Personal Loan)</h2>
+    <div class="prose">
+      <p><strong>核心公式：</strong></p>
+      <ul>
+        <li>
+          <strong>月付金：</strong> 採固定利率之本息平均攤還。
+        </li>
+        <li>
+          <strong>估算有效年化成本：</strong> 考慮期初費用 <code>F</code>，期初淨流入為 <code>P - F</code>，各期流出為固定月付金。利用數值求根法求解滿足 <code>P - F = ∑(payment / (1 + x)^m)</code> 的月內部報酬率 <code>x</code>，再以複利年化 <code>(1 + x)^12 - 1</code> 計算。
+        </li>
+      </ul>
+      <p><strong>重要約定：</strong> 此指標稱為「估算有效年化成本（依本工具現金流）」，與各銀行依主管機關法規揭露的 APR（總費用年百分率）計算規則或手續費計入方式可能有所不同，僅供綜合成本比較參考。</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>3. 股票質押與擔保品壓力模型 (Stock Pledge)</h2>
+    <div class="prose">
+      <p><strong>核心公式：</strong></p>
+      <ul>
+        <li>
+          <strong>維持率：</strong> <code>擔保品市值 V / 實際借款 L</code>。借款為 0 時狀態為無負債，維持率標記為不適用 (N/A)。
+        </li>
+        <li>
+          <strong>期間利息：</strong> 採國際常見之 Actual/365 基準：<code>L × 年利率 × 天數 / 365</code>。
+        </li>
+        <li>
+          <strong>回復目標補足方式：</strong>
+          <ul>
+            <li><strong>現金還款：</strong> <code>max(0, L - V_shock / 目標維持率)</code>（降低負債）</li>
+            <li><strong>追加合格證券：</strong> <code>max(0, L × 目標維持率 - V_shock)</code>（增加擔保品）</li>
+          </ul>
+        </li>
+      </ul>
+      <p><strong>限制與邊界：</strong> 現金還款與追加證券為各自獨立的補足管道，不可相加。維持率門檻為使用者自訂之參考情境，非券商保證之處分時點。</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>4. 退休現金流逐月模擬模型 (Retirement)</h2>
+    <div class="prose">
+      <p><strong>核心公式：</strong></p>
+      <ul>
+        <li>
+          <strong>通膨與實質成長率：</strong> 月實質成長倍率 <code>q = ((1 + 名目報酬) / (1 + 通膨率))^(1/12)</code>。
+        </li>
+        <li>
+          <strong>所需本金回推：</strong> 由規劃終止年齡餘額 0 逐月向前推算 <code>B_(m-1) = max(0, (B_m + 支出 - 收入) / q)</code>，確保無負債假設下的必要本金。
+        </li>
+        <li>
+          <strong>最早可退休年齡：</strong> 遍歷當前年齡至終止年齡，尋找首次能在所有月份餘額均不歸零的整數歲數。
+        </li>
+      </ul>
+      <p><strong>限制與邊界：</strong> 現金流以今天購買力為核心單位，可切換為未來名目金額；不提供 Monte Carlo 機率，固定路徑不可視為投資保證。</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>5. 投資組合配置與再平衡累積 (Portfolio)</h2>
+    <div class="prose">
+      <p><strong>核心公式：</strong></p>
+      <ul>
+        <li>
+          <strong>配置與槓桿：</strong> <code>槓桿倍數 = 總資產 / 淨值</code>。淨值為零或負數時標示為不適用 (N/A)，避免除以零錯誤。
+        </li>
+        <li>
+          <strong>無槓桿累積與每年再平衡：</strong> 各資產依設定之年化總報酬（已含股息再投入）按月成長，於每年第 12 個月將資產總額重新按目標權重再平衡分配。
+        </li>
+      </ul>
+      <p><strong>限制與邊界：</strong> 不含交易手續費與稅負，不採用歷史回測，不提供每日槓桿 ETF 之路徑推估。</p>
+    </div>
+  </section>
+</BaseLayout>

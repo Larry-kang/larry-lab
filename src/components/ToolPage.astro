@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { tools } from '../config/site';
+
+interface Props {
+  toolId: string;
+  description: string;
+}
+const { toolId, description } = Astro.props;
+const meta = tools.find((t) => t.id === toolId)!;
+---
+
+<BaseLayout title={meta.name} description={description} nav="tools" toolCategory={`工具／${meta.category}`}>
+  <h1>{meta.name}</h1>
+  <p class="lead">{description}</p>
+  <slot />
+  <p class="hint">
+    本工具為簡化的試算模型，不是個人化建議或核貸／投資判斷。假設、公式與限制請見<a href="/methodology/">計算方法</a>；資料處理方式請見<a href="/privacy/">隱私說明</a>。
+  </p>
+  <div id="tool-root" data-tool={toolId}>
+    <noscript><p class="notice notice-warn">此工具需要啟用 JavaScript 才能在瀏覽器本機計算。本站不會把你的輸入送到伺服器。</p></noscript>
+    <p>工具載入中…</p>
+  </div>
+  <script>
+    import '../scripts/tool.ts';
+  </script>
+</BaseLayout>

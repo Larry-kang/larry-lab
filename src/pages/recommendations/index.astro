@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecommendationPanel from '../../components/RecommendationPanel.astro';
+import { site } from '../../config/site';
+---
+
+<BaseLayout title="推薦總覽" description="Larry Lab 推薦的好用服務與工具清單，附帶完整的利益揭露與空狀態說明。" nav="recommendations">
+  <h1>推薦總覽</h1>
+  <p class="lead">
+    這裡整理作者個人使用過、覺得對開發或生活有實質幫助的工具、平台與優惠推薦。
+  </p>
+
+  <div class="panel">
+    <RecommendationPanel variant="full" />
+  </div>
+
+  <section id="disclosure" aria-labelledby="disclosure-heading" class="panel">
+    <h2 id="disclosure-heading">利益揭露與推薦原則</h2>
+    <div class="prose">
+      <p>
+        <strong>透明原則：</strong>
+        {site.referralNotice}
+      </p>
+      <p>
+        <strong>推薦標準：</strong>
+        所有列出的項目均基於真實使用體驗與獨立評估，絕不因為分潤多寡而調整排序或評價。若作者尚未取得優惠或真實推薦碼，該項目將保持停用或不顯示，絕不捏造虛構優惠。
+      </p>
+      <p>
+        <strong>免責聲明：</strong>
+        推薦項目與平台之實際服務條款、優惠期限及收費標準請以該平台官方公告為準，Larry Lab 不承擔任何第三方平台交易風險。
+      </p>
+    </div>
+  </section>
+</BaseLayout>
