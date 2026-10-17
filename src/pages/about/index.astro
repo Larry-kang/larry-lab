@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { site } from '../../config/site';
+// 依專案擁有者 2026-10-17 正式產品定位指示（見 SPEC.md 第 3 節）：
+// 公開 /about/ 頁面移除「已實作功能與技術架構」與「AI 協作開發說明」兩大段落，僅於作者簡介以自然單句說明規格定義與 AI 協作分工。
 ---
 
 <BaseLayout title="關於 Larry Lab" description="認識 Larry Lab 的設計初衷、五大個人財務試算工具與使用方式。" nav="about">
@@ -41,7 +43,7 @@ import { site } from '../../config/site';
     <div class="prose">
       <p>{site.author}</p>
       <p>
-        本身為軟體工程師，在規劃個人房貸、借貸成本與長期資產配置時，希望有一套版面乾淨、沒有廣告干擾、能把假設條件攤開來比較的工具，因此建立了 Larry Lab 並公開分享給有相同需求的朋友使用。
+        本身為軟體工程師，在規劃個人房貸、借貸成本與長期資產配置時，希望有一套版面乾淨、沒有廣告干擾、能把假設條件攤開來比較的工具；本站由我定義產品需求、計算規格與驗收標準，並結合 AI 協助實作與自動化測試驗證，公開分享給有相同需求的朋友使用。
       </p>
     </div>
   </section>

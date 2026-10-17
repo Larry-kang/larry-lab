@@ -41,8 +41,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </section>
 
   <section class="panel">
-    <h2>3. 設定檔備份與外部連結</h2>
+    <h2>3. 網頁連線、設定檔備份與外部連結</h2>
     <div class="prose">
+      <p>
+        <strong>一般網頁連線與試算資料分離：</strong> 瀏覽本站時，靜態網站主機（Cloudflare Pages）僅處理傳遞網頁與圖示檔案所需的一般 HTTP 連線請求（包含標準連線中繼資料如 IP 位址、瀏覽器 User-Agent 與請求路徑）；你在試算工具中輸入的金額、利率與資產配置僅留存於瀏覽器本機，不會隨連線請求上傳至網站主機。
+      </p>
       <p>
         <strong>設定檔匯出與 CSV 下載：</strong> 你可將試算假設匯出為 JSON 備份檔，或將試算明細下載為 CSV 表格於個人裝置保存，整個過程均在瀏覽器本機完成。
       </p>

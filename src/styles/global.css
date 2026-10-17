@@ -573,8 +573,8 @@ a:hover {
 }
 
 .btn.tiny {
-  min-height: 30px;
-  padding: 2px 9px;
+  min-height: 44px;
+  padding: 4px 10px;
   font-size: 0.78rem;
   border-radius: 6px;
   white-space: nowrap;

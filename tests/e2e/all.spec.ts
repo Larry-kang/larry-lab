@@ -224,9 +224,10 @@ test.describe('V11-13 & A11: 隱私安全與 Cloudflare Pages 標頭驗證', () 
     expect(headers?.['content-security-policy']).toContain("frame-ancestors 'none'");
   });
 
-  test('確認隱私說明明確指出 LocalStorage 為未經加密純文字 JSON', async ({ page }) => {
+  test('確認隱私說明明確指出 LocalStorage 為未經加密純文字 JSON，並區分一般網頁連線與試算輸入不外傳', async ({ page }) => {
     await page.goto('/privacy/');
     await expect(page.locator('body')).toContainText('未經加密的純文字 JSON 格式');
+    await expect(page.locator('body')).toContainText('一般網頁連線與試算資料分離');
     await expect(page.locator('body')).not.toContainText('加密存放在你個人瀏覽器');
   });
 });
@@ -390,6 +391,10 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
       await expect(mobileDetails.locator('.rec-more a')).toContainText('查看全部 17 項推薦');
       const mobileClipped = await mobileDetails.evaluate((el) => el.scrollWidth > el.clientWidth);
       expect(mobileClipped).toBe(false);
+      const mobileBtnHeights = await mobileDetails
+        .locator('.btn.tiny')
+        .evaluateAll((els) => els.map((el) => (el as HTMLElement).offsetHeight));
+      expect(mobileBtnHeights.every((h) => h >= 44)).toBe(true);
     } else {
       const aside = page.locator('[data-testid="rec-aside"]');
       await expect(aside).toBeVisible();
@@ -401,6 +406,10 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
       await expect(moreLink).toHaveAttribute('href', '/recommendations/');
       const asideClipped = await aside.evaluate((el) => el.scrollWidth > el.clientWidth);
       expect(asideClipped).toBe(false);
+      const asideBtnHeights = await aside
+        .locator('.btn.tiny')
+        .evaluateAll((els) => els.map((el) => (el as HTMLElement).offsetHeight));
+      expect(asideBtnHeights.every((h) => h >= 44)).toBe(true);
     }
 
     // 360px 視口無全頁橫向溢位
