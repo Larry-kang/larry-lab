@@ -196,9 +196,9 @@ describe('recommendations', () => {
       ['其他加密服務', 3],
     ]);
 
-    // 15 enabled items (13 verified URLs + 2 code-only) and 2 UNKNOWN items (bankee, bybit)
+    // All 17 items enabled (15 verified URLs + 2 code-only)
     const active = activeRecommendations(items);
-    expect(active).toHaveLength(15);
+    expect(active).toHaveLength(17);
     expect(sidebarRecommendations(items)).toHaveLength(3);
 
     const byId = new Map(items.map((x) => [x.id, x]));
@@ -210,7 +210,8 @@ describe('recommendations', () => {
       const target = byId.get(src.id);
       expect(target, `Missing item ${src.id}`).toBeDefined();
       expect(target!.name).toBe(src.name);
-      expect(target!.providedAt).toBe('2026-10-15');
+      const expectedProvidedAt = (src as { providedAt?: string }).providedAt ?? ownerProvidedFile.providedAt;
+      expect(target!.providedAt).toBe(expectedProvidedAt);
       expect(target!.offerCheckedAt).toBeNull();
       expect(target!.offerText).toBeUndefined();
 
@@ -232,20 +233,20 @@ describe('recommendations', () => {
     expect(byId.get('rakuten-bank')?.code).toBe('YCB0Y6');
     expect(byId.get('rakuten-bank')?.referralUrl).toBeUndefined();
 
-    // RF-02: exact query/hash preservation on key URLs
+    // RF-02: exact query/hash/path preservation on key URLs including bankee & bybit
     expect(byId.get('line-bank')?.referralUrl).toBe('https://www.linebank.com.tw/R/mgm-portal?campaignId=2&uid=bfQnUx');
     expect(byId.get('new-new-bank')?.referralUrl).toBe('https://newnewbank.ubot.com.tw/web/#/S0101001?pm=3&ID=ANIDEZI');
     expect(byId.get('richart')?.referralUrl).toBe(
       'https://richart.tw/TSDIB_RichartWeb/RC07/RC070100?sn=IPE2U&utm_source=richart&utm_medium=app&utm_campaign=richart_mgm_20230701',
     );
-
-    // RF-04: UNKNOWN items disable outbound link
-    expect(byId.get('bankee')?.linkStatus).toBe('UNKNOWN');
-    expect(byId.get('bankee')?.enabled).toBe(false);
-    expect(hasUsableReferralLink(byId.get('bankee')!)).toBe(false);
-    expect(byId.get('bybit')?.linkStatus).toBe('UNKNOWN');
-    expect(byId.get('bybit')?.enabled).toBe(false);
-    expect(hasUsableReferralLink(byId.get('bybit')!)).toBe(false);
+    expect(byId.get('bankee')?.referralUrl).toBe('https://www.bankee.tw/webview/app3/M00300/JLG12');
+    expect(byId.get('bankee')?.linkStatus).toBe('VERIFIED');
+    expect(byId.get('bankee')?.enabled).toBe(true);
+    expect(hasUsableReferralLink(byId.get('bankee')!)).toBe(true);
+    expect(byId.get('bybit')?.referralUrl).toBe('https://partner.bybit.com/b/157345');
+    expect(byId.get('bybit')?.linkStatus).toBe('VERIFIED');
+    expect(byId.get('bybit')?.enabled).toBe(true);
+    expect(hasUsableReferralLink(byId.get('bybit')!)).toBe(true);
   });
 
   it('rejects malformed files, unsafe URLs, incoherent status combinations, and unapproved hostnames', () => {

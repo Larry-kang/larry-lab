@@ -44,6 +44,7 @@ export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
   'max.maicoin.com',
   'www.binance.com',
   'www.bybit.com',
+  'partner.bybit.com',
   'crypto.com',
   'okx.com',
   'www.okx.com',
