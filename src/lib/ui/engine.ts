@@ -638,7 +638,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     const ev = evals[active];
     const name = String(scenarios()[active].name);
     const heading = h('h2', { id: 'results-heading', tabindex: '-1' }, `試算結果：${name}`);
-    const sampleBadge = h('span', { class: 'sample-tag' }, '示範情境（非財務建議）');
+    const sampleBadge = h('span', { class: 'sample-tag' }, '示範情境（虛構範例）');
     const parts: Node[] = [h('div', { class: 'results-title-row' }, heading, sampleBadge)];
 
     const errorKeys = Object.keys(ev.errors);

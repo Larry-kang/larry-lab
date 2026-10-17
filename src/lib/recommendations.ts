@@ -149,7 +149,12 @@ export function validateRecommendations(file: unknown): Recommendation[] {
     if (r.offerExpiresAt !== undefined && (typeof r.offerExpiresAt !== 'string' || !DATE_PATTERN.test(r.offerExpiresAt))) {
       throw new Error(`${where}.offerExpiresAt 必須為 YYYY-MM-DD`);
     }
-    if (r.offerText !== undefined && !str(r.offerText, 200)) throw new Error(`${where}.offerText 無效`);
+    if (r.offerText !== undefined) {
+      if (!str(r.offerText, 200)) throw new Error(`${where}.offerText 無效`);
+      if (offerStatus !== undefined && offerStatus !== 'VERIFIED') {
+        throw new Error(`${where}.offerText 僅允許在 offerStatus 為 VERIFIED 時提供`);
+      }
+    }
 
     return {
       id,
@@ -209,9 +214,10 @@ export function hasUsableReferralLink(item: Recommendation): boolean {
   return Boolean(item.enabled && item.referralUrl && item.linkStatus !== 'UNKNOWN');
 }
 
-/** An offer is shown only while it has not expired (end of the stated day, Asia/Taipei). */
+/** An offer is shown only when verified (if offerStatus is set) and while it has not expired (end of the stated day, Asia/Taipei). */
 export function isOfferActive(item: Recommendation, now: Date): boolean {
   if (!item.offerText) return false;
+  if (item.offerStatus !== undefined && item.offerStatus !== 'VERIFIED') return false;
   if (!item.offerExpiresAt) return true;
   const end = new Date(`${item.offerExpiresAt}T23:59:59+08:00`);
   return now.getTime() <= end.getTime();

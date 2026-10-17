@@ -281,10 +281,12 @@ describe('recommendations', () => {
     expect(sidebarRecommendations(items, 2).map((x) => x.id)).toEqual(['a', 'e']);
   });
 
-  it('drops expired offers without inventing dates', () => {
-    const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14' })] });
+  it('drops expired or unverified offers without inventing dates', () => {
+    expect(() => validateRecommendations({ items: [item({ offerText: '未驗證優惠', offerStatus: 'UNVERIFIED' })] })).toThrow();
+    const [withOffer] = validateRecommendations({ items: [item({ offerText: '虛構優惠', offerExpiresAt: '2026-10-14', offerStatus: 'VERIFIED' })] });
     expect(isOfferActive(withOffer, new Date('2026-10-14T15:00:00Z'))).toBe(true);
     expect(isOfferActive(withOffer, new Date('2026-10-15T16:30:00Z'))).toBe(false);
+    expect(isOfferActive({ ...withOffer, offerStatus: 'UNVERIFIED' }, new Date('2026-10-14T15:00:00Z'))).toBe(false);
     const [noOffer] = validateRecommendations({ items: [item()] });
     expect(isOfferActive(noOffer, new Date())).toBe(false);
   });
