@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { tools } from '../../src/config/site';
 
 test('SEO 靜態內容：停用 JavaScript 仍有五工具說明、問答與 JSON-LD', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
@@ -24,7 +25,7 @@ test('SEO 文件與公開路由一致，重整工具仍可操作', async ({ page
   expect(llms.status()).toBe(200);
   expect(await llms.text()).toContain('/tools/mortgage/');
   const xml = await request.get('/sitemap.xml');
-  expect((await xml.text()).match(/<lastmod>/g)).toHaveLength(11);
+  expect((await xml.text()).match(/<lastmod>/g)).toHaveLength(tools.length + 6);
   await page.goto('/tools/mortgage/');
   await page.reload();
   await expect(page.getByLabel('房價（新台幣元）', { exact: true })).toBeVisible();

@@ -23,8 +23,8 @@ describe('SEO 內容來源與靜態資料', () => {
   });
   it('sitemap 有審核日期但沒有無效搜尋提示', () => {
     const xml = buildSitemap('https://example.org');
-    expect(xml.match(/<loc>/g)).toHaveLength(11);
-    expect(xml.match(/<lastmod>/g)).toHaveLength(11);
+    expect(xml.match(/<loc>/g)).toHaveLength(tools.length + 6);
+    expect(xml.match(/<lastmod>/g)).toHaveLength(tools.length + 6);
     expect(xml).not.toMatch(/404|priority|changefreq/);
   });
   it('JSON-LD 不捏造評分且阻擋結束 script 的文字', () => {

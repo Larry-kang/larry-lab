@@ -2,10 +2,12 @@ import { readFileSync, existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 const read = path => readFileSync(`dist/${path}`, 'utf8');
 const content = JSON.parse(readFileSync('src/content/tool-content.json', 'utf8'));
+const pageUpdates = JSON.parse(readFileSync('src/content/page-updates.json', 'utf8'));
+const expectedPages = Object.keys(content).length + Object.keys(pageUpdates).length;
 const llms = read('llms.txt');
 const sitemap = read('sitemap.xml');
-assert.equal((sitemap.match(/<loc>/g) ?? []).length, 11);
-assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, 11);
+assert.equal((sitemap.match(/<loc>/g) ?? []).length, expectedPages);
+assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, expectedPages);
 assert(!/priority|changefreq|localhost/.test(sitemap));
 const method = read('methodology/index.html');
 for (const [id, item] of Object.entries(content)) {
@@ -27,4 +29,4 @@ for (const [id, item] of Object.entries(content)) {
 assert(read('index.html').includes('"@type":"WebSite"'));
 assert(!read('404.html').includes('application/ld+json'));
 for (const match of sitemap.matchAll(/<loc>https:\/\/larry-lab.pages.dev\/([^<]*)<\/loc>/g)) assert(existsSync(`dist/${match[1]}index.html`));
-console.log('SEO 靜態產物：PASS（五工具正文、JSON-LD、方法錨點、llms 與 11 條 sitemap）');
+console.log(`SEO 靜態產物：PASS（工具正文、JSON-LD、方法錨點、llms 與 ${expectedPages} 條 sitemap）`);
