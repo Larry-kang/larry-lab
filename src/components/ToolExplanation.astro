@@ -1,0 +1,21 @@
+---
+import { tools } from '../config/site';
+import { toolContent } from '../content/tool-content';
+interface Props { toolId: string }
+const { toolId } = Astro.props;
+const tool = tools.find(tool => tool.id === toolId)!;
+const content = toolContent[toolId];
+---
+<section class="panel prose" aria-label={`${tool.name}計算說明`} data-tool-explanation={toolId}>
+  <h2>計算假設與限制</h2>
+  <p><strong>用途與產出：</strong>{tool.problemSolved} {tool.mainOutputs}</p>
+  <p><strong>計算假設：</strong>{content.assumptions}</p>
+  <p><strong>公式摘要：</strong>{content.formula}</p>
+  <p><strong>適用限制：</strong>{content.limitations}</p>
+  <p>本工具依<a href={`/methodology/#${toolId}`}>本站計算方法與現金流約定</a>實作，非銀行核貸、投資報酬或法規 APR 的保證。<a href="https://github.com/Larry-kang/larry-lab/blob/main/docs/CALCULATION_CONTRACT.md" rel="noopener noreferrer">查看公開計算契約</a>。</p>
+  <h2>常見問題</h2>
+  {content.faqs.map(faq => <details><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}
+  <p>內容更新：<time datetime={content.updatedAt}>{content.updatedAt}</time></p>
+  <h2>相關試算</h2>
+  <ul>{content.related.map(id => { const related = tools.find(tool => tool.id === id)!; return <li><a href={related.path}>{related.name}</a>：{related.problemSolved}</li>; })}</ul>
+</section>

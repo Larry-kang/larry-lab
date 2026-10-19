@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { tools } from '../config/site';
+import { toolContent } from '../content/tool-content';
+import { toolDescription, toolStructuredData } from '../lib/seo';
+import ToolExplanation from './ToolExplanation.astro';
 
 interface Props {
   toolId: string;
-  description: string;
 }
-const { toolId, description } = Astro.props;
+const { toolId } = Astro.props;
 const meta = tools.find((t) => t.id === toolId)!;
+const description = toolDescription(toolId);
 ---
 
-<BaseLayout title={meta.name} description={description} nav="tools" toolCategory={`工具／${meta.category}`}>
+<BaseLayout title={toolContent[toolId].title} description={description} structuredData={toolStructuredData(toolId, Astro.site!.href)} nav="tools" toolCategory={`工具／${meta.category}`}>
   <h1>{meta.name}</h1>
   <p class="lead">{description}</p>
   <slot />
@@ -21,6 +24,7 @@ const meta = tools.find((t) => t.id === toolId)!;
     <noscript><p class="notice notice-warn">此工具需要啟用 JavaScript 才能在瀏覽器本機計算。本站不會把你的輸入送到伺服器。</p></noscript>
     <p>工具載入中…</p>
   </div>
+  <ToolExplanation toolId={toolId} />
   <script>
     import '../scripts/tool.ts';
   </script>
