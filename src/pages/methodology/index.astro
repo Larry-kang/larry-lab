@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
+import { tools } from '../../config/site';
+import { toolContent } from '../../content/tool-content';
 ---
 
 <BaseLayout title="計算方法與模型說明" description="Larry Lab 各工具採用的數學模型、時間約定、邊界假設與限制說明。">
@@ -10,7 +12,18 @@ import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
   </p>
   <p class="hint">當前模型版本：{MODEL_VERSION} · 最後更新日期：{MODEL_UPDATED_AT} · 貨幣基準：新台幣 (TWD)</p>
 
-  <section class="panel">
+  <section class="panel prose" aria-label="各工具方法摘要">
+    <h2>快速查閱</h2>
+    {tools.map(tool => <details>
+      <summary>{tool.name}：假設、公式與限制</summary>
+      <p><strong>假設：</strong>{toolContent[tool.id].assumptions}</p>
+      <p><strong>公式：</strong>{toolContent[tool.id].formula}</p>
+      <p><strong>限制：</strong>{toolContent[tool.id].limitations}</p>
+      <p>說明內容更新：{toolContent[tool.id].updatedAt} · <a href={`#${tool.id}`}>完整方法</a> · <a href={tool.path}>前往試算</a></p>
+    </details>)}
+  </section>
+
+  <section class="panel" id="mortgage">
     <h2>1. 房貸試算模型 (Mortgage)</h2>
     <div class="prose">
       <p><strong>核心公式：</strong></p>
@@ -32,7 +45,7 @@ import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="personal-loan">
     <h2>2. 信貸試算與現金流年化成本 (Personal Loan)</h2>
     <div class="prose">
       <p><strong>核心公式：</strong></p>
@@ -48,7 +61,7 @@ import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="stock-pledge">
     <h2>3. 股票質押與擔保品壓力模型 (Stock Pledge)</h2>
     <div class="prose">
       <p><strong>核心公式：</strong></p>
@@ -71,7 +84,7 @@ import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="retirement">
     <h2>4. 退休現金流逐月模擬模型 (Retirement)</h2>
     <div class="prose">
       <p><strong>核心公式：</strong></p>
@@ -90,7 +103,7 @@ import { MODEL_VERSION, MODEL_UPDATED_AT } from '../../lib/calculators/common';
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="portfolio">
     <h2>5. 投資組合配置與再平衡累積 (Portfolio)</h2>
     <div class="prose">
       <p><strong>核心公式：</strong></p>

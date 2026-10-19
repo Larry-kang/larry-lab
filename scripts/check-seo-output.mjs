@@ -1,0 +1,30 @@
+import { readFileSync, existsSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const read = path => readFileSync(`dist/${path}`, 'utf8');
+const content = JSON.parse(readFileSync('src/content/tool-content.json', 'utf8'));
+const llms = read('llms.txt');
+const sitemap = read('sitemap.xml');
+assert.equal((sitemap.match(/<loc>/g) ?? []).length, 11);
+assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, 11);
+assert(!/priority|changefreq|localhost/.test(sitemap));
+const method = read('methodology/index.html');
+for (const [id, item] of Object.entries(content)) {
+  const path = `tools/${id}/`;
+  const html = read(`${path}index.html`);
+  assert(html.includes(item.assumptions), `${id} 靜態假設缺漏`);
+  assert(html.includes(item.faqs[0].question), `${id} 靜態問答缺漏`);
+  assert(method.includes(`id="${id}"`), `${id} 方法錨點缺漏`);
+  assert(method.includes(item.assumptions), `${id} 方法摘要未同步`);
+  assert(llms.includes(`https://larry-lab.pages.dev/${path}`), `${id} llms 路由缺漏`);
+  const json = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)?.[1];
+  assert(json, `${id} JSON-LD 缺漏`);
+  const graph = JSON.parse(json)['@graph'];
+  assert.equal(graph[0]['@type'], 'WebApplication');
+  assert.equal(graph[0].dateModified, item.updatedAt);
+  assert(!JSON.stringify(graph).includes('aggregateRating'));
+  assert(html.includes(`<title>${item.title}｜Larry Lab</title>`));
+}
+assert(read('index.html').includes('"@type":"WebSite"'));
+assert(!read('404.html').includes('application/ld+json'));
+for (const match of sitemap.matchAll(/<loc>https:\/\/larry-lab.pages.dev\/([^<]*)<\/loc>/g)) assert(existsSync(`dist/${match[1]}index.html`));
+console.log('SEO 靜態產物：PASS（五工具正文、JSON-LD、方法錨點、llms 與 11 條 sitemap）');

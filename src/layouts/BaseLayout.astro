@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import RecommendationPanel from '../components/RecommendationPanel.astro';
 import { navItems, site } from '../config/site';
+import { serializeJsonLd } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -10,12 +11,14 @@ interface Props {
   nav?: (typeof navItems)[number]['key'];
   /** Show a "tool category" label above the page content. */
   toolCategory?: string;
+  structuredData?: unknown;
 }
-const { title, description, nav, toolCategory } = Astro.props;
+const { title, description, nav, toolCategory, structuredData } = Astro.props;
 const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
 const isNotFound = /^\/404(?:\.html|\/)?$/.test(Astro.url.pathname);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = new URL('/og-image.png', Astro.site);
+const schema = structuredData ?? (Astro.url.pathname === '/' ? { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${Astro.site!.href}#website`, name: site.name, url: Astro.site!.href, description: site.description, inLanguage: 'zh-Hant-TW' } : undefined);
 ---
 
 <!doctype html>
@@ -45,6 +48,7 @@ const ogImageUrl = new URL('/og-image.png', Astro.site);
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    {schema && <script is:inline type="application/ld+json" set:html={serializeJsonLd(schema)} />}
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要內容</a>
