@@ -6,7 +6,7 @@ const base = process.env.SEO_BASE_SHA;
 if (!base || /^0+$/.test(base)) {
   console.log('SEO 變更審核：無基礎版本，略過 Git 差異檢查；仍需執行產物驗證。');
 } else {
-  const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
+  const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   const files = git('diff', '--name-only', base, 'HEAD').trim().split('\n');
   const contentPath = 'src/content/tool-content.json';
   const current = JSON.parse(readFileSync(contentPath, 'utf8'));
