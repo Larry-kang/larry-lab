@@ -250,4 +250,3 @@ Running 94 tests using 1 worker
    - 限制宣告：
      - 因目前 gh token 權限無法讀取使用者的 GitHub App 安裝列表（HTTP 403），且無法排除擁有者是否在其他 Cloudflare 帳號或組織層級安裝了 Cloudflare Pages GitHub App 並啟用預覽建置。
      - 正式撤回先前「絕不觸發部署」之宣稱。在未向擁有者確認 Cloudflare 外部串接狀態前，維持 UNKNOWN，且不向遠端執行非必要之推送。
-
