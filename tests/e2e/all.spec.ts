@@ -322,9 +322,9 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     await expect(bybitLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
     await expect(bybitLink).toHaveAttribute('target', '_blank');
 
-    // 全部 15 個網址皆已驗證啟用，無待確認項目
+    // 全部 17 個網址皆已驗證啟用，無待確認項目
     await expect(fullPanel.locator('[data-testid="rec-status-pending"]')).toHaveCount(0);
-    await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(15);
+    await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(17);
 
     // RF-05: 檢查精簡利益揭露，且公開卡片不再顯示工程查核日期，亦不含未查核之簽帳卡或 AP/GP/LP 宣稱
     await expect(fullPanel).toContainText('透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。');
@@ -334,7 +334,7 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     await expect(page.locator('body')).not.toContainText('Apple Pay');
   });
 
-  test('RF-03: 將來銀行 HCPGD 與樂天銀行 YCB0Y6 純推薦碼複製成功與失敗手動選取備援', async ({ page, context }) => {
+  test('RF-03: 將來銀行 HCPGD 與樂天銀行 YCB0Y6 開戶連結與推薦碼複製成功與失敗手動選取備援', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
     await page.goto('/recommendations/');
     const fullPanel = page.locator('.rec-full');
@@ -342,9 +342,19 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     const nextCard = fullPanel.locator('.rec-card[data-rec-id="next-bank"]');
     const rakutenCard = fullPanel.locator('.rec-card[data-rec-id="rakuten-bank"]');
 
-    // 純推薦碼項目不得有假的外連網址
-    await expect(nextCard.locator('a')).toHaveCount(0);
-    await expect(rakutenCard.locator('a')).toHaveCount(0);
+    // 推薦頁、桌機側欄與手機推薦區都保留完整網址及外連保護。
+    for (const [id, url] of [
+      ['next-bank', 'https://ebank.nextbank.com.tw/open-account?mgmcode=HCPGD&channel=APPMGM&utm_source=app&utm_medium=link'],
+      ['rakuten-bank', 'https://www.rakuten-bank.com.tw/s/T9D6'],
+    ]) {
+      const links = page.locator(`.rec-card[data-rec-id="${id}"] a`);
+      await expect(links).toHaveCount(3);
+      for (const link of await links.all()) {
+        await expect(link).toHaveAttribute('href', url);
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAttribute('rel', 'sponsored noopener noreferrer');
+      }
+    }
 
     // 其他 15 項不得把網址參數當成手動推薦碼按鈕
     await expect(fullPanel.locator('button[data-copy]')).toHaveCount(2);

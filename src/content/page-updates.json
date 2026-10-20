@@ -2,7 +2,7 @@
   "/": { "updatedAt": "2026-10-19", "reviewNote": "加入首頁結構化資料" },
   "/tools/": { "updatedAt": "2026-10-17", "reviewNote": "工具清單" },
   "/methodology/": { "updatedAt": "2026-10-19", "reviewNote": "加入五工具固定錨點" },
-  "/recommendations/": { "updatedAt": "2026-10-17", "reviewNote": "推薦整合" },
+  "/recommendations/": { "updatedAt": "2026-10-20", "reviewNote": "補上樂天與將來銀行開戶連結，保留推薦碼" },
   "/about/": { "updatedAt": "2026-10-17", "reviewNote": "正式文案" },
   "/privacy/": { "updatedAt": "2026-10-17", "reviewNote": "資料處理說明" }
 }

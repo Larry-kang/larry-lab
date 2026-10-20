@@ -196,7 +196,7 @@ describe('recommendations', () => {
       ['其他加密服務', 2],
     ]);
 
-    // All 17 items enabled (15 verified URLs + 2 code-only)
+    // All 17 items enabled (17 verified URLs + 2 copyable codes)
     const active = activeRecommendations(items);
     expect(active).toHaveLength(17);
     expect(sidebarRecommendations(items)).toHaveLength(17);
@@ -219,9 +219,9 @@ describe('recommendations', () => {
 
       if (src.code !== null) {
         expect(target!.code).toBe(src.code);
-        expect(target!.referralUrl).toBeUndefined();
-        expect(target!.linkStatus).toBe('CODE_ONLY');
-        expect(target!.linkCheckedAt).toBeNull();
+        expect(target!.referralUrl).toBe(src.url);
+        expect(target!.linkStatus).toBe('VERIFIED');
+        expect(target!.linkCheckedAt).toBe('2026-10-20');
       } else {
         expect(target!.code).toBeUndefined();
         expect(target!.referralUrl).toBe(src.url);
@@ -229,11 +229,11 @@ describe('recommendations', () => {
       }
     }
 
-    // RF-03: next-bank & rakuten-bank code-only verification
+    // RF-03: 推薦碼與完整開戶網址均保留
     expect(byId.get('next-bank')?.code).toBe('HCPGD');
-    expect(byId.get('next-bank')?.referralUrl).toBeUndefined();
+    expect(byId.get('next-bank')?.referralUrl).toBe('https://ebank.nextbank.com.tw/open-account?mgmcode=HCPGD&channel=APPMGM&utm_source=app&utm_medium=link');
     expect(byId.get('rakuten-bank')?.code).toBe('YCB0Y6');
-    expect(byId.get('rakuten-bank')?.referralUrl).toBeUndefined();
+    expect(byId.get('rakuten-bank')?.referralUrl).toBe('https://www.rakuten-bank.com.tw/s/T9D6');
 
     // RF-02: exact query/hash/path preservation on key URLs including bankee & bybit
     expect(byId.get('line-bank')?.referralUrl).toBe('https://www.linebank.com.tw/R/mgm-portal?campaignId=2&uid=bfQnUx');

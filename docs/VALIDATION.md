@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-20 樂天與將來銀行新增開戶連結，保留推薦碼；139 項單元測試、106 項 E2E 與建置通過。驗證 commit 為本筆紀錄所在提交，詳細結果見 [BANK_REFERRAL_LINKS.md](BANK_REFERRAL_LINKS.md)。
+
 > SEO／GEO 第一階段新增集中工具說明、靜態問答、JSON-LD、llms.txt 與 sitemap 日期的自動同步。版本與檢查證據見 [SEO_VALIDATION.md](SEO_VALIDATION.md)，後續更新規則見 [SEO_MAINTENANCE.md](SEO_MAINTENANCE.md)。此項不改試算公式，也不宣稱已被搜尋引擎索引或 AI 引用。
 
 > 2026-10-17 品牌識別、17 項官方推薦 Logo、高密度側欄與正式產品文案整理更新：PR #7（`e870d1570b88c558f19410b6cccadb1a5ac436b1`）與 PR #8（合併至 `main` 為 `038e939a003a280a5e9dc68fb085a2cf1f34c0be`，Cloudflare Pages 正式部署 `bf84e301-2351-4a47-98b4-39e2ca5d1be2`）已依序完成 17 項推薦資料整合與 `bankee`／`bybit` 新版連結啟用。後續分支 `feat/brand-logos-and-product-polish`（驗證 commit `1bbac6bdd87623ab1b1030dd79a9540362773f35`）進一步整合 Larry Lab「Geometric L」品牌素材（Header SVG 標誌、Favicon、Apple Touch Icon 與 `1200x630` Open Graph 預覽圖 `/og-image.png`）、補齊全部 17 項推薦平台之本機官方品牌圖示（`/logos/<id>.png`）、將 `HOYA BIT` 歸入「台灣交易所」（五大分類筆數為 6／1／3／5／2）、將桌機側欄與手機可折疊面板升級為依分類完整呈現全部 17 項之高密度單行列表（且按鈕維持 `>= 44px` 觸控高度），並移除關於頁與公開卡片中之內部開發技術架構與 AI 協作說明段落（於關於頁作者簡介保留精簡規格與 AI 協作分工單句）。於本分支重新執行 `npm run check`（64 檔 0 錯誤）、`npm run lint`（0 錯誤）、`npm test`（11 檔 133 項單元測試通過）、`npm run build`（12 頁靜態輸出）、`npm run test:e2e`（102 項 E2E 測試通過）。詳細連結查核結果見 `docs/REFERRAL_INTEGRATION_PLAN.md`，正式部署與線上驗證見 `docs/DEPLOYMENT.md`。
@@ -248,3 +250,4 @@ Running 94 tests using 1 worker
    - 限制宣告：
      - 因目前 gh token 權限無法讀取使用者的 GitHub App 安裝列表（HTTP 403），且無法排除擁有者是否在其他 Cloudflare 帳號或組織層級安裝了 Cloudflare Pages GitHub App 並啟用預覽建置。
      - 正式撤回先前「絕不觸發部署」之宣稱。在未向擁有者確認 Cloudflare 外部串接狀態前，維持 UNKNOWN，且不向遠端執行非必要之推送。
+
