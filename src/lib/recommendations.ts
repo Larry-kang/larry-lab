@@ -41,6 +41,8 @@ export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
   'newnewbank.ubot.com.tw',
   'www.bankee.tw',
   'richart.tw',
+  'ebank.nextbank.com.tw',
+  'www.rakuten-bank.com.tw',
   'www.sinotrade.com.tw',
   'www.bitopro.com',
   'max.maicoin.com',
