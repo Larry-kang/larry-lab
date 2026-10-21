@@ -59,6 +59,7 @@ export function balanceChart(schedule: ScheduleResult, principal: number): Chart
 export function scheduleTable(schedule: ScheduleResult, caption: string): TableSpec {
   return {
     caption,
+    collapsed: true,
     columns: ['期數', '年利率', '月付金', '利息', '償還本金', '剩餘本金'],
     rows: schedule.rows.map((r) => [
       String(r.month),

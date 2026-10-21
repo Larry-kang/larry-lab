@@ -54,11 +54,11 @@ function scenario(name: string, overrides: Values = {}): Values {
     : [{ startMonth: '1', annualRate: overrides.fixedRate ?? '2.2' }];
   const s: Values = {
     name,
-    inputMode: 'price-down',
+    inputMode: 'price-ltv',
     principal: '',
     price: '12,000,000',
-    downPayment: '2,400,000',
-    ltv: '',
+    downPayment: '',
+    ltv: '80',
     termMonths: '360',
     method: 'annuity',
     graceMonths: '0',
@@ -78,11 +78,11 @@ function scenario(name: string, overrides: Values = {}): Values {
 function blankScenario(): Values {
   const s: Values = {
     name: '方案 1',
-    inputMode: 'price-down',
+    inputMode: 'price-ltv',
     principal: '',
     price: '',
     downPayment: '',
-    ltv: '',
+    ltv: '80',
     termMonths: '',
     method: 'annuity',
     graceMonths: '',
@@ -201,7 +201,7 @@ export const mortgageTool: ToolDef = {
         { value: 'price-ltv', label: '房價 + 貸款成數' },
         { value: 'principal', label: '直接輸入貸款本金' },
       ],
-      hint: '選擇以房價與成數/頭期款推估，或直接填寫貸款本金。',
+      hint: '預設以房價與成數推估。切換模式將清除不適用欄位，請重新確認輸入。',
     },
     { ...amountField('price', '房價'), visibleIf: notMode('principal') },
     { ...amountField('downPayment', '頭期款', { hint: '貸款本金 = 房價 − 頭期款' }), visibleIf: modeIs('price-down') },
@@ -209,7 +209,7 @@ export const mortgageTool: ToolDef = {
     { ...amountField('principal', '貸款本金'), visibleIf: modeIs('principal') },
     {
       ...integerField('termMonths', '貸款年限／期數', '年／個月', {
-        hint: '可直接以整數年輸入（例如 30 年 = 360 個月；1–600 個月）。',
+        hint: '可輸入整數年與額外 0–11 個月，或切換總月數；合計 1–600 個月。',
       }),
       unitToggle: { type: 'year-month', defaultUnit: 'year' },
     },
@@ -271,8 +271,8 @@ export const mortgageTool: ToolDef = {
     return parts.join(' ｜ ');
   },
   syncFromA: {
-    buttonLabel: '以方案 A 的基本條件套用至其他方案',
-    description: '此操作將以方案 A 的本金計算模式、房價、頭期款、貸款成數、貸款本金、每月收入與其他貸款月付覆寫其他方案；各方案自訂之貸款年限、利率、攤還方式、寬限期與手續費將保留不變。',
+    buttonLabel: '以第一個方案的基本條件套用至其他方案',
+    description: '此操作將以第一個方案的本金計算模式、房價、頭期款、貸款成數、貸款本金、每月收入與其他貸款月付覆寫其他方案；各方案自訂之貸款年限、利率、攤還方式、寬限期與手續費將保留不變。',
     apply(target: Values, sourceA: Values) {
       target.inputMode = sourceA.inputMode;
       target.price = sourceA.price;

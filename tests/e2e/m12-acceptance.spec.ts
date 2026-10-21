@@ -9,8 +9,8 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
 
     const modeSelect = page.locator('select[data-path="scenarios.0.inputMode"]');
-    // 預設為 price-down (房價 + 頭期款)
-    await expect(modeSelect).toHaveValue('price-down');
+    // 預設為房價 + 貸款成數，切換後清除不適用欄位
+    await expect(modeSelect).toHaveValue('price-ltv');
 
     const priceField = page.locator('.field[data-field="scenarios.0.price"]');
     const downPaymentField = page.locator('.field[data-field="scenarios.0.downPayment"]');
@@ -18,8 +18,8 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     const principalField = page.locator('.field[data-field="scenarios.0.principal"]');
 
     await expect(priceField).toBeVisible();
-    await expect(downPaymentField).toBeVisible();
-    await expect(ltvField).toBeHidden();
+    await expect(downPaymentField).toBeHidden();
+    await expect(ltvField).toBeVisible();
     await expect(principalField).toBeHidden();
 
     // 切換至「房價 + 貸款成數」模式
@@ -99,7 +99,7 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
 
     const termWrap = page.locator('.field[data-field="scenarios.0.termMonths"]');
-    const termInput = termWrap.locator('input');
+    const termInput = termWrap.locator('input[data-path]');
     const yearBtn = termWrap.locator('button', { hasText: '年' });
     const monthBtn = termWrap.locator('button', { hasText: '個月' });
 

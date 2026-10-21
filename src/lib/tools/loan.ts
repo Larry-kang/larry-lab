@@ -25,7 +25,7 @@ export const loanTool: ToolDef = {
     // --- 基本輸入 ---
     amountField('principal', '貸款本金'),
     percentField('annualRate', '名目年利率', { unit: '%/年' }),
-    integerField('termMonths', '貸款期數', '個月', { hint: '1–120 個月，本息平均攤還。' }),
+    integerField('termMonths', '貸款期數', '個月', { hint: '1–120 個月，本息平均攤還。', monthPresets: [12, 36, 60, 84, 120] }),
     amountField('fee', '開辦費用（選填）', { hint: '一次性手續費；必須小於本金，留空表示 0。' }),
     // --- 進階設定 ---
     {
@@ -57,8 +57,8 @@ export const loanTool: ToolDef = {
     return s.feeMode === 'separate' ? '費用另外支付' : '費用自撥款扣除';
   },
   syncFromA: {
-    buttonLabel: '以方案 A 的基本條件套用至其他方案',
-    description: '此操作將以方案 A 的貸款本金覆寫其他方案；各方案之年利率、期數、費用金額與約定方式將保留不變。',
+    buttonLabel: '以第一個方案的基本條件套用至其他方案',
+    description: '此操作將以第一個方案的貸款本金覆寫其他方案；各方案之年利率、期數、費用金額與約定方式將保留不變。',
     apply(target: Values, sourceA: Values) {
       target.principal = sourceA.principal;
     },

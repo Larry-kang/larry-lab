@@ -148,7 +148,7 @@ test.describe('V11-04–V11-09: 五大工具互動與核心結果', () => {
     // 初次預設只有 1 個情境標籤
     const tabs = page.locator('.tab');
     await expect(tabs).toHaveCount(1);
-    await expect(tabs.first()).toContainText('情境 A');
+    await expect(tabs.first()).toContainText('情境 1');
     await expect(tabs.first()).toContainText('年報酬 5%');
 
     // 點擊「載入三組報酬範例」

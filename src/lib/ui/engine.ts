@@ -1,3 +1,4 @@
+import { formatAmountEdit, monthsFromParts, monthDescription } from './input-edit';
 import { toCsv } from '../csv';
 import { MAX_IMPORT_BYTES, buildExport, parseImport } from '../io';
 import type { Values } from '../parse';
@@ -66,6 +67,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   let remember = false;
   let submitted = false;
   const touched = new Set<string>();
+  const monthDrafts = new WeakMap<Values, Map<string, { years: string; extra: string }>>();
   let evals: Evaluation[] = [];
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let undoState: Values | null = null;
@@ -88,8 +90,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     }
     scenarios().forEach((s, i) => {
       if (typeof s.name !== 'string' || s.name.trim() === '') {
-        const letters = ['A', 'B', 'C', 'D'];
-        s.name = `${def.scenarioNoun} ${letters[i] || i + 1}`;
+        s.name = `${def.scenarioNoun} ${i + 1}`;
       }
     });
     if (def.id === 'mortgage') {
@@ -131,22 +132,34 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   // ---- tabs & comparison actions ----
   function renderTabs(): void {
     const buttons: Node[] = scenarios().map((s, i) => {
-      const badgeText = def.scenarioBadge ? def.scenarioBadge(s) : '';
+      const badgeText = def.scenarioBadge ? def.scenarioBadge(s, root) : '';
       const b = h(
         'button',
         {
           type: 'button',
           class: `tab${i === active ? ' active' : ''}`,
-          'aria-pressed': String(i === active),
+          role: 'radio',
+          'aria-checked': String(i === active),
+          tabindex: i === active ? '0' : '-1',
         },
         h('span', { class: 'tab-name' }, String(s.name)),
         badgeText ? h('span', { class: 'tab-badge' }, badgeText) : null,
       );
+      b.addEventListener('keydown', (event) => {
+        const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        const count = scenarios().length;
+        active = event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : (i + (['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1) + count) % count;
+        renderTabs(); renderForm(); refresh();
+        tabsEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+      });
       b.addEventListener('click', () => {
         active = i;
         renderTabs();
         renderForm();
         refresh();
+        tabsEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
       });
       return b;
     });
@@ -155,8 +168,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     if (scenarios().length >= def.maxScenarios) addBtn.disabled = true;
     addBtn.addEventListener('click', () => {
       const copy = clone(scenarios()[active]);
-      const letters = ['A', 'B', 'C', 'D'];
-      copy.name = `${def.scenarioNoun} ${letters[scenarios().length] || scenarios().length + 1}`;
+      copy.name = `${def.scenarioNoun} ${scenarios().length + 1}`;
       scenarios().push(copy);
       active = scenarios().length - 1;
       renderTabs();
@@ -177,6 +189,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     });
 
     const actionRow = h('div', { class: 'tabs-actions' }, addBtn, removeBtn);
+    if (addBtn.disabled) actionRow.append(h('span', { class: 'hint' }, `最多 ${def.maxScenarios} 個${def.scenarioNoun}；請先刪除一個再複製。`));
+    if (removeBtn.disabled) actionRow.append(h('span', { class: 'hint' }, `至少保留 1 個${def.scenarioNoun}，無法刪除最後一個。`));
 
     // 退休三組範例載入按鈕
     if (def.presetScenariosAction) {
@@ -215,7 +229,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     }
 
     tabsEl.replaceChildren(
-      h('div', { class: 'tabs-header' }, h('span', { class: 'tabs-label' }, `${def.scenarioNoun}切換：`), ...buttons),
+      h('div', { class: 'tabs-header', role: 'radiogroup', 'aria-label': `${def.scenarioNoun}切換` }, h('span', { class: 'tabs-label' }, `${def.scenarioNoun}切換：`), ...buttons),
       actionRow,
     );
   }
@@ -247,7 +261,6 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       const unitKey = `_unit_${spec.key}`;
       const targetObj = scenario ?? values;
       if (!targetObj[unitKey]) targetObj[unitKey] = spec.unitToggle.defaultUnit || 'year';
-      const currentUnit = targetObj[unitKey];
 
       const input = h('input', {
         id,
@@ -260,93 +273,48 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         maxlength: '40',
       });
 
-      const m = Number(String(current || '0').replace(/,/g, ''));
-      if (currentUnit === 'year') {
-        if (current === '' || current === undefined || current === null) {
-          input.value = '';
-        } else if (m % 12 === 0) {
-          input.value = String(m / 12);
-        } else {
-          input.value = `${Math.floor(m / 12)}年${m % 12}個月`;
-        }
-      } else {
-        input.value = typeof current === 'string' ? current : '';
-      }
-
+      const extraInput = h('input', { id: `${id}-extra`, type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '2', 'aria-label': `${spec.label}額外月份` });
+      const extraWrap = h('span', { class: 'extra-month-wrap' }, extraInput, h('span', {}, '個月'));
+      if (!monthDrafts.has(targetObj)) monthDrafts.set(targetObj, new Map());
+      const drafts = monthDrafts.get(targetObj)!;
       const equivEl = h('span', { class: 'unit-equiv' });
-      const updateEquiv = () => {
-        const valStr = values[spec.key];
-        const valNum = Number(String(valStr || '0').replace(/,/g, ''));
-        if (!valStr || isNaN(valNum) || valNum <= 0) {
-          equivEl.textContent = '';
-          return;
-        }
-        if (targetObj[unitKey] === 'year') {
-          equivEl.textContent = `（等值 ${valNum} 個月）`;
-        } else {
-          const y = Math.floor(valNum / 12);
-          const rem = valNum % 12;
-          equivEl.textContent = `（等值 ${y > 0 ? `${y} 年 ` : ''}${rem} 個月）`;
-        }
+      const yearBtn = h('button', { type: 'button', class: 'btn-unit' }, '年');
+      const monthBtn = h('button', { type: 'button', class: 'btn-unit' }, '個月');
+      const updateEquiv = () => { equivEl.textContent = monthDescription(String(values[spec.key] ?? '')); };
+      const showUnit = () => {
+        const raw = String(values[spec.key] ?? '');
+        const valid = /^\d+$/.test(raw);
+        const inYears = targetObj[unitKey] === 'year';
+        const draft = drafts.get(spec.key);
+        input.value = draft && inYears ? draft.years : inYears && valid ? String(Math.floor(Number(raw) / 12)) : raw;
+        extraInput.value = draft && inYears ? draft.extra : valid ? String(Number(raw) % 12) : '0';
+        extraWrap.hidden = !inYears;
+        yearBtn.classList.toggle('active', inYears);
+        monthBtn.classList.toggle('active', !inYears);
+        yearBtn.setAttribute('aria-pressed', String(inYears));
+        monthBtn.setAttribute('aria-pressed', String(!inYears));
+        input.setAttribute('aria-label', `${spec.label}（${inYears ? '年' : '個月'}）`);
+        updateEquiv();
       };
-      updateEquiv();
-
-      const yearBtn = h('button', { type: 'button', class: `btn-unit ${currentUnit === 'year' ? 'active' : ''}` }, '年');
-      const monthBtn = h('button', { type: 'button', class: `btn-unit ${currentUnit === 'month' ? 'active' : ''}` }, '個月');
-
-      yearBtn.addEventListener('click', () => {
-        if (targetObj[unitKey] === 'year') return;
-        targetObj[unitKey] = 'year';
-        yearBtn.classList.add('active');
-        monthBtn.classList.remove('active');
-        const val = values[spec.key];
-        const num = Number(String(val || '0').replace(/,/g, ''));
-        if (val && num > 0) {
-          if (num % 12 === 0) input.value = String(num / 12);
-          else input.value = `${Math.floor(num / 12)}年${num % 12}個月`;
-        } else {
-          input.value = '';
-        }
-        updateEquiv();
-      });
-
-      monthBtn.addEventListener('click', () => {
-        if (targetObj[unitKey] === 'month') return;
-        targetObj[unitKey] = 'month';
-        monthBtn.classList.add('active');
-        yearBtn.classList.remove('active');
-        input.value = values[spec.key] ? String(values[spec.key]) : '';
-        updateEquiv();
-      });
-
-      input.addEventListener('input', () => {
+      const changeUnit = (unit: 'year' | 'month') => {
+        const raw = String(values[spec.key] ?? '');
+        if (raw !== '' && !/^\d+$/.test(raw)) { setStatus('請先修正年與月份欄位，再切換顯示單位。', 'error'); return; }
+        targetObj[unitKey] = unit; drafts.delete(spec.key); showUnit();
+      };
+      yearBtn.addEventListener('click', () => changeUnit('year'));
+      monthBtn.addEventListener('click', () => changeUnit('month'));
+      const updateMonthValue = () => {
         const text = input.value.trim();
-        if (text === '') {
-          onValue(path, '', spec, scenario);
-          updateEquiv();
-          return;
-        }
-        if (targetObj[unitKey] === 'year') {
-          const y = Number(text.replace(/,/g, ''));
-          if (!isNaN(y)) {
-            const months = Math.round(y * 12);
-            onValue(path, String(months), spec, scenario);
-          } else {
-            onValue(path, text, spec, scenario);
-          }
-        } else {
-          onValue(path, text, spec, scenario);
-        }
-        updateEquiv();
-      });
-
-      input.addEventListener('blur', () => {
-        touched.add(path);
-        updateErrors();
-      });
-
-      const toggleGroup = h('span', { class: 'unit-toggle-group' }, yearBtn, monthBtn);
-      const inputWrap = h('div', { class: 'field-input-unit-wrap' }, input, toggleGroup);
+        const value = targetObj[unitKey] === 'year' ? monthsFromParts(text, extraInput.value.trim()) : text;
+        if (targetObj[unitKey] === 'year') drafts.set(spec.key, { years: text, extra: extraInput.value });
+        onValue(path, value, spec, scenario); updateEquiv();
+      };
+      input.addEventListener('input', updateMonthValue);
+      extraInput.addEventListener('input', updateMonthValue);
+      for (const field of [input, extraInput]) field.addEventListener('blur', () => { touched.add(path); updateErrors(); });
+      showUnit();
+      const toggleGroup = h('span', { class: 'unit-toggle-group', role: 'group', 'aria-label': `${spec.label}顯示單位` }, yearBtn, monthBtn);
+      const inputWrap = h('div', { class: 'field-input-unit-wrap' }, input, extraWrap, toggleGroup);
       label.append(equivEl);
       control = inputWrap;
     } else {
@@ -361,9 +329,33 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         maxlength: '40',
       });
       input.value = typeof current === 'string' ? current : '';
-      input.addEventListener('input', () => {
+      let priorValid = false;
+      if (spec.kind === 'amount') {
+        input.value = formatAmountEdit(input.value, 0, 0).text;
+        values[spec.key] = input.value;
+        priorValid = /^-?(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d*)?$/.test(input.value);
+        input.addEventListener('beforeinput', (event) => {
+          const at = input.selectionStart ?? 0;
+          if (input.selectionStart !== input.selectionEnd) return;
+          // 刪除分隔符時連同相鄰數字刪除，避免逗號自動補回而無法刪字。
+          if (event.inputType === 'deleteContentBackward' && input.value[at - 1] === ',') input.setSelectionRange(Math.max(0, at - 2), at);
+          if (event.inputType === 'deleteContentForward' && input.value[at] === ',') input.setSelectionRange(at, at + 2);
+        });
+      }
+      const applyEdit = (event: Event) => {
+        if (event instanceof InputEvent && event.isComposing) return;
+        if (spec.kind === 'amount') {
+          const e = event as InputEvent;
+          const regroup = priorValid && /^(insertText|delete)/.test(e.inputType ?? '') && !e.data?.includes(',');
+          const formatted = formatAmountEdit(input.value, input.selectionStart ?? input.value.length, input.selectionEnd ?? input.value.length, regroup);
+          input.value = formatted.text;
+          input.setSelectionRange(formatted.start, formatted.end);
+          priorValid = /^-?(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d*)?$/.test(input.value);
+        }
         onValue(path, input.value, spec, scenario);
-      });
+      };
+      input.addEventListener('input', applyEdit);
+      input.addEventListener('compositionend', applyEdit);
       input.addEventListener('blur', () => {
         touched.add(path);
         updateErrors();
@@ -372,6 +364,21 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     }
     const wrapper = h('div', { class: 'field', 'data-field': path }, label, control);
     if (spec.hint) wrapper.append(h('p', { class: 'hint', id: `${id}-hint` }, spec.hint));
+    if (spec.monthPresets) {
+      const hint = h('p', { class: 'hint', 'data-month-hint': path });
+      const update = () => { hint.textContent = monthDescription(String(values[spec.key] ?? '')); };
+      update();
+      control.addEventListener('input', update);
+      const presets = spec.monthPresets.map(months => {
+        const button = h('button', { type: 'button', class: 'btn small' }, `${months} 個月`);
+        button.addEventListener('click', () => {
+          (control as HTMLInputElement).value = String(months);
+          onValue(path, String(months), spec, scenario); update();
+        });
+        return button;
+      });
+      wrapper.append(hint, h('div', { class: 'btn-row term-presets' }, ...presets));
+    }
     wrapper.append(h('p', { class: 'field-error', id: `${id}-error`, hidden: true }));
     if (spec.visibleIf && scenario) {
       const test = () => spec.visibleIf!(scenario, root);
@@ -381,7 +388,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   }
 
   function renderList(spec: ListSpec, basePath: string, scenario: Values): HTMLElement {
-    const fieldset = h('fieldset', { class: 'list' }, h('legend', {}, spec.label));
+    const fieldset = h('fieldset', { class: 'list', 'data-list': spec.key }, h('legend', {}, spec.label));
+    if (spec.summary) fieldset.append(h('p', { class: 'hint weight-summary', 'data-weight-summary': spec.key, role: 'status' }, spec.summary(scenario)));
     if (spec.hint) fieldset.append(h('p', { class: 'hint' }, spec.hint));
     const items = scenario[spec.key] as Values[];
     items.forEach((item, index) => {
@@ -547,7 +555,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     const parts = rel.split('.');
     if (parts.length === 1) {
       const spec = selectSpecs(def.scenarioFields).find((s) => s.key === parts[0]);
-      return spec?.label ?? parts[0];
+      const list = def.scenarioFields.find(s => isListSpec(s) && s.key === parts[0]);
+      return spec?.label ?? list?.label ?? parts[0];
     }
     const list = def.scenarioFields.find((s): s is ListSpec => isListSpec(s) && s.key === parts[0]);
     if (!list) return parts[0];
@@ -586,6 +595,13 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       }
     });
 
+    formEl.querySelectorAll<HTMLInputElement>('input[id$="-extra"]').forEach(extra => {
+      const main = document.getElementById(extra.id.replace(/-extra$/, ''));
+      for (const attr of ['aria-invalid', 'aria-describedby']) {
+        const value = main?.getAttribute(attr);
+        if (value) extra.setAttribute(attr, value); else extra.removeAttribute(attr);
+      }
+    });
     if (hasAdvancedError) {
       const advBox = document.getElementById('advanced-settings-box') as HTMLDetailsElement | null;
       if (advBox && !advBox.open) advBox.open = true;
@@ -635,6 +651,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   }
 
   function renderResults(): void {
+    const scheduleOpen = resultsEl.querySelector<HTMLDetailsElement>('.schedule-details')?.open ?? false;
     const ev = evals[active];
     const name = String(scenarios()[active].name);
     const heading = h('h2', { id: 'results-heading', tabindex: '-1' }, `試算結果：${name}`);
@@ -677,8 +694,14 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         }
         t.append(body);
         wrap.append(t);
-        parts.push(wrap);
-        if (table.note) parts.push(h('p', { class: 'hint' }, table.note));
+        if (table.collapsed) {
+          const details = h('details', { class: 'schedule-details', open: scheduleOpen }, h('summary', {}, `逐月攤還明細（共 ${table.rows.length} 期，點此展開／收合）`), wrap);
+          if (table.note) details.append(h('p', { class: 'hint' }, table.note));
+          parts.push(details);
+        } else {
+          parts.push(wrap);
+          if (table.note) parts.push(h('p', { class: 'hint' }, table.note));
+        }
       }
 
       // 下載 CSV 按鈕：只要結果具有 CSV 即必定渲染，保證無表格工具（如退休試算）亦正常具備
@@ -734,7 +757,13 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       inflation: '通膨率',
     };
 
-    for (const [k, label] of Object.entries(checkKeys)) {
+    if (def.comparisonBasis) {
+      const baseline = def.comparisonBasis(first, root);
+      for (const [label, value] of Object.entries(baseline)) {
+        if (scenarios().slice(1).some(s => JSON.stringify(def.comparisonBasis!(s, root)[label]) !== JSON.stringify(value))) baseDifferences.push(label);
+      }
+    }
+    for (const [k, label] of Object.entries(def.comparisonBasis ? {} : checkKeys)) {
       if (k in first) {
         for (let i = 1; i < scenarios().length; i += 1) {
           if (scenarios()[i][k] !== first[k]) {
@@ -759,7 +788,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     table.append(h('caption', {}, `${def.scenarioNoun}比較（各${def.scenarioNoun}輸入完全獨立）`));
     const head = h('tr', {}, h('th', { scope: 'col' }, '項目'));
     scenarios().forEach((s) => {
-      const badge = def.scenarioBadge ? def.scenarioBadge(s) : '';
+      const badge = def.scenarioBadge ? def.scenarioBadge(s, root) : '';
       head.append(
         h(
           'th',
@@ -774,11 +803,11 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
 
     // 1. 輸入條件與假設區塊 (Inputs & Assumptions)
     if (def.compareInputs) {
-      const baseInputs = def.compareInputs(scenarios()[0], evals[0]);
+      const baseInputs = def.compareInputs(scenarios()[0], evals[0], root);
       for (let rowIdx = 0; rowIdx < baseInputs.length; rowIdx += 1) {
         const itemLabel = baseInputs[rowIdx].label;
         const vals = scenarios().map((s, idx) => {
-          const list = def.compareInputs!(s, evals[idx]);
+          const list = def.compareInputs!(s, evals[idx], root);
           return list[rowIdx]?.value ?? '—';
         });
         const isDiff = vals.some((v) => v !== vals[0]);
@@ -817,18 +846,18 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       body.append(tr);
     }
 
-    if (metricItems.length === 0 && (!def.compareInputs || def.compareInputs(scenarios()[0], evals[0]).length === 0)) {
+    if (metricItems.length === 0 && (!def.compareInputs || def.compareInputs(scenarios()[0], evals[0], root).length === 0)) {
       body.append(h('tr', {}, h('td', { colspan: String(scenarios().length + 1) }, `尚無可比較的有效${def.scenarioNoun}，請先修正輸入。`)));
     }
     table.append(body);
 
-    const compareHeader = h('div', { class: 'compare-header' }, h('h2', {}, `${def.scenarioNoun}方案比較`));
+    const compareHeader = h('div', { class: 'compare-header' }, h('h2', {}, `${def.scenarioNoun}比較`));
     if (baseDifferences.length > 0) {
       compareHeader.append(
         h(
           'div',
           { class: 'notice notice-warn' },
-          `⚠ 注意：各${def.scenarioNoun}的基本條件不同（${baseDifferences.join('、')}）。若需在相同基準下公平比較，建議點擊上方「以方案 A 的基本條件套用至其他方案」。`,
+          `⚠ 注意：各${def.scenarioNoun}的基本條件不同（${baseDifferences.join('、')}）。${def.syncFromA ? `可使用上方「${def.syncFromA.buttonLabel}」對齊指定條件；請先確認覆寫範圍。` : '請核對下方各方案的輸入條件，再比較結果；各方案可獨立編輯。'}`,
         ),
       );
     }
@@ -971,6 +1000,16 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     evals = scenarios().map((s) => def.evaluate(s, root));
     applyVisibility();
     updateErrors();
+    if (def.advancedSummary) {
+      const pill = formEl.querySelector('.adv-pill');
+      if (pill) pill.textContent = def.advancedSummary(scenarios()[active], root);
+    }
+    for (const spec of def.scenarioFields) {
+      if (isListSpec(spec) && spec.summary) {
+        const summary = formEl.querySelector(`[data-weight-summary="${spec.key}"]`);
+        if (summary) summary.textContent = spec.summary(scenarios()[active]);
+      }
+    }
     renderResults();
     renderCompare();
     renderTabs();

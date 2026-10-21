@@ -14,8 +14,8 @@ function scenario(name: string, ret: string, overrides: Values = {}): Values {
     assets: '2,000,000',
     monthlyContribution: '25,000',
     monthlySpending: '45,000',
-    monthlyIncome: '10,000',
-    incomeStartAge: '65',
+    monthlyIncome: '0',
+    incomeStartAge: '',
     inflation: '3',
     returnBefore: ret,
     returnAfter: ret,
@@ -52,7 +52,7 @@ export const retirementTool: ToolDef = {
     { ...percentField('returnBefore', '退休前名目年報酬率', { unit: '%/年', hint: '-99% 至 100%；是假設數值，非保證報酬。' }), isAdvanced: true },
     { ...percentField('returnAfter', '退休後名目年報酬率', { unit: '%/年', hint: '-99% 至 100%；退休期通常採較保守資產配置。' }), isAdvanced: true },
     { ...amountField('monthlyIncome', '其他退休月收入（選填）', { hint: '如勞保年金等，以今天購買力計；留空表示 0。' }), isAdvanced: true },
-    { ...integerField('incomeStartAge', '月收入開始領取年齡（選填）', '歲', { hint: '有其他年金月收入時必填，以實際年齡計算。' }), isAdvanced: true },
+    { ...integerField('incomeStartAge', '月收入開始領取年齡（選填）', '歲', { hint: '有其他年金月收入時必填，以實際年齡計算。' }), isAdvanced: true, visibleIf: s => Number(String(s.monthlyIncome || '0').replace(/,/g, '')) > 0 },
   ],
   blank: () => ({
     unit: 'real',
@@ -62,20 +62,20 @@ export const retirementTool: ToolDef = {
       }),
     ],
   }),
-  // NEXT_VERSION_SPEC 第 8 節：初次頁面預設只呈現一個清楚標示的範例 A
+  // NEXT_VERSION_SPEC 第 8 節：初次頁面預設只呈現一個清楚標示的範例 1
   example: () => ({
     unit: 'real',
     scenarios: [
-      scenario('情境 A（範例 5%）', '5'),
+      scenario('情境 1（範例 5%）', '5'),
     ],
   }),
   presetScenariosAction: {
     label: '載入三組報酬範例（5%、7%、10%）',
     description: '此操作將載入以保守 5%、穩健 7%、積極 10% 三種報酬率對比的情境範例。',
     load: () => [
-      scenario('情境 A（5% 報酬）', '5'),
-      scenario('情境 B（7% 報酬）', '7'),
-      scenario('情境 C（10% 報酬）', '10'),
+      scenario('情境 1（5% 報酬）', '5'),
+      scenario('情境 2（7% 報酬）', '7'),
+      scenario('情境 3（10% 報酬）', '10'),
     ],
   },
   scenarioBadge(s: Values): string {
@@ -90,14 +90,16 @@ export const retirementTool: ToolDef = {
     return '未設報酬率';
   },
   advancedSummary(s: Values): string {
-    const inf = s.inflation || '3';
-    const before = s.returnBefore || '5';
-    const after = s.returnAfter || '5';
-    return `通膨 ${inf}% ｜ 報酬前 ${before}% 後 ${after}%`;
+    const inf = s.inflation || '未填';
+    const before = s.returnBefore || '未填';
+    const after = s.returnAfter || '未填';
+    const income = Number(String(s.monthlyIncome || '0').replace(/,/g, ''));
+    const incomeText = income > 0 ? `其他收入每月 ${formatTwd(income)}，${s.incomeStartAge || '未填'} 歲起領` : '無其他退休收入';
+    return `通膨 ${inf}% ｜ 報酬前 ${before}% 後 ${after}% ｜ ${incomeText}`;
   },
   syncFromA: {
-    buttonLabel: '以情境 A 的基本條件套用至其他情境',
-    description: '此操作將以情境 A 的目前年齡、退休/終止年齡、資產、月投入/月支出、通膨與年金收入覆寫其他情境；各情境自訂的投資報酬率與名稱將保留不變。',
+    buttonLabel: '以第一個情境的基本條件套用至其他情境',
+    description: '此操作將以第一個情境的目前年齡、退休/終止年齡、資產、月投入/月支出、通膨與年金收入覆寫其他情境；各情境自訂的投資報酬率與名稱將保留不變。',
     apply(target: Values, sourceA: Values) {
       target.currentAge = sourceA.currentAge;
       target.retireAge = sourceA.retireAge;
@@ -147,7 +149,7 @@ export const retirementTool: ToolDef = {
       monthlyContribution: r.number('monthlyContribution'),
       monthlySpending: r.number('monthlySpending'),
       monthlyIncome: r.optional('monthlyIncome') ?? 0,
-      incomeStartAge: r.optional('incomeStartAge'),
+      incomeStartAge: (r.optional('monthlyIncome') ?? 0) > 0 ? r.optional('incomeStartAge') : undefined,
       inflation: r.percent('inflation'),
       returnBefore: r.percent('returnBefore'),
       returnAfter: r.percent('returnAfter'),
