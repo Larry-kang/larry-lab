@@ -41,7 +41,23 @@
 
 - 五工具實際操作：房貸 12,345,678 與月數切換；信貸 84 個月及 120,000；質押借款 400,000；退休資產 1,234,567；投資組合權重 90% 錯誤再改回 100%。
 - 360×800 窄版房貸輸入 30 年＋5 個月後為 365 期，卡片及收合明細可閱讀；信貸快捷期數與千分位可操作，頁面沒有水平溢出。1440×900 桌機及一般側邊寬度亦檢視。截圖見 `artifacts/ux/`。
-- 正式站五工具、深層重整、推薦連結及安全標頭：待部署後補於 PR 發布紀錄。
+- 正式站五工具、深層重整、推薦連結及安全標頭：PASS，詳見下方發布紀錄。
+
+## 正式發布紀錄
+
+- [PR #12](https://github.com/Larry-kang/larry-lab/pull/12) 合併為 `4a35c124a8443aef4cf2ee58ff4f979e7572248e`；兩次 PR／分支 CI 及合併後 main CI 均成功。合併內容與驗證提交 `17bad81` 的檔案樹相同。
+- Cloudflare production deployment：`806708c8-9e0e-4693-80ef-e13bf32e4349`；2026-10-21 23:25:56（台北時間）完成。固定版本網址：<https://806708c8.larry-lab.pages.dev/>；正式站：<https://larry-lab.pages.dev/>。
+- API 已核對 production／main／完整 commit；clone、build、deploy 各階段成功。維持既有靜態 Pages 設定，沒有新增付費服務、Functions 或擴大權限。
+- 11 個公開路由 HTTP 200，錯誤路由 HTTP 404；逐頁確認 CSP、nosniff、DENY 及 referrer policy。正式 CSS 及兩個 JS 的 SHA256 與本機已測建置完全相符。
+- 正式推薦頁 17 項資料逐項核對來源 JSON 的網址／推薦碼；窄版展開面板與複製 HCPGD 實際成功。
+- 側邊瀏覽器正式站實測：房貸 12,345,678、成數 80%、365 月精確切換及深層重整；信貸 120,000／12 月／0%／費用 0 得月付 10,000、利息 0，方向鍵切換保留 radio 焦點；質押借款 400,000 得維持率 250%、利息 12,000，沒有錯誤同步提示；退休收入初始 0、改 10,000 要求起領年齡，補 65 後解除錯誤；投資組合累積徽章顯示期初／每月／年數，90% 權重錯誤改回 100% 後恢復有效。
+- 1440×900 與 360×800 視口實際操作及畫面檢視，窄版頁面未水平溢出；viewport 只是版面驗證，非真實手機證據。
+
+### Git 自動觸發限制
+
+本次分支及 main 的 Git 事件沒有建立 Pages 部署紀錄。API 讀取確認 GitHub 串接、main 正式自動部署、所有分支預覽與路徑設定仍開啟；自動事件未送達原因為未知（UNKNOWN）。本次使用官方 [建立部署 API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/create/)，指定 main 並由既有 Git 流程建置發布，並未改成上傳本機檔案。
+
+後續合併必須查核 Cloudflare 是否出現對應 commit，不能僅憑 GitHub CI 或設定開啟就宣稱已發布。自動事件恢復前可依同一既有 API 手動觸發；調查 GitHub App 事件傳遞另列後續事項，不擅自重新安裝 App 或擴大權限。
 
 ## 明確限制
 

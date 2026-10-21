@@ -1,5 +1,11 @@
 # Cloudflare Pages 部署與交付
 
+## 2026-10-21 工具操作更新
+
+PR #12／main `4a35c124a8443aef4cf2ee58ff4f979e7572248e` 已於 23:25:56（台北時間）成功發布；deployment `806708c8-9e0e-4693-80ef-e13bf32e4349`。五工具、公開路由、推薦區及安全標頭驗證見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。
+
+本次 Git 事件未自動建立部署，雖然正式與預覽自動部署設定仍開啟，原因 UNKNOWN。已透過官方 API 指定 main，使用原有 Git clone／build／deploy 流程發布；不變更免費靜態 Pages 架構。後續合併仍須核對實際 deployment commit，不能僅憑 CI 成功宣稱已部署。此觀察優先於下方歷史紀錄中的自動部署預期。
+
 ## 正式設定（2026-10-17）
 
 | 設定 | 值 |
