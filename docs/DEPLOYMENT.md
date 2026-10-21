@@ -1,5 +1,11 @@
 # Cloudflare Pages 部署與交付
 
+## 2026-10-22 延遲事件查核更正
+
+後續紀錄證明 PR #12／#13 的分支及 main 均收到 `github:push`；事件延遲約 12–19 分鐘，並非完全未觸發。`4a35c12` 自動部署成功，`5f7430d` 的一筆自動部署在初始化環境逾時，尚未 clone 或執行建置。下方 2026-10-21「未建立部署」是當時觀察，已由後續證據更正，完整時間線及復原驗證見 [DEPLOYMENT_TRIGGER_DIAGNOSIS.md](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)。
+
+後續發布應同時等候 GitHub `Verify & Build` 與 `Cloudflare Pages`，查核完整 SHA 及 Pages 各階段。至少保留 30 分鐘的事件／建置觀察窗，定期回報實際狀態；這是排查門檻，不是服務保證。若沒有紀錄，只能標示「截至某時間尚未觀察到」，不能直接判授權損壞。若初始化逾時，可在設定正確的前提下重試該部署；反覆失敗時保留證據再升級處理，不以手動發布代替自動觸發驗收。
+
 ## 2026-10-21 工具操作更新
 
 PR #12／main `4a35c124a8443aef4cf2ee58ff4f979e7572248e` 已於 23:25:56（台北時間）成功發布；deployment `806708c8-9e0e-4693-80ef-e13bf32e4349`。五工具、公開路由、推薦區及安全標頭驗證見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。
