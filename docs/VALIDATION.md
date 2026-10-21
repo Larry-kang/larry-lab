@@ -2,6 +2,8 @@
 
 > 2026-10-21 工具操作體驗改善：148 項單元測試、140 項 E2E、型別檢查、lint、建置與 SEO 產物檢查通過。九項需求、審查及側邊瀏覽器證據見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。
 
+> PR #12 已合併為 `4a35c124a8443aef4cf2ee58ff4f979e7572248e`，Cloudflare deployment `806708c8-9e0e-4693-80ef-e13bf32e4349` 於 2026-10-21 23:25:56（台北時間）成功。五工具側邊瀏覽器操作、11 路由 HTTP 200、安全標頭、404 及 17 項推薦資料查核通過；正式 JS／CSS SHA256 與已測產物一致。本次 Git 自動事件未建立部署，改以既有 Pages Git 建置 API 觸發同一 main；自動事件原因 UNKNOWN，不能據此宣稱後續每次合併必定自動發布。
+
 > 2026-10-20 樂天與將來銀行新增開戶連結，保留推薦碼；139 項單元測試、106 項 E2E 與建置通過。驗證 commit 為本筆紀錄所在提交，詳細結果見 [BANK_REFERRAL_LINKS.md](BANK_REFERRAL_LINKS.md)。
 
 > SEO／GEO 第一階段新增集中工具說明、靜態問答、JSON-LD、llms.txt 與 sitemap 日期的自動同步。版本與檢查證據見 [SEO_VALIDATION.md](SEO_VALIDATION.md)，後續更新規則見 [SEO_MAINTENANCE.md](SEO_MAINTENANCE.md)。此項不改試算公式，也不宣稱已被搜尋引擎索引或 AI 引用。
