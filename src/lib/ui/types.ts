@@ -13,6 +13,7 @@ export interface FieldSpec {
   unit?: string;
   hint?: string;
   options?: Option[];
+  monthPresets?: number[];
   placeholder?: string;
   visibleIf?: (scenario: Values, root: Values) => boolean;
   /** For select fields: when changed, clear the values of fields that become hidden. */
@@ -35,6 +36,7 @@ export interface ListSpec {
   max: number;
   hint?: string;
   fields: FieldSpec[];
+  summary?: (scenario: Values) => string;
   defaultItem: () => Values;
   visibleIf?: (scenario: Values, root: Values) => boolean;
   /** 是否歸類為進階設定 */
@@ -89,6 +91,7 @@ export interface TableSpec {
   columns: string[];
   rows: string[][];
   note?: string;
+  collapsed?: boolean;
 }
 
 export interface Evaluation {
@@ -132,7 +135,7 @@ export interface ToolDef {
   example: () => Values;
   evaluate: (scenario: Values, root: Values) => Evaluation;
   /** 動態產生情境徽章文字（如「年利率 2.15%」或「年報酬 6%」），非寫死固定字樣 */
-  scenarioBadge?: (scenario: Values) => string;
+  scenarioBadge?: (scenario: Values, root?: Values) => string;
   /** 進階折疊按鈕旁顯示的即時摘要文字（如「通膨 3%、退休後報酬 5%」） */
   advancedSummary?: (scenario: Values, root: Values) => string;
   /** 以 A 基本條件套用至其他情境之設定 */
@@ -140,7 +143,8 @@ export interface ToolDef {
   /** 額外預設情境載入操作（例如退休工具的「載入三組報酬範例」） */
   presetScenariosAction?: PresetActionConfig;
   /** 自訂方案比較表格中的輸入欄位項目與摘要 */
-  compareInputs?: (scenario: Values, evaluation: Evaluation) => Array<{ label: string; value: string }>;
+  comparisonBasis?: (scenario: Values, root: Values) => Record<string, unknown>;
+  compareInputs?: (scenario: Values, evaluation: Evaluation, root?: Values) => Array<{ label: string; value: string }>;
 }
 
 export function emptyEvaluation(): Evaluation {

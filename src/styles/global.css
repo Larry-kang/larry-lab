@@ -1431,7 +1431,7 @@ tbody th {
 }
 
 .btn-unit.active {
-  background: var(--primary);
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
 }
@@ -1463,3 +1463,15 @@ tbody th {
   margin-left: 4px;
 }
 
+
+/* 年＋額外月份與總月數共用同一個整數月份值。 */
+.field-input-unit-wrap { flex-wrap: wrap; }
+.field-input-unit-wrap > input { min-width: 70px; width: 90px; }
+.extra-month-wrap { display: inline-flex; align-items: center; gap: 4px; }
+.extra-month-wrap input { width: 64px; min-width: 48px; }
+.extra-month-wrap[hidden] { display: none; }
+.btn-unit { min-height: 44px; }
+.schedule-details { margin-block: 1rem; min-width: 0; }
+.schedule-details > summary { cursor: pointer; padding: .75rem; border: 1px solid var(--line); border-radius: 6px; }
+.weight-summary { font-weight: 600; color: var(--text); }
+.term-presets { gap: 4px; }

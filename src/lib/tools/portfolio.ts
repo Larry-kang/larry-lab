@@ -1,7 +1,7 @@
 import { calculateAccumulation, calculateAllocation } from '../calculators/portfolio';
 import { cents } from '../csv';
 import { formatMultiple, formatPercent, formatTwd } from '../format';
-import { FieldReader, type Values } from '../parse';
+import { FieldReader, parseNumberText, type Values } from '../parse';
 import type { Evaluation, ListSpec, ToolDef } from '../ui/types';
 import { amountField, card, integerField, invalid, newEvaluation, percentField, versionNote } from './shared';
 
@@ -50,6 +50,14 @@ const accAssetsSpec: ListSpec = {
   addLabel: '新增配置項目',
   min: 1,
   max: 20,
+  summary: (s) => {
+    const items = Array.isArray(s.accAssets) ? s.accAssets : [];
+    const weights = items.map(a => parseNumberText(String(a.weight ?? '')));
+    if (weights.some(w => w.kind !== 'ok')) return '配置權重：請填寫每一項有效百分比，合計須為 100%。';
+    const total = weights.reduce((sum,w) => sum + (w.kind === 'ok' ? w.value : 0), 0);
+    const difference = Number((100 - total).toFixed(6));
+    return `配置權重合計 ${Number(total.toFixed(6))}%（${Math.abs(difference) <= 0.0001 ? '已達 100%' : difference > 0 ? `還差 ${difference}%` : `超出 ${-difference}%`}）`;
+  },
   hint: '年總報酬已包含息收再投資，請勿重複加計股息。權重總和必須等於 100%，系統不會自動等比例調整權重。',
   fields: [
     { key: 'name', label: '資產標的名稱', kind: 'text', placeholder: '例如：全球股票指數 / 綜合債券' },
@@ -148,13 +156,33 @@ export const portfolioTool: ToolDef = {
       }),
     ],
   }),
-  scenarioBadge(s: Values): string {
+  comparisonBasis(s, root) {
+    const number = (value: unknown) => { const parsed = parseNumberText(String(value ?? '')); return parsed.kind === 'ok' ? parsed.value : String(value ?? ''); };
+    return root.mode === 'accumulation'
+      ? { '期初投入': number(s.initial), '每月投入': number(s.monthlyContribution), '累積年數': number(s.years) }
+      : { '資產配置': s.assets, '負債設定': s.loans };
+  },
+  compareInputs(s, _ev, root = {}) {
+    if (root.mode === 'accumulation') return [
+      { label: '期初投入', value: `${s.initial || '未填'} 元` },
+      { label: '每月投入', value: `${s.monthlyContribution || '未填'} 元/月` },
+      { label: '累積年數', value: `${s.years || '未填'} 年` },
+      { label: '目標權重與年總報酬', value: (s.accAssets as Values[]).map(a=>`${a.name || '未命名'}：${a.weight || '未填'}%／年報酬 ${a.annualReturn || '未填'}%`).join('；') },
+    ];
+    return [
+      { label: '資產與衝擊假設', value: (s.assets as Values[]).map(a=>`${a.name || '未命名'}：${a.value || '未填'} 元，漲跌 ${a.shock || '未填'}%`).join('；') },
+      { label: '借款與年利率', value: (s.loans as Values[]).map(a=>`${a.name || '未命名'}：${a.principal || '未填'} 元，年利率 ${a.annualRate || '未填'}%`).join('；') || '無負債' },
+    ];
+  },
+  scenarioBadge(s: Values, root: Values = {}): string {
+    if (root.mode === 'accumulation') return `期初 ${s.initial || '未填'} 元 ｜ 每月 ${s.monthlyContribution || '未填'} 元 ｜ ${s.years || '未填'} 年`;
     const assets = Array.isArray(s.assets) ? (s.assets as Values[]) : [];
     const total = assets.reduce((sum, a) => sum + Number(String(a.value || '0').replace(/,/g, '')), 0);
     if (total > 0) return `總資產 ${formatTwd(total)}`;
     return '未設資產';
   },
-  advancedSummary(s: Values): string {
+  advancedSummary(s: Values, root: Values): string {
+    if (root.mode === 'accumulation') return '長期累積不計入配置模式負債';
     const loans = Array.isArray(s.loans) ? (s.loans as Values[]) : [];
     const totalLoan = loans.reduce((sum, l) => sum + Number(String(l.principal || '0').replace(/,/g, '')), 0);
     return totalLoan > 0 ? `負債共 ${loans.length} 筆（${formatTwd(totalLoan)}）` : '無負債貸款';

@@ -17,6 +17,11 @@ function specSchema(specs: Spec[]): Schema {
       schema[spec.key] = { kind: 'list', maxItems: spec.max, item: specSchema(spec.fields) };
     } else {
       schema[spec.key] = fieldDef(spec);
+      if (spec.unitToggle) {
+        const preferred = spec.unitToggle.defaultUnit ?? 'year';
+        schema[`_unit_${spec.key}`] = { kind: 'enum', values: [preferred, preferred === 'year' ? 'month' : 'year'] };
+        schema[`_draft_${spec.key}`] = { kind: 'text', max: 128 };
+      }
     }
   }
   return schema;
