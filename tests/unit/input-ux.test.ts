@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatAmountEdit, monthsFromParts } from '../../src/lib/ui/input-edit';
+import { formatAmountEdit, monthsFromParts, restoreMonthDraft } from '../../src/lib/ui/input-edit';
 import { mortgageTool } from '../../src/lib/tools/mortgage';
 import { retirementTool } from '../../src/lib/tools/retirement';
 import { portfolioTool } from '../../src/lib/tools/portfolio';
@@ -39,6 +39,7 @@ describe('U02–U05 預設與模式假設', () => {
   it('年月欄位以整數相加，拒絕無效月份而不捨入', () => {
     expect(monthsFromParts('30','5')).toBe('365');
     expect(monthsFromParts('0','1')).toBe('1');
+    expect(monthsFromParts('','5')).toBe('5');
     expect(monthsFromParts('50','0')).toBe('600');
     expect(monthsFromParts('','0')).toBe('');
     expect(monthsFromParts('30.5','0')).not.toMatch(/^\d+$/);
@@ -58,5 +59,20 @@ describe('U02–U05 預設與模式假設', () => {
     const inputs=portfolioTool.compareInputs?.(s,portfolioTool.evaluate(s,root),root);
     expect(inputs?.map(x=>x.label)).toContain('期初投入');
     expect(inputs?.map(x=>x.label)).toContain('累積年數');
+  });
+});
+
+
+describe('編輯資料邊界', () => {
+  it('貼上前後空白沿用數值解析規則，格式化不改金額', () => {
+    expect(formatAmountEdit(' 1234.50 ', 9, 9).text).toBe('1,234.50');
+    expect(formatAmountEdit(' NT$1234 ', 9, 9).text).toBe(' NT$1234 ');
+  });
+  it('無效年月草稿不可覆寫有效月份或透過未驗證形狀還原', () => {
+    const draft=JSON.stringify({years:'30.5',extra:'0'});
+    expect(restoreMonthDraft(draft,'invalid-year-month')).toEqual({years:'30.5',extra:'0'});
+    expect(restoreMonthDraft(draft,'365')).toBeNull();
+    expect(restoreMonthDraft(JSON.stringify({years:'30',extra:'5'}),'invalid-year-month')).toBeNull();
+    for(const text of ['[]','null','{}','bad',JSON.stringify({years:{},extra:'0'})]) expect(restoreMonthDraft(text,'invalid-year-month')).toBeNull();
   });
 });

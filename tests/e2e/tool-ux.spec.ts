@@ -77,9 +77,11 @@ test('U01 五工具金額欄位與模式均採千分位，非金額不受影響'
  for(const tool of ['mortgage','personal-loan','stock-pledge','retirement','portfolio']){
   await page.goto(`/tools/${tool}/`); await expect(page.locator('#tool-root')).toHaveAttribute('data-ready','true');
   const advanced=page.locator('#advanced-settings-box'); if(await advanced.count()) await advanced.locator('summary').click();
+  const otherBefore = await page.locator('#tool-root input[data-kind]:not([data-kind="amount"])').evaluateAll(els => els.map(e=>(e as HTMLInputElement).value));
   const fields=page.locator('input[data-kind="amount"]:visible');
   const count=await fields.count(); expect(count).toBeGreaterThan(0);
   for(let i=0;i<count;i++){await fields.nth(i).fill('1234567.50'); await expect(fields.nth(i)).toHaveValue('1,234,567.50');}
+  expect(await page.locator('#tool-root input[data-kind]:not([data-kind="amount"])').evaluateAll(els => els.map(e=>(e as HTMLInputElement).value))).toEqual(otherBefore);
   if(tool==='portfolio'){
    await page.locator('#f-mode').selectOption('accumulation');
    await page.locator(input('initial')).fill('2345678'); await expect(page.locator(input('initial'))).toHaveValue('2,345,678');
@@ -167,4 +169,55 @@ test('U03 非法年月不捨入，切換時保留可修正的原始輸入',async
  await expect(years).toHaveAttribute('aria-invalid','true');
  await page.locator('[data-field="scenarios.0.termMonths"]').getByRole('button',{name:'個月',exact:true}).click();
  await expect(years).toHaveValue('30.5'); await expect(page.locator('.status')).toContainText('先修正');
+});
+
+test('U01 非法逗號刪除不連帶刪數字，組字結束後重新編排ASCII金額',async({page})=>{
+ await page.goto('/tools/personal-loan/'); const amount=page.locator(input('principal'));
+ await amount.fill('1,23'); await amount.press('Home'); await amount.press('ArrowRight'); await amount.press('ArrowRight'); await amount.press('Backspace');
+ await expect(amount).toHaveValue('123');
+ await amount.fill('1,234');
+ await amount.evaluate(el=>{
+  const field=el as HTMLInputElement;
+  field.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));
+  field.value='1,9234'; field.setSelectionRange(3,3);
+  field.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertCompositionText',data:'9',isComposing:true}));
+  field.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'9'}));
+ });
+ await expect(amount).toHaveValue('19,234');
+});
+
+test('U09 延遲重算後仍保留方向鍵選取方案焦點',async({page})=>{
+ await page.clock.install(); await page.goto('/tools/personal-loan/');
+ await page.locator(input('principal')).fill('123456');
+ const first=page.getByRole('radio').first(); await first.focus(); await first.press('ArrowRight');
+ await page.clock.runFor(400); await expect(page.getByRole('radio').nth(1)).toBeFocused();
+});
+
+test('U03 非法年月草稿複製與JSON匯入後仍可編輯原文字',async({page})=>{
+ const fs=await import('node:fs/promises');
+ await page.goto('/tools/mortgage/'); await page.locator(input('termMonths')).fill('30.5');
+ await page.getByRole('button',{name:'＋ 複製目前方案'}).click();
+ await expect(page.locator('input[data-path="scenarios.2.termMonths"]')).toHaveValue('30.5');
+ await page.locator('.storage-management summary').click();
+ const promise=page.waitForEvent('download'); await page.getByRole('button',{name:'匯出設定檔（JSON）'}).click();
+ const json=await fs.readFile((await(await promise).path())!,'utf8');
+ await page.locator('#import-file').setInputFiles({name:'draft.json',mimeType:'application/json',buffer:Buffer.from(json)});
+ await expect(page.locator(input('termMonths'))).toHaveValue('30.5');
+});
+
+test('U03 年空白但額外月份有值時不會漏算寬限期',async({page})=>{
+ await page.goto('/tools/mortgage/'); await page.locator('#advanced-settings-box summary').click();
+ const field=page.locator('[data-field="scenarios.0.graceMonths"]'); await field.getByRole('button',{name:'年',exact:true}).click();
+ await page.locator(input('graceMonths')).fill(''); await page.locator('#f-scenarios-0-graceMonths-extra').fill('5');
+ await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await expect(page.locator('.tool-compare')).toContainText('5 個月');
+ await expect(page.locator('.tool-results [role="alert"]')).toHaveCount(0);
+});
+
+test('U01 同額舊JSON的兩個方案不因千分位顯示產生假差異',async({page})=>{
+ await page.goto('/tools/mortgage/'); await page.locator('.storage-management summary').click();
+ const scenario={name:'原方案',inputMode:'price-ltv',price:'12000000',ltv:'80',termMonths:'360',method:'annuity',graceMonths:'0',fee:'15000',monthlyIncome:'120000',otherMonthlyDebt:'0',segments:[{startMonth:'1',annualRate:'2.2'}]};
+ const data={schemaVersion:1,toolId:'mortgage',inputs:{scenarios:[scenario,{...scenario,name:'相同條件'}]}};
+ await page.locator('#import-file').setInputFiles({name:'same.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect(page.locator('.tool-compare .notice-warn')).toHaveCount(0);
 });

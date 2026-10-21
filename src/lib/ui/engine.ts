@@ -1,4 +1,4 @@
-import { formatAmountEdit, monthsFromParts, monthDescription } from './input-edit';
+import { formatAmountEdit, monthsFromParts, monthDescription, restoreMonthDraft } from './input-edit';
 import { toCsv } from '../csv';
 import { MAX_IMPORT_BYTES, buildExport, parseImport } from '../io';
 import type { Values } from '../parse';
@@ -67,7 +67,6 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   let remember = false;
   let submitted = false;
   const touched = new Set<string>();
-  const monthDrafts = new WeakMap<Values, Map<string, { years: string; extra: string }>>();
   let evals: Evaluation[] = [];
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let undoState: Values | null = null;
@@ -80,6 +79,17 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   }
 
   const scenarios = () => root.scenarios as Values[];
+
+  function normalizeAmounts(specs: Spec[], values: Values): void {
+    for (const spec of specs) {
+      if (isListSpec(spec)) {
+        const items = values[spec.key];
+        if (Array.isArray(items)) items.forEach(item => normalizeAmounts(spec.fields, item));
+      } else if (spec.kind === 'amount' && typeof values[spec.key] === 'string') {
+        values[spec.key] = formatAmountEdit(values[spec.key] as string, 0, 0).text;
+      }
+    }
+  }
 
   function normalize(): void {
     if (!Array.isArray(root.scenarios) || root.scenarios.length === 0) {
@@ -103,6 +113,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         }
       });
     }
+    normalizeAmounts(def.topFields, root);
+    scenarios().forEach(s => normalizeAmounts(def.scenarioFields, s));
     if (active >= scenarios().length) active = 0;
   }
   normalize();
@@ -275,8 +287,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
 
       const extraInput = h('input', { id: `${id}-extra`, type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '2', 'aria-label': `${spec.label}額外月份` });
       const extraWrap = h('span', { class: 'extra-month-wrap' }, extraInput, h('span', {}, '個月'));
-      if (!monthDrafts.has(targetObj)) monthDrafts.set(targetObj, new Map());
-      const drafts = monthDrafts.get(targetObj)!;
+      const draftKey = `_draft_${spec.key}`;
       const equivEl = h('span', { class: 'unit-equiv' });
       const yearBtn = h('button', { type: 'button', class: 'btn-unit' }, '年');
       const monthBtn = h('button', { type: 'button', class: 'btn-unit' }, '個月');
@@ -285,7 +296,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         const raw = String(values[spec.key] ?? '');
         const valid = /^\d+$/.test(raw);
         const inYears = targetObj[unitKey] === 'year';
-        const draft = drafts.get(spec.key);
+        const draft = restoreMonthDraft(targetObj[draftKey], raw);
         input.value = draft && inYears ? draft.years : inYears && valid ? String(Math.floor(Number(raw) / 12)) : raw;
         extraInput.value = draft && inYears ? draft.extra : valid ? String(Number(raw) % 12) : '0';
         extraWrap.hidden = !inYears;
@@ -299,14 +310,14 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       const changeUnit = (unit: 'year' | 'month') => {
         const raw = String(values[spec.key] ?? '');
         if (raw !== '' && !/^\d+$/.test(raw)) { setStatus('請先修正年與月份欄位，再切換顯示單位。', 'error'); return; }
-        targetObj[unitKey] = unit; drafts.delete(spec.key); showUnit();
+        targetObj[unitKey] = unit; targetObj[draftKey] = ''; showUnit();
       };
       yearBtn.addEventListener('click', () => changeUnit('year'));
       monthBtn.addEventListener('click', () => changeUnit('month'));
       const updateMonthValue = () => {
         const text = input.value.trim();
         const value = targetObj[unitKey] === 'year' ? monthsFromParts(text, extraInput.value.trim()) : text;
-        if (targetObj[unitKey] === 'year') drafts.set(spec.key, { years: text, extra: extraInput.value });
+        targetObj[draftKey] = value === 'invalid-year-month' ? JSON.stringify({ years: text, extra: extraInput.value }) : '';
         onValue(path, value, spec, scenario); updateEquiv();
       };
       input.addEventListener('input', updateMonthValue);
@@ -336,7 +347,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         priorValid = /^-?(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d*)?$/.test(input.value);
         input.addEventListener('beforeinput', (event) => {
           const at = input.selectionStart ?? 0;
-          if (input.selectionStart !== input.selectionEnd) return;
+          if (!priorValid || input.selectionStart !== input.selectionEnd) return;
           // 刪除分隔符時連同相鄰數字刪除，避免逗號自動補回而無法刪字。
           if (event.inputType === 'deleteContentBackward' && input.value[at - 1] === ',') input.setSelectionRange(Math.max(0, at - 2), at);
           if (event.inputType === 'deleteContentForward' && input.value[at] === ',') input.setSelectionRange(at, at + 2);
@@ -346,7 +357,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         if (event instanceof InputEvent && event.isComposing) return;
         if (spec.kind === 'amount') {
           const e = event as InputEvent;
-          const regroup = priorValid && /^(insertText|delete)/.test(e.inputType ?? '') && !e.data?.includes(',');
+          const regroup = priorValid && (/^(insertText|delete)/.test(e.inputType ?? '') || event.type === 'compositionend') && !e.data?.includes(',');
           const formatted = formatAmountEdit(input.value, input.selectionStart ?? input.value.length, input.selectionEnd ?? input.value.length, regroup);
           input.value = formatted.text;
           input.setSelectionRange(formatted.start, formatted.end);
@@ -997,6 +1008,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
 
   // ---- orchestration ----
   function refresh(): void {
+    if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+    const focusOnScenario = tabsEl.contains(document.activeElement) && document.activeElement?.getAttribute('role') === 'radio';
     evals = scenarios().map((s) => def.evaluate(s, root));
     applyVisibility();
     updateErrors();
@@ -1013,6 +1026,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     renderResults();
     renderCompare();
     renderTabs();
+    if (focusOnScenario) tabsEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
     if (remember) {
       if (!saveTool(def.id, root)) {
         remember = false;

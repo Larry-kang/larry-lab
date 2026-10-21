@@ -123,7 +123,7 @@ export const retirementTool: ToolDef = {
     const retBefore = s.returnBefore ? `${s.returnBefore}%` : '—';
     const retAfter = s.returnAfter ? `${s.returnAfter}%` : '—';
     const pension = Number(String(s.monthlyIncome || '0').replace(/,/g, '')) > 0 ? `${s.monthlyIncome} 元/月` : '無';
-    const pensionStart = s.incomeStartAge ? `${s.incomeStartAge} 歲` : '—';
+    const pensionStart = Number(String(s.monthlyIncome || '0').replace(/,/g, '')) > 0 ? (s.incomeStartAge ? `${s.incomeStartAge} 歲` : '未填寫') : '不適用';
 
     return [
       { label: '目前年齡', value: curAge },

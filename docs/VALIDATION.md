@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-21 工具操作體驗改善：148 項單元測試、140 項 E2E、型別檢查、lint、建置與 SEO 產物檢查通過。九項需求、審查及側邊瀏覽器證據見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。
+
 > 2026-10-20 樂天與將來銀行新增開戶連結，保留推薦碼；139 項單元測試、106 項 E2E 與建置通過。驗證 commit 為本筆紀錄所在提交，詳細結果見 [BANK_REFERRAL_LINKS.md](BANK_REFERRAL_LINKS.md)。
 
 > SEO／GEO 第一階段新增集中工具說明、靜態問答、JSON-LD、llms.txt 與 sitemap 日期的自動同步。版本與檢查證據見 [SEO_VALIDATION.md](SEO_VALIDATION.md)，後續更新規則見 [SEO_MAINTENANCE.md](SEO_MAINTENANCE.md)。此項不改試算公式，也不宣稱已被搜尋引擎索引或 AI 引用。
