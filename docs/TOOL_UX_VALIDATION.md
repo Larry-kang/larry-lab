@@ -55,6 +55,8 @@
 
 ### Git 自動觸發限制
 
+2026-10-22 更正：下方為發布當時的觀察；後續四筆 `github:push` 紀錄證明事件有抵達，其中三筆成功、一筆初始化逾時。詳見 [延遲事件查核](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)，不再將「尚未觀察到」等同「未觸發」。
+
 本次分支及 main 的 Git 事件沒有建立 Pages 部署紀錄。API 讀取確認 GitHub 串接、main 正式自動部署、所有分支預覽與路徑設定仍開啟；自動事件未送達原因為未知（UNKNOWN）。本次使用官方 [建立部署 API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/create/)，指定 main 並由既有 Git 流程建置發布，並未改成上傳本機檔案。
 
 後續合併必須查核 Cloudflare 是否出現對應 commit，不能僅憑 GitHub CI 或設定開啟就宣稱已發布。自動事件恢復前可依同一既有 API 手動觸發；調查 GitHub App 事件傳遞另列後續事項，不擅自重新安裝 App 或擴大權限。

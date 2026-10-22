@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-22 部署診斷更正：Cloudflare 後續收到四筆 `github:push`，先前不是完全未觸發，而是事件延遲及一筆初始化環境逾時。證據、復原計畫及自動部署驗收見 [DEPLOYMENT_TRIGGER_DIAGNOSIS.md](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)。本輪只修正發布紀錄及驗證程序，不修改網站程式、計算、權限或付費設定。
+
 > 2026-10-21 工具操作體驗改善：148 項單元測試、140 項 E2E、型別檢查、lint、建置與 SEO 產物檢查通過。九項需求、審查及側邊瀏覽器證據見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。
 
 > PR #12 已合併為 `4a35c124a8443aef4cf2ee58ff4f979e7572248e`，Cloudflare deployment `806708c8-9e0e-4693-80ef-e13bf32e4349` 於 2026-10-21 23:25:56（台北時間）成功。五工具側邊瀏覽器操作、11 路由 HTTP 200、安全標頭、404 及 17 項推薦資料查核通過；正式 JS／CSS SHA256 與已測產物一致。本次 Git 自動事件未建立部署，改以既有 Pages Git 建置 API 觸發同一 main；自動事件原因 UNKNOWN，不能據此宣稱後續每次合併必定自動發布。
