@@ -263,8 +263,8 @@ test.describe('V11-14 & A01: 完整路由導覽與 404', () => {
   });
 });
 
-test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo、緊湊側欄與正式產品文案驗收', () => {
-  test('RF-01, RF-02, RF-04, RF-05, RF-07: 推薦總覽呈現全部 17 項與官方 Logo，保留完整 href 參數並具正確外連屬性', async ({ page }) => {
+test.describe('RF-01–RF-08 & A02/A13: 18 項推薦資訊整合、官方 Logo、緊湊側欄與正式產品文案驗收', () => {
+  test('RF-01, RF-02, RF-04, RF-05, RF-07: 推薦總覽呈現全部 18 項與官方 Logo，保留完整 href 參數並具正確外連屬性', async ({ page }) => {
     await page.goto('/recommendations/');
     const fullPanel = page.locator('.rec-full');
     await expect(fullPanel).toBeVisible();
@@ -273,19 +273,19 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     await expect(page.locator('[data-testid="rec-empty"]')).toHaveCount(0);
     await expect(page.locator('body')).not.toContainText('推薦資訊整理中');
 
-    // 總共 17 張推薦卡片與 17 個官方 Logo
+    // 總共 18 張推薦卡片與 18 個官方 Logo
     const cards = fullPanel.locator('.rec-card');
-    await expect(cards).toHaveCount(17);
+    await expect(cards).toHaveCount(18);
     const logos = fullPanel.locator('img.rec-logo-lg');
-    await expect(logos).toHaveCount(17);
-    const allLogosLoaded = await logos.evaluateAll((imgs) =>
-      imgs.every((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0),
-    );
-    expect(allLogosLoaded).toBe(true);
+    await expect(logos).toHaveCount(18);
+    for (const logo of await logos.all()) {
+      await logo.scrollIntoViewIfNeeded();
+      await expect.poll(() => logo.evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
 
-    // 核對五大分類標題（HOYA BIT 歸入台灣交易所，共 6/1/3/5/2）
+    // 核對五大分類標題（HOYA BIT 歸入台灣交易所，共 6/2/3/5/2）
     await expect(fullPanel.locator('.rec-category', { hasText: '數位銀行（6）' })).toBeVisible();
-    await expect(fullPanel.locator('.rec-category', { hasText: '證券開戶（1）' })).toBeVisible();
+    await expect(fullPanel.locator('.rec-category', { hasText: '證券開戶（2）' })).toBeVisible();
     await expect(fullPanel.locator('.rec-category', { hasText: '台灣交易所（3）' })).toBeVisible();
     await expect(fullPanel.locator('.rec-category', { hasText: '國際交易所（5）' })).toBeVisible();
     await expect(fullPanel.locator('.rec-category', { hasText: '其他加密服務（2）' })).toBeVisible();
@@ -296,6 +296,11 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     await expect(lineLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
     await expect(lineLink).toHaveAttribute('target', '_blank');
     await expect(lineLink).toContainText('另開新分頁');
+
+    const firstradeLink = fullPanel.locator('.rec-card[data-rec-id="firstrade"] a');
+    await expect(firstradeLink).toHaveAttribute('href', 'https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y');
+    await expect(firstradeLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
+    await expect(firstradeLink).toHaveAttribute('target', '_blank');
 
     const nnbLink = fullPanel.locator('.rec-card[data-rec-id="new-new-bank"] a');
     await expect(nnbLink).toHaveAttribute('href', 'https://newnewbank.ubot.com.tw/web/#/S0101001?pm=3&ID=ANIDEZI');
@@ -322,9 +327,9 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     await expect(bybitLink).toHaveAttribute('rel', 'sponsored noopener noreferrer');
     await expect(bybitLink).toHaveAttribute('target', '_blank');
 
-    // 全部 17 個網址皆已驗證啟用，無待確認項目
+    // 全部 18 個網址皆已驗證啟用，無待確認項目
     await expect(fullPanel.locator('[data-testid="rec-status-pending"]')).toHaveCount(0);
-    await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(17);
+    await expect(fullPanel.locator('.rec-action a[target="_blank"][rel="sponsored noopener noreferrer"]')).toHaveCount(18);
 
     // RF-05: 檢查精簡利益揭露，且公開卡片不再顯示工程查核日期，亦不含未查核之簽帳卡或 AP/GP/LP 宣稱
     await expect(fullPanel).toContainText('透過部分推薦連結註冊或使用服務，我可能獲得獎勵；不影響試算結果，優惠與適用條件請以平台公告為準。');
@@ -383,7 +388,7 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
     expect(selectedText).toBe('YCB0Y6');
   });
 
-  test('RF-06: 桌機側欄與手機版可折疊推薦區一次呈現全部 17 項與官方 Logo，且手機版預設收合不遮擋試算工具', async ({ page, isMobile }) => {
+  test('RF-06: 桌機側欄與手機版可折疊推薦區一次呈現全部 18 項與官方 Logo，且手機版預設收合不遮擋試算工具', async ({ page, isMobile }) => {
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true', { timeout: 10000 });
 
@@ -391,14 +396,16 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
       const mobileDetails = page.locator('[data-testid="rec-mobile"]');
       await expect(mobileDetails).toBeVisible();
       await expect(mobileDetails).not.toHaveAttribute('open', '');
+      await expect(mobileDetails.locator('summary')).toContainText('共 18 項');
 
       // 展開手機版推薦區
       await mobileDetails.locator('summary').click();
       await expect(mobileDetails).toHaveAttribute('open', '');
       await expect(mobileDetails.locator('.rec-compact-cat')).toHaveCount(5);
-      await expect(mobileDetails.locator('.rec-card')).toHaveCount(17);
-      await expect(mobileDetails.locator('img.rec-logo-sm')).toHaveCount(17);
-      await expect(mobileDetails.locator('.rec-more a')).toContainText('查看全部 17 項推薦');
+      await expect(mobileDetails.locator('.rec-card')).toHaveCount(18);
+      await expect(mobileDetails.locator('[data-rec-id="firstrade"] a')).toHaveAttribute('href', 'https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y');
+      await expect(mobileDetails.locator('img.rec-logo-sm')).toHaveCount(18);
+      await expect(mobileDetails.locator('.rec-more a')).toContainText('查看全部 18 項推薦');
       const mobileClipped = await mobileDetails.evaluate((el) => el.scrollWidth > el.clientWidth);
       expect(mobileClipped).toBe(false);
       const mobileBtnHeights = await mobileDetails
@@ -409,10 +416,11 @@ test.describe('RF-01–RF-08 & A02/A13: 17 項推薦資訊整合、官方 Logo�
       const aside = page.locator('[data-testid="rec-aside"]');
       await expect(aside).toBeVisible();
       await expect(aside.locator('.rec-compact-cat')).toHaveCount(5);
-      await expect(aside.locator('.rec-card')).toHaveCount(17);
-      await expect(aside.locator('img.rec-logo-sm')).toHaveCount(17);
+      await expect(aside.locator('.rec-card')).toHaveCount(18);
+      await expect(aside.locator('[data-rec-id="firstrade"] a')).toHaveAttribute('href', 'https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y');
+      await expect(aside.locator('img.rec-logo-sm')).toHaveCount(18);
       const moreLink = aside.locator('.rec-more a');
-      await expect(moreLink).toContainText('查看全部 17 項推薦');
+      await expect(moreLink).toContainText('查看全部 18 項推薦');
       await expect(moreLink).toHaveAttribute('href', '/recommendations/');
       const asideClipped = await aside.evaluate((el) => el.scrollWidth > el.clientWidth);
       expect(asideClipped).toBe(false);

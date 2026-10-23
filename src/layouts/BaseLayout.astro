@@ -3,6 +3,8 @@ import '../styles/global.css';
 import RecommendationPanel from '../components/RecommendationPanel.astro';
 import { navItems, site } from '../config/site';
 import { serializeJsonLd } from '../lib/seo';
+import recommendationsFile from '../content/recommendations.json';
+import { publicRecommendations, validateRecommendations } from '../lib/recommendations';
 
 interface Props {
   title: string;
@@ -14,6 +16,7 @@ interface Props {
   structuredData?: unknown;
 }
 const { title, description, nav, toolCategory, structuredData } = Astro.props;
+const recommendationCount = publicRecommendations(validateRecommendations(recommendationsFile)).length;
 const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
 const isNotFound = /^\/404(?:\.html|\/)?$/.test(Astro.url.pathname);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -76,7 +79,7 @@ const schema = structuredData ?? (Astro.url.pathname === '/' ? { '@context': 'ht
         {toolCategory && <p class="eyebrow">{toolCategory}</p>}
         <slot />
         <details class="rec-mobile-wrap" data-testid="rec-mobile">
-          <summary>推薦開戶與平台優惠（共 17 項）</summary>
+          <summary>推薦開戶與平台優惠（共 {recommendationCount} 項）</summary>
           <RecommendationPanel variant="mobile" />
         </details>
       </main>

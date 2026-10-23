@@ -13,6 +13,7 @@
     { "id": "next-bank", "category": "銀行", "name": "將來銀行", "providedAt": "2026-10-20", "url": "https://ebank.nextbank.com.tw/open-account?mgmcode=HCPGD&channel=APPMGM&utm_source=app&utm_medium=link", "code": "HCPGD" },
     { "id": "rakuten-bank", "category": "銀行", "name": "樂天國際銀行", "providedAt": "2026-10-20", "url": "https://www.rakuten-bank.com.tw/s/T9D6", "code": "YCB0Y6" },
     { "id": "sinotrade", "category": "證券", "name": "永豐金證券", "url": "https://www.sinotrade.com.tw/richclub/join/openact?invt=95DT7", "code": null },
+    { "id": "firstrade", "category": "證券", "name": "Firstrade 第一證券", "url": "https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y", "code": null, "providedAt": "2026-10-23" },
     { "id": "bitopro", "category": "加密服務", "sourceGroup": "台灣交易所", "name": "BitoPro", "url": "https://www.bitopro.com/users/sign_up?referrer=1637741422", "code": null },
     { "id": "max", "category": "加密服務", "sourceGroup": "台灣交易所", "name": "MAX", "url": "https://max.maicoin.com/signup?r=4705d2fe", "code": null },
     { "id": "binance", "category": "加密服務", "sourceGroup": "國際交易所", "name": "Binance", "url": "https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00TNLH8TXZ", "code": null },
