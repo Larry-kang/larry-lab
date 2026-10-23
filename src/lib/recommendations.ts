@@ -44,6 +44,7 @@ export const ALLOWED_REFERRAL_HOSTNAMES = new Set<string>([
   'ebank.nextbank.com.tw',
   'www.rakuten-bank.com.tw',
   'www.sinotrade.com.tw',
+  'www.firstrade.com',
   'www.bitopro.com',
   'max.maicoin.com',
   'www.binance.com',
@@ -236,8 +237,8 @@ export function activeRecommendations(items: Recommendation[]): Recommendation[]
     .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
 }
 
-/** Sidebar and mobile drawer show enabled items in fixed sortOrder (default all 17). */
-export function sidebarRecommendations(items: Recommendation[], maxCount: number = 17): Recommendation[] {
+/** 側欄與手機面板預設顯示全部啟用項目，僅在明確指定時限制筆數。 */
+export function sidebarRecommendations(items: Recommendation[], maxCount: number = items.length): Recommendation[] {
   return activeRecommendations(items).slice(0, maxCount);
 }
 

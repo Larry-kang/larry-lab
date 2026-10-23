@@ -17,7 +17,7 @@ const { variant } = Astro.props;
 
 const allValidated = validateRecommendations(recommendationsFile);
 const totalPublicCount = publicRecommendations(allValidated).length;
-const items = variant === 'full' ? publicRecommendations(allValidated) : sidebarRecommendations(allValidated, 17);
+const items = variant === 'full' ? publicRecommendations(allValidated) : sidebarRecommendations(allValidated);
 const now = new Date();
 const groups = groupByCategory(items);
 const prefix = variant;

@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-23 Firstrade 推薦整合：推薦總覽、側欄與手機面板同步 18 項；型別／lint、149 單元、建置／SEO、140 E2E 通過。來源、人工版面核對、審查與發布追蹤見 [FIRSTRADE_REFERRAL.md](FIRSTRADE_REFERRAL.md)。
+
 > 2026-10-22 部署診斷更正：Cloudflare 後續收到四筆 `github:push`，先前不是完全未觸發，而是事件延遲及一筆初始化環境逾時。證據、復原計畫及自動部署驗收見 [DEPLOYMENT_TRIGGER_DIAGNOSIS.md](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)。本輪只修正發布紀錄及驗證程序，不修改網站程式、計算、權限或付費設定。
 
 > 2026-10-21 工具操作體驗改善：148 項單元測試、140 項 E2E、型別檢查、lint、建置與 SEO 產物檢查通過。九項需求、審查及側邊瀏覽器證據見 [TOOL_UX_VALIDATION.md](TOOL_UX_VALIDATION.md)。

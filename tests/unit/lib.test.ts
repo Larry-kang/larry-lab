@@ -184,29 +184,36 @@ describe('recommendations', () => {
     ...over,
   });
 
-  it('RF-01 & RF-02: production data contains all 17 owner-provided items with exact URLs and codes', () => {
+  it('RF-06: 側欄預設顯示全部推薦，只有明確指定時才限制筆數', () => {
+    const template = validateRecommendations(recommendationsFile)[0];
+    const items = Array.from({ length: 20 }, (_, index) => ({ ...template, id: `item-${index}`, sortOrder: index }));
+    expect(sidebarRecommendations(items)).toHaveLength(20);
+    expect(sidebarRecommendations(items, 3)).toHaveLength(3);
+  });
+
+  it('RF-01 & RF-02: production data contains all 18 owner-provided items with exact URLs and codes', () => {
     const items = validateRecommendations(recommendationsFile);
-    expect(items).toHaveLength(17);
-    expect(publicRecommendations(items)).toHaveLength(17);
+    expect(items).toHaveLength(18);
+    expect(publicRecommendations(items)).toHaveLength(18);
     expect(groupByCategory(publicRecommendations(items)).map((g) => [g.category, g.items.length])).toEqual([
       ['數位銀行', 6],
-      ['證券開戶', 1],
+      ['證券開戶', 2],
       ['台灣交易所', 3],
       ['國際交易所', 5],
       ['其他加密服務', 2],
     ]);
 
-    // All 17 items enabled (17 verified URLs + 2 copyable codes)
+    // All 18 items enabled (18 verified URLs + 2 copyable codes)
     const active = activeRecommendations(items);
-    expect(active).toHaveLength(17);
-    expect(sidebarRecommendations(items)).toHaveLength(17);
+    expect(active).toHaveLength(18);
+    expect(sidebarRecommendations(items)).toHaveLength(18);
     expect(sidebarRecommendations(items, 3)).toHaveLength(3);
 
     const byId = new Map(items.map((x) => [x.id, x]));
-    expect(byId.size).toBe(17);
+    expect(byId.size).toBe(18);
 
     // Compare every item against docs/referrals.owner-provided.json
-    expect(ownerProvidedFile.items).toHaveLength(17);
+    expect(ownerProvidedFile.items).toHaveLength(18);
     for (const src of ownerProvidedFile.items) {
       const target = byId.get(src.id);
       expect(target, `Missing item ${src.id}`).toBeDefined();
@@ -225,7 +232,7 @@ describe('recommendations', () => {
       } else {
         expect(target!.code).toBeUndefined();
         expect(target!.referralUrl).toBe(src.url);
-        expect(target!.linkCheckedAt).toBe('2026-10-17');
+        expect(target!.linkCheckedAt).toBe(src.id === 'firstrade' ? '2026-10-23' : '2026-10-17');
       }
     }
 
@@ -272,6 +279,8 @@ describe('recommendations', () => {
     expect(isSafeHttpsUrl('https://example.com/')).toBe(true);
     expect(isSafeHttpsUrl('//example.com')).toBe(false);
     expect(isAllowedReferralHostname('https://www.linebank.com.tw/R/mgm-portal')).toBe(true);
+    expect(isAllowedReferralHostname('https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y')).toBe(true);
+    expect(isAllowedReferralHostname('https://www.firstrade.com.evil.com/')).toBe(false);
     expect(isAllowedReferralHostname('https://example.com/')).toBe(false);
     expect(isAllowedReferralHostname('https://evil.com/')).toBe(false);
   });

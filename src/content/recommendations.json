@@ -52,6 +52,23 @@
       "offerStatus": "UNVERIFIED"
     },
     {
+      "id": "firstrade",
+      "name": "Firstrade 第一證券",
+      "category": "證券開戶",
+      "shortDescription": "Firstrade 第一證券推薦開戶連結。",
+      "logo": "/logos/firstrade.png",
+      "referralUrl": "https://www.firstrade.com/accounts/referral?im_ref=3Wep6QV1Ej9y",
+      "enabled": true,
+      "disclosure": "作者提供的推薦連結；優惠與適用資格請以平台公告為準。",
+      "sortOrder": 3.5,
+      "lastVerifiedAt": "2026-10-23",
+      "providedAt": "2026-10-23",
+      "linkCheckedAt": "2026-10-23",
+      "linkStatus": "VERIFIED",
+      "offerCheckedAt": null,
+      "offerStatus": "UNVERIFIED"
+    },
+    {
       "id": "richart",
       "name": "台新 Richart",
       "category": "數位銀行",
