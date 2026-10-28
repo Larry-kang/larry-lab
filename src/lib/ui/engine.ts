@@ -916,7 +916,13 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
         id: 'compare-show-same',
       }) as HTMLInputElement;
       showSameBox.checked = prevShowSame;
-      showSameBox.addEventListener('change', () => renderCompare());
+      // Only toggle row visibility — keep the checkbox in the DOM so keyboard focus is preserved.
+      showSameBox.addEventListener('change', () => {
+        const show = showSameBox.checked;
+        compareEl.querySelectorAll<HTMLTableRowElement>('tr.compare-row-same').forEach((tr) => {
+          tr.hidden = !show;
+        });
+      });
       children.push(
         h(
           'label',

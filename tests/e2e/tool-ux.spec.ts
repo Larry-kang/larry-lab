@@ -221,3 +221,25 @@ test('U01 同額舊JSON的兩個方案不因千分位顯示產生假差異',asyn
  await page.locator('#import-file').setInputFiles({name:'same.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
  await expect(page.locator('.tool-compare .notice-warn')).toHaveCount(0);
 });
+
+test('比較表「顯示相同項目」鍵盤切換後焦點保留在核取方塊', async ({ page }) => {
+  await page.goto('/tools/mortgage/');
+  await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
+
+  await page.getByRole('button', { name: /複製目前方案/ }).click();
+  const checkbox = page.locator('#compare-show-same');
+  await expect(checkbox).toBeVisible();
+
+  await checkbox.focus();
+  await expect(checkbox).toBeFocused();
+
+  await checkbox.press('Space');
+  await expect(checkbox).toBeChecked();
+  await expect(checkbox).toBeFocused();
+  await expect(page.locator('.tool-compare tr.compare-row-same').first()).toBeVisible();
+
+  await checkbox.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toBeFocused();
+  await expect(page.locator('.tool-compare tr.compare-row-same').first()).toBeHidden();
+});
