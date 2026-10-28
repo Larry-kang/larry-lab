@@ -123,12 +123,12 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     await tab2.click();
 
     // 檢查方案 2 在單一方案視圖下的首期月付金卡片為 NT$16,000
-    const singleFirstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金$/ }) });
+    const singleFirstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金/ }) });
     await expect(singleFirstPayCard.locator('.card-value')).toContainText('16,000');
 
     // 檢查方案比較表（.tool-compare table）各指標獨立對齊：
     // 1. 首期月付金列：方案 1 為 NT$36,451，方案 2 必須為 NT$16,000（絕不可為 16,000 ~ 39,203）
-    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金$/ }) });
+    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金/ }) });
     await expect(firstPayRow).toBeVisible();
     const firstPayCells = firstPayRow.locator('td');
     await expect(firstPayCells.nth(0)).toContainText('36,451');
@@ -136,19 +136,19 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     await expect(firstPayCells.nth(1)).not.toContainText('~');
 
     // 2. 最高月付金列：方案 1 為 NT$36,451，方案 2 為 NT$39,203 (第 37 個月升息後)
-    const maxPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^最高月付金$/ }) });
+    const maxPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^最高月付金/ }) });
     await expect(maxPayRow).toBeVisible();
     await expect(maxPayRow.locator('td').nth(1)).toContainText('39,203');
 
     // 3. 月付金範圍列：方案 1 為 固定 NT$36,451，方案 2 為 NT$16,000 ~ NT$39,203
-    const rangeRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^月付金範圍$/ }) });
+    const rangeRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^月付金範圍/ }) });
     await expect(rangeRow).toBeVisible();
     await expect(rangeRow.locator('td').nth(0)).toContainText('固定');
     await expect(rangeRow.locator('td').nth(1)).toContainText('16,000');
     await expect(rangeRow.locator('td').nth(1)).toContainText('39,203');
 
     // 4. 寬限期後首期月付金列：方案 1 為「無寬限期」，方案 2 第 25 期為 NT$37,337
-    const postGraceRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^寬限期後首期月付金$/ }) });
+    const postGraceRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^寬限期後首期月付金/ }) });
     await expect(postGraceRow).toBeVisible();
     await expect(postGraceRow.locator('td').nth(0)).toContainText('無寬限期');
     await expect(postGraceRow.locator('td').nth(1)).toContainText('37,337');
