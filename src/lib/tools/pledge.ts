@@ -83,11 +83,16 @@ export const pledgeTool: ToolDef = {
       ev.notices.push({ tone: 'warn', text: `實際借款高於範例可借上限 ${formatTwd(result.illustratedLimit!)}；壓力試算仍照你輸入的借款計算。` });
     }
 
-    // 前三項核心結果 (Core Cards)
+    // 年息與期間利息重述：借款天數恰為 365 時隱藏年息結果卡（仍保留比較表）
+    const hideYearInterestRestatement = input.days === 365;
+
+    // --- 前三項核心重點結果卡片 ---
     ev.cards.push(
       card('目前簡化維持率', hasDebt ? formatPercent(result.maintenance!, 2) : '不適用（N/A）', {
         isCore: true,
         compare: true,
+        compareKey: 'maintenance',
+        compareLabel: '目前簡化維持率',
         tone: result.atOrBelowThreshold ? 'bad' : 'neutral',
         note: hasDebt ? '擔保品市值 ÷ 借款金額' : '無負債',
       }),
@@ -97,25 +102,54 @@ export const pledgeTool: ToolDef = {
         {
           isCore: true,
           compare: true,
+          compareKey: 'dropToThreshold',
+          compareLabel: '到警示門檻跌幅',
           tone: result.atOrBelowThreshold ? 'bad' : 'neutral',
-          note: !hasDebt ? '無追繳風險' : result.atOrBelowThreshold ? '目前已面臨追繳補額風險' : `市值跌至 ${formatTwd(result.thresholdCollateral!)} 觸發警示`,
+          note: !hasDebt
+            ? '無追繳風險'
+            : result.atOrBelowThreshold
+              ? '目前已面臨追繳補額風險'
+              : `市值跌至 ${formatTwd(result.thresholdCollateral!)} 觸發警示（借款 × 警示維持率；非保證處分價）`,
         },
       ),
       card(`期間利息（${input.days} 天）`, formatTwd(result.termInterest!), {
         isCore: true,
         compare: true,
-        note: '範例 Actual/365 基準計算',
+        compareKey: 'termInterest',
+        compareLabel: '期間利息',
+        note: `範例 Actual/365；平均月息約 ${formatTwd(result.averageMonthlyInterest!)}`,
       }),
     );
 
-    // 次要結果卡片
+    // --- 次要與比較表結果卡片 ---
+    // 平均月息併入期間利息註記；警示門檻市值在未觸發時併入跌幅核心註記
     ev.cards.push(
-      card('範例可借上限', formatTwd(result.illustratedLimit!), { note: '擔保品市值 × 範例可貸成數' }),
-      card('擔保品淨值', formatTwd(result.equity!), { note: '擔保品市值 − 借款', tone: result.equity! < 0 ? 'bad' : 'neutral' }),
-      card('年息總額', formatTwd(result.yearInterest!), { compare: true }),
-      card('平均月息', formatTwd(result.averageMonthlyInterest!)),
-      card('警示門檻擔保品市值', hasDebt ? formatTwd(result.thresholdCollateral!) : '不適用（N/A）', { note: '借款 × 警示維持率；非保證處分價' }),
+      card('範例可借上限', formatTwd(result.illustratedLimit!), {
+        note: '擔保品市值 × 範例可貸成數',
+      }),
+      card('擔保品淨值', formatTwd(result.equity!), {
+        compare: true,
+        compareKey: 'equity',
+        compareLabel: '擔保品淨值',
+        note: '擔保品市值 − 借款',
+        tone: result.equity! < 0 ? 'bad' : 'neutral',
+      }),
+      card('年息總額', formatTwd(result.yearInterest!), {
+        compare: true,
+        compareKey: 'yearInterest',
+        compareLabel: '年息總額',
+        note: '借款 × 年利率（365 天）',
+        resultsHide: hideYearInterestRestatement,
+      }),
     );
+    // 已達門檻時核心註記未列門檻市值，保留次要卡；其餘情境已併入核心註記
+    if (hasDebt && result.atOrBelowThreshold) {
+      ev.cards.push(
+        card('警示門檻擔保品市值', formatTwd(result.thresholdCollateral!), {
+          note: '借款 × 警示維持率；非保證處分價',
+        }),
+      );
+    }
 
     ev.tables.push({
       caption: '擔保品漲跌情境明細',
