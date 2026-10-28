@@ -123,12 +123,12 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     await tab2.click();
 
     // 檢查方案 2 在單一方案視圖下的首期月付金卡片為 NT$16,000
-    const singleFirstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金$/ }) });
+    const singleFirstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金/ }) });
     await expect(singleFirstPayCard.locator('.card-value')).toContainText('16,000');
 
     // 檢查方案比較表（.tool-compare table）各指標獨立對齊：
     // 1. 首期月付金列：方案 1 為 NT$36,451，方案 2 必須為 NT$16,000（絕不可為 16,000 ~ 39,203）
-    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金$/ }) });
+    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金/ }) });
     await expect(firstPayRow).toBeVisible();
     const firstPayCells = firstPayRow.locator('td');
     await expect(firstPayCells.nth(0)).toContainText('36,451');
@@ -136,19 +136,19 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     await expect(firstPayCells.nth(1)).not.toContainText('~');
 
     // 2. 最高月付金列：方案 1 為 NT$36,451，方案 2 為 NT$39,203 (第 37 個月升息後)
-    const maxPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^最高月付金$/ }) });
+    const maxPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^最高月付金/ }) });
     await expect(maxPayRow).toBeVisible();
     await expect(maxPayRow.locator('td').nth(1)).toContainText('39,203');
 
     // 3. 月付金範圍列：方案 1 為 固定 NT$36,451，方案 2 為 NT$16,000 ~ NT$39,203
-    const rangeRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^月付金範圍$/ }) });
+    const rangeRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^月付金範圍/ }) });
     await expect(rangeRow).toBeVisible();
     await expect(rangeRow.locator('td').nth(0)).toContainText('固定');
     await expect(rangeRow.locator('td').nth(1)).toContainText('16,000');
     await expect(rangeRow.locator('td').nth(1)).toContainText('39,203');
 
     // 4. 寬限期後首期月付金列：方案 1 為「無寬限期」，方案 2 第 25 期為 NT$37,337
-    const postGraceRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^寬限期後首期月付金$/ }) });
+    const postGraceRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^寬限期後首期月付金/ }) });
     await expect(postGraceRow).toBeVisible();
     await expect(postGraceRow.locator('td').nth(0)).toContainText('無寬限期');
     await expect(postGraceRow.locator('td').nth(1)).toContainText('37,337');
@@ -242,6 +242,9 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     await page.getByRole('button', { name: /複製目前情境/ }).click();
     const compTable = page.locator('.tool-compare table');
     await expect(compTable).toBeVisible();
+
+    // 剛複製時輸入列皆相同，展開「顯示相同項目」後核對揭露完整性
+    await page.locator('.compare-same-toggle').click();
 
     // 驗證比較表中已完整揭露終止年齡、通膨率、年金收入等輸入條件
     await expect(compTable.locator('tr', { hasText: '目前年齡' })).toBeVisible();
@@ -641,12 +644,12 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
   });
 
   test('CALC-BUTTON-SCROLL-VERIFY: 查看結果按鈕之捲動與焦點行為另設獨立驗證', async ({ page }) => {
-    // 在手機尺寸（360x800，堆疊版型）下，點擊「查看試算結果 ↓」
+    // 在手機尺寸（360x800，堆疊版型）下，點擊試算按鈕（.btn-calc）
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
 
-    // 點擊「查看試算結果 ↓」以捲動至結果區塊
+    // 點擊試算按鈕（.btn-calc）以捲動至結果區塊
     const calcBtn = page.locator('.btn-calc');
     await expect(calcBtn).toBeVisible();
     await calcBtn.click();

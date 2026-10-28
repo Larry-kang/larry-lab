@@ -24,7 +24,7 @@ const prefix = variant;
 ---
 
 <div class={`rec rec-${variant}`} data-rec-variant={variant}>
-  {variant !== 'full' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦開戶與平台</h2>}
+  {variant === 'sidebar' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦開戶與平台</h2>}
   {
     items.length === 0 ? (
       <div class="rec-empty" data-testid="rec-empty">

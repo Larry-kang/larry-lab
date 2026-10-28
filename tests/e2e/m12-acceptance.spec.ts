@@ -84,12 +84,12 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     await expect(rangeCard.locator('.card-value')).toContainText('11,200');
 
     // 首期月付金精確為 11,200（絕不能是錯誤的 10,600）
-    const firstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金$/ }) });
+    const firstPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^首期月付金/ }) });
     await expect(firstPayCard).toBeVisible();
     await expect(firstPayCard.locator('.card-value')).toContainText('11,200');
 
     // 最高月付金為 11,200
-    const maxPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^最高月付金$/ }) });
+    const maxPayCard = page.locator('.card', { has: page.locator('.card-label', { hasText: /^最高月付金/ }) });
     await expect(maxPayCard).toBeVisible();
     await expect(maxPayCard.locator('.card-value')).toContainText('11,200');
   });
@@ -215,11 +215,14 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     const compTable = page.locator('.tool-compare table');
     await expect(compTable).toBeVisible();
 
+    // 剛複製時各列皆相同，預設差異優先會收合相同列；展開後再核對欄位存在
+    await page.locator('.compare-same-toggle').click();
+
     // 檢查比較表格包含輸入條件（衍生貸款本金）與試算結果項目（首期月付金、總利息支出）
     await expect(compTable.locator('tr', { hasText: '衍生貸款本金' })).toBeVisible();
-    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金$/ }) });
+    const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金/ }) });
     await expect(firstPayRow).toBeVisible();
-    await expect(compTable.locator('tr', { has: page.locator('th', { hasText: /^總利息支出$/ }) })).toBeVisible();
+    await expect(compTable.locator('tr', { has: page.locator('th', { hasText: /^總利息支出/ }) })).toBeVisible();
 
     // 檢查固定與變動月付的 compareKey 穩定對齊（不出現空白儲存格）
     // 切換回第二個方案，展開進階設定，改為「本金平均攤還」

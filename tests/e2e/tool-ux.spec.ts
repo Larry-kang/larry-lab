@@ -13,7 +13,7 @@ test('U01 金額逐字編輯、游標、刪除與無效貼上', async ({page}) =
   await amount.press('Backspace'); await expect(amount).toHaveValue('234');
   await amount.fill('1234.'); await expect(amount).toHaveValue('1,234.');
   await amount.pressSequentially('50'); await expect(amount).toHaveValue('1,234.50');
-  await amount.fill('NT$1234'); await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+  await amount.fill('NT$1234'); await page.locator('.btn-calc').click();
   await expect(amount).toHaveValue('NT$1234'); await expect(amount).toHaveAttribute('aria-invalid','true');
   await amount.fill(''); await expect(amount).toHaveValue('');
 });
@@ -32,7 +32,7 @@ test('U02 U03 房貸預設、年月精確往返及明細收合',async({page})=>{
   await wrap.getByRole('button',{name:'個月',exact:true}).click();
   await expect(page.locator(input('termMonths'))).toHaveValue(String(months));
  }
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(page.locator('details.schedule-details')).not.toHaveAttribute('open','');
  await page.locator('details.schedule-details summary').click();
  await expect(page.getByRole('table',{name:'逐月攤還表',exact:true}).locator('tbody tr')).toHaveCount(600);
@@ -45,7 +45,7 @@ test('U04 累積模式標籤、權重及比較不引用配置',async({page})=>{
  await expect(page.locator('.tool-compare')).not.toContainText('套用至其他方案');
  await page.locator(input('accAssets.0.weight')).fill('60');
  await expect(page.locator('[data-weight-summary]')).toContainText('還差 10%');
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(page.locator('.tool-results')).not.toContainText('accAssets');
  await expect(page.locator('.tool-results')).toContainText('長期目標資產配置');
 });
@@ -56,7 +56,7 @@ test('U05 退休預設收入與必要起領年齡',async({page})=>{
  await page.locator('#advanced-settings-box summary').click();
  await expect(page.locator(input('monthlyIncome'))).toHaveValue('0');
  await page.locator(input('monthlyIncome')).fill('10000');
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(page.locator(input('incomeStartAge'))).toHaveAttribute('aria-invalid','true');
  await page.locator(input('incomeStartAge')).fill('65');
  await expect(page.locator('.adv-pill')).toContainText('65 歲');
@@ -96,7 +96,7 @@ test('U01 U07 信貸格式、JSON及完整CSV數值一致',async({page})=>{
  await page.locator(input('annualRate')).fill('0');
  await page.locator(input('fee')).fill('0');
  await page.getByRole('button',{name:'12 個月',exact:true}).click();
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(page.locator('.card-featured').first()).toContainText('10,000');
  await expect(page.locator('details.schedule-details')).not.toHaveAttribute('open','');
  const csvPromise=page.waitForEvent('download'); await page.locator('.btn-csv-download').click();
@@ -119,9 +119,9 @@ test('U02 U03 舊房貸模式JSON還原、重設預設及寬限期界線',async(
  await expect(page.locator(input('price'))).toHaveValue('12,000,000');
  await expect(page.locator(input('termMonths'))).toHaveValue('30'); await expect(page.locator('#f-scenarios-0-termMonths-extra')).toHaveValue('5');
  await page.locator('#advanced-settings-box summary').click();
- await page.locator(input('graceMonths')).fill('365'); await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator(input('graceMonths')).fill('365'); await page.locator('.btn-calc').click();
  await expect(page.locator(input('graceMonths'))).toHaveAttribute('aria-invalid','true');
- await page.locator(input('graceMonths')).fill('364'); await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator(input('graceMonths')).fill('364'); await page.locator('.btn-calc').click();
  await expect(page.locator(input('graceMonths'))).not.toHaveAttribute('aria-invalid','true');
  await page.getByRole('button',{name:'清空重設',exact:true}).click();
  await expect(page.locator('#f-scenarios-0-inputMode')).toHaveValue('price-ltv'); await expect(page.locator(input('ltv'))).toHaveValue('80');
@@ -145,7 +145,7 @@ test('U05 舊退休收入本機儲存保留，零收入不要求起領年齡',as
  await page.addInitScript(()=>localStorage.setItem('larry-lab:v1:tool:retirement',JSON.stringify({schemaVersion:1,toolId:'retirement',inputs:{unit:'real',scenarios:[{name:'舊收入範例',currentAge:'35',retireAge:'60',endAge:'90',assets:'2000000',monthlyContribution:'25000',monthlySpending:'45000',monthlyIncome:'10000',incomeStartAge:'65',inflation:'3',returnBefore:'5',returnAfter:'5'}]}})));
  await page.goto('/tools/retirement/'); await expect(page.locator('.adv-pill')).toContainText('65 歲');
  await page.locator('#advanced-settings-box summary').click(); await expect(page.locator(input('monthlyIncome'))).toHaveValue('10,000');
- await page.locator(input('monthlyIncome')).fill('0'); await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator(input('monthlyIncome')).fill('0'); await page.locator('.btn-calc').click();
  await expect(page.locator(input('incomeStartAge'))).toBeHidden(); await expect(page.locator('.tool-results [role="alert"]')).toHaveCount(0);
 });
 
@@ -159,13 +159,13 @@ test('U01 真正剪貼簿貼上與中段選取取代',async({page,context})=>{
  await expect(amount).toHaveValue('1,934,567.0200');
  await page.evaluate(()=>navigator.clipboard.writeText('1,2,3'));
  await amount.press('ControlOrMeta+A'); await amount.press('ControlOrMeta+V');
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(amount).toHaveValue('1,2,3'); await expect(amount).toHaveAttribute('aria-invalid','true');
 });
 
 test('U03 非法年月不捨入，切換時保留可修正的原始輸入',async({page})=>{
  await page.goto('/tools/mortgage/'); const years=page.locator(input('termMonths'));
- await years.fill('30.5'); await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await years.fill('30.5'); await page.locator('.btn-calc').click();
  await expect(years).toHaveAttribute('aria-invalid','true');
  await page.locator('[data-field="scenarios.0.termMonths"]').getByRole('button',{name:'個月',exact:true}).click();
  await expect(years).toHaveValue('30.5'); await expect(page.locator('.status')).toContainText('先修正');
@@ -209,7 +209,7 @@ test('U03 年空白但額外月份有值時不會漏算寬限期',async({page})=
  await page.goto('/tools/mortgage/'); await page.locator('#advanced-settings-box summary').click();
  const field=page.locator('[data-field="scenarios.0.graceMonths"]'); await field.getByRole('button',{name:'年',exact:true}).click();
  await page.locator(input('graceMonths')).fill(''); await page.locator('#f-scenarios-0-graceMonths-extra').fill('5');
- await page.getByRole('button',{name:'查看試算結果 ↓'}).click();
+ await page.locator('.btn-calc').click();
  await expect(page.locator('.tool-compare')).toContainText('5 個月');
  await expect(page.locator('.tool-results [role="alert"]')).toHaveCount(0);
 });
@@ -220,4 +220,26 @@ test('U01 同額舊JSON的兩個方案不因千分位顯示產生假差異',asyn
  const data={schemaVersion:1,toolId:'mortgage',inputs:{scenarios:[scenario,{...scenario,name:'相同條件'}]}};
  await page.locator('#import-file').setInputFiles({name:'same.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
  await expect(page.locator('.tool-compare .notice-warn')).toHaveCount(0);
+});
+
+test('比較表「顯示相同項目」鍵盤切換後焦點保留在核取方塊', async ({ page }) => {
+  await page.goto('/tools/mortgage/');
+  await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
+
+  await page.getByRole('button', { name: /複製目前方案/ }).click();
+  const checkbox = page.locator('#compare-show-same');
+  await expect(checkbox).toBeVisible();
+
+  await checkbox.focus();
+  await expect(checkbox).toBeFocused();
+
+  await checkbox.press('Space');
+  await expect(checkbox).toBeChecked();
+  await expect(checkbox).toBeFocused();
+  await expect(page.locator('.tool-compare tr.compare-row-same').first()).toBeVisible();
+
+  await checkbox.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toBeFocused();
+  await expect(page.locator('.tool-compare tr.compare-row-same').first()).toBeHidden();
 });
