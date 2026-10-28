@@ -702,11 +702,13 @@ a:hover {
 
 /* 進階設定 details */
 .advanced-box {
+  /* Flat section, not a nested card: divider + spacing only */
   margin: 18px 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fafcfb;
-  padding: 6px 14px 14px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 10px 0 4px;
 }
 
 .advanced-summary-btn {
@@ -832,9 +834,9 @@ fieldset.list-item > legend {
 }
 
 .card-featured {
-  border-left: 6px solid var(--accent);
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgba(17, 122, 114, 0.08);
+  /* No thick accent border (side-tab / border-accent-on-rounded). Keep brand via teal wash + shadow; .card-value stays accent-strong */
+  background: linear-gradient(180deg, rgba(17, 122, 114, 0.07) 0%, #ffffff 48%);
+  box-shadow: 0 2px 10px rgba(17, 122, 114, 0.12);
 }
 
 .card-featured .card-value {
@@ -861,17 +863,14 @@ fieldset.list-item > legend {
 }
 
 .card.tone-bad {
-  border-left-color: var(--bad);
   background: var(--bad-bg);
 }
 
 .card.tone-good {
-  border-left-color: var(--good);
   background: var(--good-bg);
 }
 
 .card.tone-warn {
-  border-left-color: var(--warn);
   background: var(--warn-bg);
 }
 
@@ -1293,10 +1292,11 @@ tbody th {
 }
 
 .step-card {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 14px;
-  background: #fafcfb;
+  /* Flat step block inside panel — no nested card chrome */
+  border: 0;
+  border-radius: 0;
+  padding: 4px 2px 8px;
+  background: transparent;
 }
 
 .step-num {
