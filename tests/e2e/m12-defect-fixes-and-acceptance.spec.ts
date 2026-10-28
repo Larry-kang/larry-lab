@@ -243,6 +243,9 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
     const compTable = page.locator('.tool-compare table');
     await expect(compTable).toBeVisible();
 
+    // 剛複製時輸入列皆相同，展開「顯示相同項目」後核對揭露完整性
+    await page.locator('.compare-same-toggle').click();
+
     // 驗證比較表中已完整揭露終止年齡、通膨率、年金收入等輸入條件
     await expect(compTable.locator('tr', { hasText: '目前年齡' })).toBeVisible();
     await expect(compTable.locator('tr', { hasText: '目標退休年齡' })).toBeVisible();
@@ -641,12 +644,12 @@ test.describe('M12 缺陷修正與補齊驗收缺口專用測試套件', () => {
   });
 
   test('CALC-BUTTON-SCROLL-VERIFY: 查看結果按鈕之捲動與焦點行為另設獨立驗證', async ({ page }) => {
-    // 在手機尺寸（360x800，堆疊版型）下，點擊「查看試算結果 ↓」
+    // 在手機尺寸（360x800，堆疊版型）下，點擊試算按鈕（.btn-calc）
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/tools/mortgage/');
     await expect(page.locator('#tool-root')).toHaveAttribute('data-ready', 'true');
 
-    // 點擊「查看試算結果 ↓」以捲動至結果區塊
+    // 點擊試算按鈕（.btn-calc）以捲動至結果區塊
     const calcBtn = page.locator('.btn-calc');
     await expect(calcBtn).toBeVisible();
     await calcBtn.click();

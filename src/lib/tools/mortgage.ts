@@ -407,10 +407,10 @@ export const mortgageTool: ToolDef = {
         }),
       );
       ev.cards.push(
-        card('首期月付金', formatTwd(0), { compare: true, compareKey: 'firstPayment', compareLabel: '首期月付金', note: '無貸款' }),
-        card('最高月付金', formatTwd(0), { compare: true, compareKey: 'maxPayment', compareLabel: '最高月付金' }),
-        card('月付金範圍', '固定 NT$0', { compare: true, compareKey: 'paymentRange', compareLabel: '月付金範圍' }),
-        card('寬限期結束後首期月付金', '不適用', { compare: true, compareKey: 'postGracePayment', compareLabel: '寬限期後首期月付金' }),
+        card('首期月付金', formatTwd(0), { compare: true, compareKey: 'firstPayment', compareLabel: '首期月付金', note: '無貸款', resultsHide: true }),
+        card('最高月付金', formatTwd(0), { compare: true, compareKey: 'maxPayment', compareLabel: '最高月付金', resultsHide: true }),
+        card('月付金範圍', '固定 NT$0', { compare: true, compareKey: 'paymentRange', compareLabel: '月付金範圍', resultsHide: true }),
+        card('寬限期結束後首期月付金', '不適用', { compare: true, compareKey: 'postGracePayment', compareLabel: '寬限期後首期月付金', resultsHide: true }),
         card('貸款本金', formatTwd(0), { compare: true, compareKey: 'principal', compareLabel: '貸款本金' }),
       );
       if (s.fee > 0) ev.cards.push(card('一次性費用', formatTwd(s.fee)));
@@ -480,13 +480,22 @@ export const mortgageTool: ToolDef = {
     );
 
     // --- 次要與比較表結果卡片 (每個 compareKey 只對應一項明確指標) ---
-    if (d.price !== null && d.downPayment !== null) {
-      ev.cards.push(
-        card('房價總額', formatTwd(d.price)),
-        card('頭期款', formatTwd(d.downPayment), { note: '頭期款不計入貸款利息' }),
-      );
-    }
-    ev.cards.push(card('貸款本金', formatTwd(d.principal), { compare: true, compareKey: 'principal', compareLabel: '貸款本金' }));
+    // 房價／頭期併入貸款本金註記，避免結果網格三張卡並列
+    const principalNote =
+      d.price !== null && d.downPayment !== null
+        ? `房價 ${formatTwd(d.price)}，頭期 ${formatTwd(d.downPayment)}（頭期不計入貸款利息）`
+        : undefined;
+    ev.cards.push(
+      card('貸款本金', formatTwd(d.principal), {
+        compare: true,
+        compareKey: 'principal',
+        compareLabel: '貸款本金',
+        note: principalNote,
+      }),
+    );
+
+    // 月付固定時，首期／最高／範圍僅重述核心卡，保留於比較表、結果網格隱藏
+    const hidePaymentRestatement = s.paymentIsConstant;
 
     // 1. 首期月付金 (始終為嚴格第 1 期)
     ev.cards.push(
@@ -495,6 +504,7 @@ export const mortgageTool: ToolDef = {
         compareKey: 'firstPayment',
         compareLabel: '首期月付金',
         note: g > 0 ? '寬限期內只付利息' : !s.paymentIsConstant ? '本金平均攤還首期金額最高' : undefined,
+        resultsHide: hidePaymentRestatement,
       }),
     );
 
@@ -504,6 +514,7 @@ export const mortgageTool: ToolDef = {
         compare: true,
         compareKey: 'maxPayment',
         compareLabel: '最高月付金',
+        resultsHide: hidePaymentRestatement,
       }),
     );
 
@@ -517,10 +528,11 @@ export const mortgageTool: ToolDef = {
         compareKey: 'paymentRange',
         compareLabel: '月付金範圍',
         note: s.paymentIsConstant ? '攤還期間月付金固定' : '因分段利率或本金均攤而變動',
+        resultsHide: hidePaymentRestatement,
       }),
     );
 
-    // 4. 寬限期後首期月付金
+    // 4. 寬限期後首期月付金（無寬限期時僅供比較表，避免與核心月付重述）
     const postGraceStr = g > 0 ? formatTwd(s.postGraceFirstPayment) : '無寬限期';
     ev.cards.push(
       card('寬限期結束後首期月付金', postGraceStr, {
@@ -528,6 +540,7 @@ export const mortgageTool: ToolDef = {
         compareKey: 'postGracePayment',
         compareLabel: '寬限期後首期月付金',
         note: g > 0 ? `相較寬限期末月付增加 ${formatTwd(s.postGraceFirstPayment - result.schedule.rows[g - 1].payment)}` : undefined,
+        resultsHide: g === 0,
       }),
     );
 

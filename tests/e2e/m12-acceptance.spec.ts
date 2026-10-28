@@ -215,6 +215,9 @@ test.describe('M12 房貸工具結果正確性與易用性全面端對端驗收'
     const compTable = page.locator('.tool-compare table');
     await expect(compTable).toBeVisible();
 
+    // 剛複製時各列皆相同，預設差異優先會收合相同列；展開後再核對欄位存在
+    await page.locator('.compare-same-toggle').click();
+
     // 檢查比較表格包含輸入條件（衍生貸款本金）與試算結果項目（首期月付金、總利息支出）
     await expect(compTable.locator('tr', { hasText: '衍生貸款本金' })).toBeVisible();
     const firstPayRow = compTable.locator('tr', { has: page.locator('th', { hasText: /^首期月付金$/ }) });

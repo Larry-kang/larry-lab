@@ -501,8 +501,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       formChildren.push(advDetails);
     }
 
-    // 查看結果按鈕（全頁唯一主色按鈕）
-    const calcBtn = h('button', { type: 'button', class: 'btn primary btn-calc' }, '查看試算結果 ↓');
+    // 主 CTA：尚無有效結果時引導查看；結果已呈現時改為重新試算語意
+    const calcBtn = h('button', { type: 'button', class: 'btn primary btn-calc' }, calcButtonLabel());
     calcBtn.addEventListener('click', calculate);
     formChildren.push(h('div', { class: 'calc-action-row' }, calcBtn));
 
@@ -619,10 +619,25 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     }
   }
 
+  function hasRenderableResults(): boolean {
+    const ev = evals[active];
+    return Boolean(ev && Object.keys(ev.errors).length === 0 && ev.cards.length > 0);
+  }
+
+  function calcButtonLabel(): string {
+    return hasRenderableResults() ? '重新試算' : '查看試算結果 ↓';
+  }
+
+  function updateCalcButton(): void {
+    const btn = formEl.querySelector<HTMLButtonElement>('.btn-calc');
+    if (btn) btn.textContent = calcButtonLabel();
+  }
+
   // ---- results rendering ----
   function renderCards(cards: Card[]): HTMLElement {
-    const coreCards = cards.filter((c) => c.isCore);
-    const secondaryCards = cards.filter((c) => !c.isCore);
+    const visible = cards.filter((c) => !c.resultsHide);
+    const coreCards = visible.filter((c) => c.isCore);
+    const secondaryCards = visible.filter((c) => !c.isCore);
 
     const root = h('div', { class: 'cards-container' });
 
@@ -795,6 +810,8 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       }
     }
 
+    const prevShowSame = compareEl.querySelector<HTMLInputElement>('#compare-show-same')?.checked ?? false;
+
     const table = h('table');
     table.append(h('caption', {}, `${def.scenarioNoun}比較（各${def.scenarioNoun}輸入完全獨立）`));
     const head = h('tr', {}, h('th', { scope: 'col' }, '項目'));
@@ -812,6 +829,12 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     table.append(h('thead', {}, head));
     const body = h('tbody');
 
+    interface CompareRow {
+      tr: HTMLTableRowElement;
+      isDiff: boolean;
+    }
+    const builtRows: CompareRow[] = [];
+
     // 1. 輸入條件與假設區塊 (Inputs & Assumptions)
     if (def.compareInputs) {
       const baseInputs = def.compareInputs(scenarios()[0], evals[0], root);
@@ -822,10 +845,10 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
           return list[rowIdx]?.value ?? '—';
         });
         const isDiff = vals.some((v) => v !== vals[0]);
-        const tr = h('tr', { class: isDiff ? 'compare-row-diff' : '' });
+        const tr = h('tr', { class: isDiff ? 'compare-row-diff' : 'compare-row-same' });
         tr.append(h('th', { scope: 'row' }, itemLabel, isDiff ? h('span', { class: 'diff-tag' }, '（不同）') : null));
         vals.forEach((v) => tr.append(h('td', { class: 'num' }, v)));
-        body.append(tr);
+        builtRows.push({ tr, isDiff });
       }
     }
 
@@ -847,21 +870,34 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
     });
 
     for (const item of metricItems) {
-      const tr = h('tr');
-      tr.append(h('th', { scope: 'row' }, item.label));
-      evals.forEach((ev) => {
+      const vals = evals.map((ev) => {
         const invalid = Object.keys(ev.errors).length > 0;
-        const card = invalid ? undefined : ev.cards.find((c) => (c.compareKey || c.label) === item.key);
-        tr.append(h('td', { class: 'num' }, invalid ? '輸入無效' : (card?.value ?? '—')));
+        if (invalid) return '輸入無效';
+        const card = ev.cards.find((c) => (c.compareKey || c.label) === item.key);
+        return card?.value ?? '—';
       });
-      body.append(tr);
+      const isDiff = vals.some((v) => v !== vals[0]);
+      const tr = h('tr', { class: isDiff ? 'compare-row-diff' : 'compare-row-same' });
+      tr.append(h('th', { scope: 'row' }, item.label, isDiff ? h('span', { class: 'diff-tag' }, '（不同）') : null));
+      vals.forEach((v) => tr.append(h('td', { class: 'num' }, v)));
+      builtRows.push({ tr, isDiff });
     }
 
-    if (metricItems.length === 0 && (!def.compareInputs || def.compareInputs(scenarios()[0], evals[0], root).length === 0)) {
+    if (builtRows.length === 0) {
       body.append(h('tr', {}, h('td', { colspan: String(scenarios().length + 1) }, `尚無可比較的有效${def.scenarioNoun}，請先修正輸入。`)));
+    } else {
+      // 差異列優先；相同列預設隱藏，可透過開關展開
+      const diffRows = builtRows.filter((r) => r.isDiff);
+      const sameRows = builtRows.filter((r) => !r.isDiff);
+      for (const row of diffRows) body.append(row.tr);
+      for (const row of sameRows) {
+        if (!prevShowSame) row.tr.hidden = true;
+        body.append(row.tr);
+      }
     }
     table.append(body);
 
+    const sameCount = builtRows.filter((r) => !r.isDiff).length;
     const compareHeader = h('div', { class: 'compare-header' }, h('h2', {}, `${def.scenarioNoun}比較`));
     if (baseDifferences.length > 0) {
       compareHeader.append(
@@ -873,10 +909,25 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       );
     }
 
-    compareEl.replaceChildren(
-      compareHeader,
-      h('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': `${def.scenarioNoun}比較表` }, table),
-    );
+    const children: Node[] = [compareHeader];
+    if (sameCount > 0) {
+      const showSameBox = h('input', {
+        type: 'checkbox',
+        id: 'compare-show-same',
+      }) as HTMLInputElement;
+      showSameBox.checked = prevShowSame;
+      showSameBox.addEventListener('change', () => renderCompare());
+      children.push(
+        h(
+          'label',
+          { class: 'compare-same-toggle' },
+          showSameBox,
+          ` 顯示相同項目（${sameCount}）`,
+        ),
+      );
+    }
+    children.push(h('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': `${def.scenarioNoun}比較表` }, table));
+    compareEl.replaceChildren(...children);
   }
 
   // ---- storage & management (收進 details) ----
@@ -1024,6 +1075,7 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
       }
     }
     renderResults();
+    updateCalcButton();
     renderCompare();
     renderTabs();
     if (focusOnScenario) tabsEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();

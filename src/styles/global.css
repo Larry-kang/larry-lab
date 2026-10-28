@@ -1455,6 +1455,22 @@ tbody th {
   background: rgba(234, 179, 8, 0.06);
 }
 
+.compare-row-same {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+.compare-same-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  min-height: 44px;
+}
+
 .diff-tag {
   display: inline-block;
   font-size: 0.75rem;
