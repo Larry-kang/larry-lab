@@ -63,3 +63,23 @@ npm run build
 # 執行 Playwright 端對端瀏覽器測試
 npm run test:e2e
 ```
+
+---
+
+## Impeccable（設計偵測／技能實驗）
+
+本專案以 project scope 安裝 [Impeccable](https://impeccable.style)（Cursor + Codex providers），供 AI 編輯器使用 `/impeccable` 指令與 UI anti-pattern 偵測。
+
+```bash
+# 非互動安裝（已完成於實驗 PR；新機可重跑）
+npx impeccable install -y --providers=cursor,codex --scope=project
+
+# 關閉匿名 telemetry（專案設定見 .impeccable/config.json）
+npx impeccable telemetry off
+
+# 掃描原始碼或線上頁面
+npx impeccable detect src/
+npx impeccable detect https://larry-lab.pages.dev/tools/mortgage/
+```
+
+`.gitignore` 已加入 `# impeccable-ignore-start` … `# impeccable-ignore-end` 區塊，略過 ephemeral 路徑與平台 engine binary；共享的 `.impeccable/config.json` 會納入版控。
