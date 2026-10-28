@@ -214,34 +214,95 @@ function evaluateAllocation(values: Values): Evaluation {
     ev.notices.push({ tone: 'bad', text: '漲跌後淨值為負數，代表資產不足以償還負債，仍有負債尚未清償。' });
   }
 
-  // 配置模式前三項核心結果 (Core Cards)
+  // --- 前三項核心重點結果卡片 ---
+  const debt = result.debt!;
+  const equityNote =
+    debt > 0 ? `總資產 − 負債 ${formatTwd(debt)}` : '無負債，淨值等於總資產';
+  const stressNoteParts = [`衝擊後總資產 ${formatTwd(result.stressGross!)}`];
+  if (result.equityReturn !== null) {
+    stressNoteParts.push(`淨值報酬率 ${formatPercent(result.equityReturn, 2)}（變動 ${formatTwd(result.equityChange!)}）`);
+  } else {
+    stressNoteParts.push(`淨值變動 ${formatTwd(result.equityChange!)}`);
+  }
   ev.cards.push(
-    card('總資產', formatTwd(result.gross!), { isCore: true, compare: true, note: '全部持有資產市值總和' }),
+    card('總資產', formatTwd(result.gross!), {
+      isCore: true,
+      compare: true,
+      compareKey: 'gross',
+      compareLabel: '總資產',
+      note: '全部持有資產市值總和',
+    }),
     card('淨值（實質資產）', formatTwd(result.equity!), {
       isCore: true,
       compare: true,
+      compareKey: 'equity',
+      compareLabel: '淨值（實質資產）',
       tone: result.equity! <= 0 ? 'bad' : 'neutral',
-      note: '總資產 − 負債借款',
+      note: equityNote,
     }),
     card('漲跌後淨值', formatTwd(result.stressEquity!), {
       isCore: true,
       compare: true,
+      compareKey: 'stressEquity',
+      compareLabel: '漲跌後淨值',
       tone: result.stressEquityNegative ? 'bad' : 'neutral',
-      note: '衝擊後剩餘淨值資產',
+      note: stressNoteParts.join('；'),
     }),
   );
 
-  // 次要結果卡片
+  // --- 次要與比較表結果卡片 ---
+  // 總負債／漲跌後總資產／淨值變動／月利息併入核心註記；比較表仍保留關鍵槓桿指標
+  // 無負債時總負債與負債比／槓桿重述淨值關係，結果格隱藏
+  const hideDebtRestatement = debt === 0;
   ev.cards.push(
-    card('總負債', formatTwd(result.debt!), { compare: true }),
-    card('負債比', result.debtRatio === null ? '不適用（N/A）' : formatPercent(result.debtRatio, 2), { compare: true, note: '負債 ÷ 總資產' }),
-    card('槓桿倍數', result.leverage === null ? '不適用（N/A）' : formatMultiple(result.leverage), { compare: true, note: '總資產 ÷ 淨值' }),
-    card('預估年利息', formatTwd(result.annualInterest!)),
-    card('預估月利息', formatTwd(result.monthlyInterest!)),
-    card('漲跌後總資產', formatTwd(result.stressGross!)),
-    card('淨值變動金額', formatTwd(result.equityChange!), { compare: true }),
-    card('淨值報酬率', result.equityReturn === null ? '不適用（N/A）' : formatPercent(result.equityReturn, 2), { compare: true, note: '淨值變動 ÷ 期初淨值，可低於 -100%' }),
+    card('總負債', formatTwd(debt), {
+      compare: true,
+      compareKey: 'debt',
+      compareLabel: '總負債',
+      resultsHide: hideDebtRestatement,
+    }),
+    card('負債比', result.debtRatio === null ? '不適用（N/A）' : formatPercent(result.debtRatio, 2), {
+      compare: true,
+      compareKey: 'debtRatio',
+      compareLabel: '負債比',
+      note: '負債 ÷ 總資產',
+      resultsHide: hideDebtRestatement,
+    }),
+    card('槓桿倍數', result.leverage === null ? '不適用（N/A）' : formatMultiple(result.leverage), {
+      compare: true,
+      compareKey: 'leverage',
+      compareLabel: '槓桿倍數',
+      note: '總資產 ÷ 淨值',
+      resultsHide: hideDebtRestatement,
+    }),
+    card('淨值報酬率', result.equityReturn === null ? '不適用（N/A）' : formatPercent(result.equityReturn, 2), {
+      compare: true,
+      compareKey: 'equityReturn',
+      compareLabel: '淨值報酬率',
+      note: '淨值變動 ÷ 期初淨值，可低於 -100%',
+      // 核心「漲跌後淨值」註記已含報酬率／變動；結果格隱藏避免重述
+      resultsHide: true,
+    }),
+    card('淨值變動金額', formatTwd(result.equityChange!), {
+      compare: true,
+      compareKey: 'equityChange',
+      compareLabel: '淨值變動金額',
+      resultsHide: true,
+    }),
+    card('漲跌後總資產', formatTwd(result.stressGross!), {
+      compare: true,
+      compareKey: 'stressGross',
+      compareLabel: '漲跌後總資產',
+      resultsHide: true,
+    }),
   );
+  if (result.annualInterest! > 0) {
+    ev.cards.push(
+      card('預估年利息', formatTwd(result.annualInterest!), {
+        note: `約月息 ${formatTwd(result.monthlyInterest!)}（僅列示，不預設期間扣除）`,
+      }),
+    );
+  }
 
   ev.tables.push({
     caption: '資產配置與漲跌衝擊明細',
@@ -298,21 +359,27 @@ function evaluateAccumulation(values: Values): Evaluation {
 
   const ev = newEvaluation();
 
-  // 累積模式前三項核心結果 (Core Cards)
+  // --- 前三項核心重點結果卡片（累積模式已精簡，對齊 compareKey） ---
   ev.cards.push(
     card('預估期末資產總值', formatTwd(result.finalValue!), {
       isCore: true,
       compare: true,
+      compareKey: 'finalValue',
+      compareLabel: '預估期末資產總值',
       note: `經 ${r.number('years')} 年複利成長與年度再平衡`,
     }),
     card('累計總投入本金', formatTwd(result.totalContributed!), {
       isCore: true,
       compare: true,
+      compareKey: 'totalContributed',
+      compareLabel: '累計總投入本金',
       note: '期初投入 + 全期每月儲蓄投入加總',
     }),
     card('累積預估投資收益', formatTwd(result.gain!), {
       isCore: true,
       compare: true,
+      compareKey: 'gain',
+      compareLabel: '累積預估投資收益',
       tone: result.gain! >= 0 ? 'good' : 'bad',
       note: '期末總資產 − 累計總投入本金',
     }),
