@@ -40,6 +40,11 @@ introFor:
 
 依官方介紹，ether.fi 是「一個帳戶管理你的錢」：資產放在**非託管的智能合約帳戶**，可以從這個帳戶消費、交易、借款、賺取收益、轉帳與質押（Crypto Neobank Overview）。
 
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image.webp" alt="ether.fi 首頁儀表板，顯示淨資產、可用消費額度、借款能力與市場清單" width="1200" height="716" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>首頁儀表板集中顯示淨資產、入金與轉帳入口、可用消費額度、借款能力及市場清單。</figcaption>
+</figure>
+
 ## 官方規則：產品有哪些
 
 | 產品 | 官方說明重點 |
@@ -53,6 +58,11 @@ introFor:
 | Business | 團隊卡、角色、消費控管與資金工具 |
 
 官方也說明：app 顯示的才是你帳戶可用的產品，**可用性依地區與帳戶類型而定**。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image6.webp" alt="產品總覽頁，依序顯示賺取收益、借款與質押資產區塊" width="1200" height="1665" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>產品總覽將賺取收益、借款與質押分區呈現，並列出資產卡片及畫面當下的利率或收益率。</figcaption>
+</figure>
 
 ### ether.fi 由哪些部分組成
 
@@ -79,6 +89,11 @@ introFor:
 - 借款為超額抵押，抵押品價值必須足以支撐債務。
 - 目前的 Product LTV、健康因子、利率與可借金額，以 **app 顯示為準**。
 - 細節（健康因子、清算）在第 3 篇有逐步說明。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image7.webp" alt="Borrow 借款頁，顯示已借款、剩餘額度、還款按鈕、借款選項與風險入口" width="869" height="1647" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>Borrow 頁列出已借款、剩餘額度與還款入口，下方包含使用中及可用的借款選項、風險與清算詳情及抵押品入口。</figcaption>
+</figure>
 
 ## 費用與限制
 
@@ -114,7 +129,7 @@ introFor:
 - 無法承受清算風險卻想借款的人。
 
 > **待補**：作者 Earn／Stake／Borrow 的實際使用心得。
-<!-- TODO(作者後補): 作者 Earn/Stake/Borrow 使用心得與截圖（不可捏造數字） -->
+<!-- TODO(作者後補): 作者 Earn/Stake/Borrow 使用心得（不可捏造數字） -->
 
 ## 下一步
 

@@ -260,3 +260,24 @@ Running 94 tests using 1 worker
    - 限制宣告：
      - 因目前 gh token 權限無法讀取使用者的 GitHub App 安裝列表（HTTP 403），且無法排除擁有者是否在其他 Cloudflare 帳號或組織層級安裝了 Cloudflare Pages GitHub App 並啟用預覽建置。
      - 正式撤回先前「絕不觸發部署」之宣稱。在未向擁有者確認 Cloudflare 外部串接狀態前，維持 UNKNOWN，且不向遠端執行非必要之推送。
+
+
+## 2026-10-29 ether.fi 文章插圖
+
+驗證版本：基於 `6b13eec` 的未提交工作樹。計畫、位置與驗收追蹤見 [ARTICLE_SCREENSHOTS.md](ARTICLE_SCREENSHOTS.md)。
+
+- 僅轉換指定 clean 圖片 image、image2–image10，輸出 10 張 WebP，最大寬度 1200 px、品質 80，總計 286,964 bytes；未使用 raw、preview、contact-sheet 或額外官方素材。
+- 每張圖片提供台灣繁體中文 alt、figcaption、固有寬高、延遲載入與等比例縮放。image5 標示「圖片來源：ether.fi」。保留心得及未提供的交易所、KYC 素材待補。
+- 環境：Node 22.23.4。預設 Node 20 無法執行 Astro；原套件目錄為唯讀連結，故以暫存套件副本執行，不變更依賴或鎖定檔。
+
+| 指令／查核 | 結果 |
+| --- | --- |
+| `npm run check` | 通過（PASS）：83 個檔案，0 errors、0 warnings、1 個既有 hint |
+| `npm run lint` | 通過（PASS） |
+| `npm test` | 通過（PASS）：15 個測試檔、156 項測試 |
+| `npm run build` | 通過（PASS）：16 個頁面與 SEO 靜態產物檢查 |
+| 建置後 HTML 與影像檔案查核 | 通過（PASS）：三篇依序 3／3／4 張圖，10 張圖皆有 alt、尺寸與圖說，資產存在且寬度不超過 1200；官方行銷圖來源完整 |
+| `git diff --check`、變更範圍查核 | 通過（PASS）：保留三篇 draft 及 noindex，未修改 sitemap／llms 或路由邏輯 |
+| `npm run test:e2e -- tests/e2e/articles.spec.ts` | 未執行（NOT RUN）：啟動伺服器時 `listen EPERM 0.0.0.0:4321`，未進入測試；桌機／手機版面及實際圖片載入尚待瀏覽器確認 |
+
+本輪未推送、未建立 PR、未部署。提交未完成：`git add` 與 `git commit` 因 worktree 的 Git 中繼資料目錄為唯讀，無法建立 `index.lock`（Read-only file system）；變更保留於工作樹供審查，尚無新 commit SHA。
