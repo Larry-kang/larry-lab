@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { articleStructuredData, buildIntroMap, prevNext, resolveRecommendations, sortSeries, validateArticleDates } from '../../src/lib/articles';
 import { buildLlms } from '../../src/lib/seo';
 
-const base = { series: 'etherfi', author: 'Larry', publishedAt: '2026-10-29', updatedAt: '2026-10-29', checkedAt: '2026-10-29', description: 'd' };
+const base = { series: 'etherfi', author: 'Larry', publishedAt: '2026-10-29', updatedAt: '2026-10-29', checkedAt: '2026-10-29', description: 'd', status: 'published' as const };
 const list = [
   { ...base, slug: 'c', title: 'C', seriesOrder: 3, introFor: ['ether-fi'] },
   { ...base, slug: 'a', title: 'A', seriesOrder: 1 },

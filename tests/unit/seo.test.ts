@@ -22,7 +22,7 @@ describe('SEO 內容來源與靜態資料', () => {
     }
   });
   it('sitemap 有審核日期但沒有無效搜尋提示', () => {
-    const articles = [{ slug: 'a', title: 'A', description: 'd', updatedAt: '2026-10-29' }, { slug: 'b', title: 'B', description: 'd', updatedAt: '2026-10-28' }];
+    const articles = [{ slug: 'a', title: 'A', description: 'd', updatedAt: '2026-10-29', status: 'published' as const }, { slug: 'b', title: 'B', description: 'd', updatedAt: '2026-10-28', status: 'published' as const }];
     const xml = buildSitemap('https://example.org', articles);
     // 工具 + 6 個固定頁 + 文章數 + 1 個系列索引頁
     expect(xml.match(/<loc>/g)).toHaveLength(tools.length + 6 + articles.length + 1);
@@ -30,6 +30,21 @@ describe('SEO 內容來源與靜態資料', () => {
     expect(xml).toContain('<loc>https://example.org/articles/etherfi/</loc><lastmod>2026-10-29</lastmod>');
     expect(buildSitemap('https://example.org').match(/<loc>/g)).toHaveLength(tools.length + 6);
     expect(xml).not.toMatch(/404|priority|changefreq/);
+  });
+  it('草稿文章排除於 sitemap 與 llms；全為草稿時系列索引也排除', () => {
+    const pub = { slug: 'pub', title: 'P', description: 'd', updatedAt: '2026-10-20', status: 'published' as const };
+    const draft = { slug: 'drf', title: 'D', description: 'd', updatedAt: '2026-10-29', status: 'draft' as const };
+    const xml = buildSitemap('https://example.org', [pub, draft]);
+    expect(xml.match(/<loc>/g)).toHaveLength(tools.length + 6 + 1 + 1);
+    expect(xml).not.toContain('/articles/drf/');
+    expect(xml).toContain('<loc>https://example.org/articles/etherfi/</loc><lastmod>2026-10-20</lastmod>');
+    const llms = buildLlms('https://example.org', [pub, draft]);
+    expect(llms).toContain('/articles/pub/');
+    expect(llms).not.toContain('/articles/drf/');
+    const onlyDraft = buildSitemap('https://example.org', [draft]);
+    expect(onlyDraft.match(/<loc>/g)).toHaveLength(tools.length + 6);
+    expect(onlyDraft).not.toContain('/articles/');
+    expect(buildLlms('https://example.org', [draft])).not.toContain('/articles/');
   });
   it('JSON-LD 不捏造評分且阻擋結束 script 的文字', () => {
     const data = toolStructuredData('mortgage', 'https://example.org');

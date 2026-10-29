@@ -14,8 +14,10 @@ interface Props {
   /** Show a "tool category" label above the page content. */
   toolCategory?: string;
   structuredData?: unknown;
+  /** 輸出 noindex, follow（草稿文章、僅含草稿的系列索引）。 */
+  noindex?: boolean;
 }
-const { title, description, nav, toolCategory, structuredData } = Astro.props;
+const { title, description, nav, toolCategory, structuredData, noindex = false } = Astro.props;
 const recommendationCount = publicRecommendations(validateRecommendations(recommendationsFile)).length;
 const fullTitle = title === site.name ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
 const isNotFound = /^\/404(?:\.html|\/)?$/.test(Astro.url.pathname);
@@ -37,6 +39,7 @@ const schema = structuredData ?? (Astro.url.pathname === '/' ? { '@context': 'ht
     <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon-180.png" />
     {isNotFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonicalUrl} />}
+    {!isNotFound && noindex && <meta name="robots" content="noindex, follow" />}
     {!isNotFound && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />

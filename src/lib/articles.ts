@@ -10,6 +10,7 @@ export interface ArticleMeta {
   updatedAt: string;
   checkedAt: string;
   introFor?: string[];
+  status: 'draft' | 'published';
 }
 
 export const seriesInfo = {
@@ -78,3 +79,7 @@ export function articleStructuredData(article: ArticleMeta, origin: string, site
     ],
   };
 }
+
+/** 草稿（status: draft）不進索引：頁面加 noindex，並排除於 sitemap 與 llms.txt。 */
+export const isIndexable = (a: Pick<ArticleMeta, 'status'>) => a.status === 'published';
+export const indexableArticles = <T extends Pick<ArticleMeta, 'status'>>(list: T[]) => list.filter(isIndexable);

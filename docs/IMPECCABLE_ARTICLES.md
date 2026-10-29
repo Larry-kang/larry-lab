@@ -32,3 +32,9 @@
 - 徽章改 `--warn-bg`/`--warn`，表格框線改 `--line`。
 - `.article h1–h3`、系列卡標題 `text-wrap: balance`；段落／列表 `text-wrap: pretty`。
 - `≤480px` 時 meta 改單欄（dt 在上、dd 在下）。
+
+## 草稿 noindex（無 UI 變更）
+
+- 僅在 `<head>` 為 `status: draft` 文章輸出 `<meta name="robots" content="noindex, follow">`，並自 sitemap／llms.txt 排除（依 frontmatter 狀態判斷，非 slug 清單）。
+- 系列索引 `/articles/etherfi/`：系列內無任何已發布文章時同樣 noindex 並排除；有一篇發布即自動恢復。頁面仍可連入（推薦頁「閱讀介紹」保留）。
+- 無可見 UI／CSS 變動，故未重跑 Impeccable detect。
