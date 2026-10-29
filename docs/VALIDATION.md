@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-29 文章區 MVP + ether.fi 新手系列（分支 `feat/articles-etherfi-mvp`，驗證 commit 為本筆紀錄所在提交）：content collection `articles`、文章頁／系列頁（目錄、適合對象、前置知識、上下篇）、推薦區塊由 `recommendations.json` 讀取、推薦總覽 ether.fi 卡片「閱讀介紹」、sitemap／llms／JSON-LD 由內容產生；三篇文章為草稿（status draft），作者經驗與截圖為 `TODO(作者後補)`。`npm run check`（0 錯誤）、`npm run lint`（0 錯誤）、`npm test`（15 檔 155 項通過）、`npm run build`（16 頁，SEO 產物 15 條 sitemap PASS）、`SEO_BASE_SHA=645efc0 node scripts/check-seo-changes.mjs`（PASS）、`npx playwright test`（150 項通過）。未 push、未開 PR、未部署（NOT RUN）。
+
 > 2026-10-23 Firstrade 推薦整合：推薦總覽、側欄與手機面板同步 18 項；型別／lint、149 單元、建置／SEO、140 E2E 通過。來源、人工版面核對、審查與發布追蹤見 [FIRSTRADE_REFERRAL.md](FIRSTRADE_REFERRAL.md)。
 
 > 2026-10-22 部署診斷更正：Cloudflare 後續收到四筆 `github:push`，先前不是完全未觸發，而是事件延遲及一筆初始化環境逾時。證據、復原計畫及自動部署驗收見 [DEPLOYMENT_TRIGGER_DIAGNOSIS.md](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)。本輪只修正發布紀錄及驗證程序，不修改網站程式、計算、權限或付費設定。

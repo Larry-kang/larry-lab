@@ -22,9 +22,13 @@ describe('SEO 內容來源與靜態資料', () => {
     }
   });
   it('sitemap 有審核日期但沒有無效搜尋提示', () => {
-    const xml = buildSitemap('https://example.org');
-    expect(xml.match(/<loc>/g)).toHaveLength(tools.length + 6);
-    expect(xml.match(/<lastmod>/g)).toHaveLength(tools.length + 6);
+    const articles = [{ slug: 'a', title: 'A', description: 'd', updatedAt: '2026-10-29' }, { slug: 'b', title: 'B', description: 'd', updatedAt: '2026-10-28' }];
+    const xml = buildSitemap('https://example.org', articles);
+    // 工具 + 6 個固定頁 + 文章數 + 1 個系列索引頁
+    expect(xml.match(/<loc>/g)).toHaveLength(tools.length + 6 + articles.length + 1);
+    expect(xml.match(/<lastmod>/g)).toHaveLength(tools.length + 6 + articles.length + 1);
+    expect(xml).toContain('<loc>https://example.org/articles/etherfi/</loc><lastmod>2026-10-29</lastmod>');
+    expect(buildSitemap('https://example.org').match(/<loc>/g)).toHaveLength(tools.length + 6);
     expect(xml).not.toMatch(/404|priority|changefreq/);
   });
   it('JSON-LD 不捏造評分且阻擋結束 script 的文字', () => {

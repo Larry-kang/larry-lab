@@ -1,0 +1,83 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config/site';
+import recommendationsFile from '../../../content/recommendations.json';
+import { hasUsableReferralLink, publicRecommendations, validateRecommendations } from '../../../lib/recommendations';
+import { articlePath, articleStructuredData, prevNext, resolveRecommendations, seriesInfo } from '../../../lib/articles';
+import { loadArticles, toMeta, type ArticleEntry } from '../../../lib/article-collection';
+
+export async function getStaticPaths() {
+  const entries = await loadArticles();
+  return entries.map(entry => ({ params: { slug: entry.id }, props: { entry, all: entries } }));
+}
+interface Props { entry: ArticleEntry; all: ArticleEntry[] }
+const { entry, all } = Astro.props;
+const data = entry.data;
+const { Content, headings } = await render(entry);
+const toc = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+const { prev, next } = prevNext(all.map(toMeta), entry.id);
+const recs = resolveRecommendations(data.recommendationIds, publicRecommendations(validateRecommendations(recommendationsFile)));
+const series = seriesInfo[data.series];
+const structuredData = articleStructuredData(toMeta(entry), Astro.site!.href, site.name);
+---
+
+<BaseLayout title={data.title} description={data.description} structuredData={structuredData}>
+  <article class="article" data-article={entry.id}>
+    <nav aria-label="麵包屑" class="breadcrumb"><a href="/">首頁</a> › <a href={series.path}>{series.title}</a> › <span>{data.title}</span></nav>
+    <p class="eyebrow">{series.title}・第 {data.seriesOrder} 篇</p>
+    <h1>{data.title}</h1>
+    {data.status === 'draft' && <p class="article-badge" data-testid="article-draft">草稿：內容仍待作者補充與再次查核</p>}
+    <p class="lead">{data.description}</p>
+    <dl class="article-meta panel">
+      <dt>作者</dt><dd>{data.author}</dd>
+      <dt>最後更新</dt><dd><time datetime={data.updatedAt}>{data.updatedAt}</time></dd>
+      <dt>官方資料查核日</dt><dd><time datetime={data.checkedAt}>{data.checkedAt}</time></dd>
+      <dt>適合對象</dt><dd><ul data-testid="article-audience">{data.audience.map(a => <li>{a}</li>)}</ul></dd>
+      <dt>前置知識</dt><dd>{data.prerequisites.length ? <ul data-testid="article-prerequisites">{data.prerequisites.map(p => <li>{p}</li>)}</ul> : '無'}</dd>
+    </dl>
+    {toc.length > 0 && (
+      <nav class="article-toc panel" aria-labelledby="toc-heading" data-testid="article-toc">
+        <h2 id="toc-heading">目錄</h2>
+        <ol>{toc.map(h => <li class={`toc-depth-${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+      </nav>
+    )}
+    <div class="prose article-body"><Content /></div>
+
+    <section class="panel" aria-labelledby="sources-heading">
+      <h2 id="sources-heading">官方來源</h2>
+      <ul data-testid="article-sources">{data.sources.map(s => <li><a href={s.url} rel="noopener noreferrer" target="_blank">{s.title}</a></li>)}</ul>
+      <p>以上連結於 {data.checkedAt} 查核；官方內容可能變動，請以官方最新頁面與 app 顯示為準。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="disclaimer-heading" data-testid="article-disclosure">
+      <h2 id="disclaimer-heading">利益揭露與免責聲明</h2>
+      <p><strong>利益揭露：</strong>{site.referralNotice}（<a href="/recommendations/#disclosure">完整說明</a>）</p>
+      <p><strong>不保證收益：</strong>本文僅為教學與資訊整理，不構成投資、法律或稅務建議；任何收益、利率、回饋皆非保證，可能損失部分或全部本金。</p>
+    </section>
+
+    {data.recommendationIds.length > 0 && (
+      <section class="panel" aria-labelledby="article-rec-heading" data-testid="article-recs">
+        <h2 id="article-rec-heading">相關推薦連結</h2>
+        <ul class="rec-list">
+          {recs.found.map(item => (
+            <li class="rec-card" data-rec-id={item.id}>
+              <p class="rec-name">{item.name}</p>
+              <p class="rec-desc">{item.shortDescription}</p>
+              <p class="rec-desc">{item.disclosure}</p>
+              {hasUsableReferralLink(item) && item.referralUrl
+                ? <p class="rec-action"><a class="btn small" data-testid="article-rec-link" href={item.referralUrl} target="_blank" rel="sponsored noopener noreferrer">前往 {item.name}（另開新分頁）</a></p>
+                : <p class="rec-pending-note">連結整理中，暫不提供外連按鈕。</p>}
+            </li>
+          ))}
+          {recs.missing.map(id => <li class="rec-card rec-card-pending" data-rec-missing={id}><p>推薦資訊尚未提供</p></li>)}
+        </ul>
+      </section>
+    )}
+
+    <nav class="article-pager" aria-label="系列上下篇" data-testid="article-pager">
+      {prev ? <a rel="prev" href={articlePath(prev.slug)}>← 上一篇：{prev.title}</a> : <span></span>}
+      {next ? <a rel="next" href={articlePath(next.slug)}>下一篇：{next.title} →</a> : <span></span>}
+    </nav>
+  </article>
+</BaseLayout>

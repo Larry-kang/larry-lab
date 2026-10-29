@@ -2,7 +2,7 @@
   "/": { "updatedAt": "2026-10-19", "reviewNote": "加入首頁結構化資料" },
   "/tools/": { "updatedAt": "2026-10-17", "reviewNote": "工具清單" },
   "/methodology/": { "updatedAt": "2026-10-19", "reviewNote": "加入五工具固定錨點" },
-  "/recommendations/": { "updatedAt": "2026-10-23", "reviewNote": "新增 Firstrade 推薦連結，推薦總覽與共用區同步18項" },
+  "/recommendations/": { "updatedAt": "2026-10-29", "reviewNote": "ether.fi 卡片新增「閱讀介紹」連結至文章" },
   "/about/": { "updatedAt": "2026-10-17", "reviewNote": "正式文案" },
   "/privacy/": { "updatedAt": "2026-10-17", "reviewNote": "資料處理說明" }
 }
