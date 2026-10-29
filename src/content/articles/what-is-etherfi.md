@@ -45,8 +45,8 @@ introFor:
 | 產品 | 官方說明重點 |
 | --- | --- |
 | Card | ether.fi Cash 卡消費；Direct Pay 用餘額付款，Borrow Mode 以抵押品借款消費、不必賣幣 |
-| Markets | 買賣加密資產、代幣化股票與金屬 |
-| Borrow | 對資產賺取浮動收益，並可在不賣出的情況下抵押借款 |
+| Markets | 買賣加密資產、代幣化股票與金屬（官方註明：代幣化股票與金屬不適用於美國及部分市場） |
+| Borrow | 用持有的資產賺取收益，並可在不賣出的情況下抵押借款 |
 | Earn | 存入 Liquid vaults，由 vault 分散到 DeFi 策略並自動再平衡 |
 | Send | 鏈上轉帳，或使用所在地區提供的銀行／支付通道 |
 | Stake | 質押 ETH 取得 eETH 或 weETH |

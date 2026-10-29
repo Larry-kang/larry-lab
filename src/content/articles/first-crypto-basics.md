@@ -75,7 +75,7 @@ introFor: []
 
 ### 官方規則（ether.fi）
 
-- ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值；存入不支援的資產可能無法取回（Cash Technical Documentation；此頁未收錄於本次查核快照，待再次查核）。**未驗證**：官方於 2026 年 4 月有核心鏈相關的帳戶升級公告，作者尚未讀完，核心鏈是否仍為 Optimism 請以 app 為準。
+- ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值；存入不支援的資產可能無法取回（Cash Technical Documentation）。官方「Account upgrade」頁也說明核心鏈自 2026 年 4 月起更新為 Optimism。實際支援網路仍以 app 入金畫面為準。
 - 官方 Risks 頁把「deposits to an unsupported network」列為區塊鏈與跨鏈橋風險之一。
 
 ### 小額測試轉帳步驟

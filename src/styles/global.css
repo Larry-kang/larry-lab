@@ -1494,15 +1494,20 @@ tbody th {
 
 /* 文章區 */
 .breadcrumb { font-size: 0.875rem; margin-bottom: 0.5rem; }
-.article-badge { display: inline-block; padding: 0.25rem 0.625rem; border-radius: 999px; background: #fff4d6; color: #6b4e00; font-size: 0.875rem; }
+.article-badge { display: inline-block; padding: 0.25rem 0.625rem; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-size: 0.875rem; }
 .article-meta { display: grid; grid-template-columns: max-content 1fr; gap: 0.375rem 1rem; }
 .article-meta dt { font-weight: 600; }
 .article-meta dd { margin: 0; }
+@media (max-width: 480px) { .article-meta { grid-template-columns: 1fr; gap: 0 1rem; } .article-meta dd + dt { margin-top: 0.5rem; } }
 .article-meta ul { margin: 0; padding-left: 1.25rem; }
 .article-toc ol { padding-left: 1.25rem; }
 .article-toc .toc-depth-3 { margin-left: 1rem; font-size: 0.9375rem; }
-.article-body blockquote { border-left: 4px solid #c9a227; background: #fffaf0; margin: 1rem 0; padding: 0.5rem 1rem; }
+.article-body blockquote { background: var(--warn-bg); border-radius: var(--radius); margin: 1rem 0; padding: 0.75rem 1rem; }
+.article-body blockquote > :first-child { margin-top: 0; }
+.article-body blockquote > :last-child { margin-bottom: 0; }
 .article-body table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
-.article-body th, .article-body td { border: 1px solid #d0d7de; padding: 0.375rem 0.5rem; text-align: left; }
+.article-body th, .article-body td { border: 1px solid var(--line); padding: 0.375rem 0.5rem; text-align: left; }
 .article-pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
 .series-list { list-style: none; padding: 0; }
+.article h1, .article h2, .article h3, .series-list h2 { text-wrap: balance; }
+.article p, .article li, .series-list p { text-wrap: pretty; }

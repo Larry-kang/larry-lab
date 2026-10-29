@@ -31,7 +31,7 @@ sources:
     url: https://etherfi.gitbook.io/etherfi/products/borrow/repaying
   - title: ether.fi Docs｜Risks
     url: https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks
-  - title: ether.fi Docs｜Account upgrade（尚未查核）
+  - title: ether.fi Docs｜Account upgrade
     url: https://etherfi.gitbook.io/etherfi/products/cash/account-upgrade
 recommendationIds:
   - ether-fi
@@ -59,8 +59,8 @@ introFor: []
 ## 官方規則：Cash 卡是什麼
 
 - Cash 包含一個連到 ether.fi 帳戶的 mobile app，以及一張可用帳戶餘額消費的 **Visa 卡**，也能以加密資產抵押借款消費（Cash Card 頁）。
-- 依 Cash Technical Documentation：資產存放在 Vault 智能合約、金鑰由 Turnkey 安全飛地管理、可自行設定每日／每月消費上限、核心鏈為 Optimism。
-- **未驗證**：官方 2026 年 4 月「Account upgrade」頁涉及核心鏈更新，作者尚未查核；核心鏈與支援儲值網路請以 app 入金畫面為準。另，Cash Technical Documentation 內容未收錄於本次查核快照，上述技術細節待再次查核。
+- 依 Cash Technical Documentation：開戶時會自動部署專屬的 Vault 智能合約、金鑰由 Turnkey 安全飛地（TEE）管理、可自行設定每日／每月消費上限。
+- 核心鏈為 **Optimism**，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值（Technical Documentation）；官方「Account upgrade」頁說明 2026 年 4 月起核心鏈更新為 Optimism，原核心鏈改為儲值鏈。實際支援網路與資產仍請以 app 入金畫面為準。
 
 ## Direct Pay 與 Borrow Mode 比較
 
@@ -86,7 +86,7 @@ introFor: []
 - **健康因子** = 抵押價值 × CF ÷ 總債務（含應計利息）。≥ 1.00 為健康；**< 1.00 即可被清算**，且協議不提供寬限期。
 - 就算什麼都不做、價格也沒變，**利息累積也會讓健康因子緩慢下降**。
 - 債務超過 Product LTV（例如價格下跌）只會**阻擋新的借款**，不等於清算，但代表緩衝變薄。
-- 清算是**部分清算**：清算人償還部分債務、取得抵押品加獎勵，讓健康因子回到略高於 1 的目標值；清算獎勵隨健康程度內插，越不健康成本越高，所以越早處理越好。
+- 清算通常是**部分清算**：清算人償還部分債務、取得抵押品加獎勵，讓健康因子回到略高於 1 的目標值；清算獎勵隨健康程度內插，越不健康成本越高，所以越早處理越好。
 - 拉高健康因子的方法：**還一部分債**或**追加抵押品**。
 
 ### 還款方式與限制
