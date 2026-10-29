@@ -55,6 +55,13 @@ export const pledgeTool: ToolDef = {
     const target = s.targetRatio || '166';
     return `成數 ${ltv}% ｜ 警示 ${warn}% ｜ 目標 ${target}%`;
   },
+  compareInputs(s: Values): Array<{ label: string; value: string }> {
+    // 比較表保留借款天數（期間利息的計息期間）與年利率
+    return [
+      { label: '借款天數', value: s.days ? `${s.days} 天` : '—' },
+      { label: '年利率', value: s.annualRate ? `${s.annualRate}%` : '—' },
+    ];
+  },
   evaluate(values): Evaluation {
     const r = new FieldReader(values);
     const input: PledgeInput = {
