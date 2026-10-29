@@ -16,7 +16,7 @@
 | 圖片位置、替代文字、圖說與官方來源 | 原始檔及建置後 HTML | 通過（PASS） |
 | 保留心得待補與草稿／索引邏輯 | Git 差異檢查 | 通過（PASS） |
 | check、lint、test、build | npm 指令 | 通過（PASS） |
-| 桌機／手機文章與圖片載入、無水平溢位 | Playwright | 未執行（NOT RUN）：環境禁止監聽連接埠 |
+| 桌機／手機文章與圖片載入、無水平溢位 | Playwright | 通過（PASS）：審查輪補跑 152 passed |
 
 ## 圖片位置
 
@@ -32,3 +32,8 @@
 | image8 | etherfi-cash-card-guide.md | 官方規則：開戶與申請步驟 |
 | image9 | etherfi-cash-card-guide.md | Borrow Mode：抵押借款消費 |
 | image10 | etherfi-cash-card-guide.md | 費用、回饋與地區（未驗證） |
+
+## 審查輪（2026-10-29）
+
+- 隱私：10 張逐張檢視，QR 碼、存款地址、交易地址、商家名稱皆已遮罩；無姓名、Email、地址、卡號。畫面含帳戶金額（淨資產、借款額）為作者預先清理後保留。image5 為官方行銷圖（示意人名「Cesar」屬官方素材）。
+- 來源：與 `clean/` 像素比對最接近（遮罩圖 image3、image10 與 raw 差異明顯），未使用 raw。

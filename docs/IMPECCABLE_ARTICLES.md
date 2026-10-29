@@ -38,3 +38,22 @@
 - 僅在 `<head>` 為 `status: draft` 文章輸出 `<meta name="robots" content="noindex, follow">`，並自 sitemap／llms.txt 排除（依 frontmatter 狀態判斷，非 slug 清單）。
 - 系列索引 `/articles/etherfi/`：系列內無任何已發布文章時同樣 noindex 並排除；有一篇發布即自動恢復。頁面仍可連入（推薦頁「閱讀介紹」保留）。
 - 無可見 UI／CSS 變動，故未重跑 Impeccable detect。
+
+## 插圖輪（PR #21，2026-10-29）
+
+Detect（`impeccable detect --json`，本機 `serve:dist`）：
+
+| 目標 | Before | After |
+| --- | --- | --- |
+| `/articles/what-is-etherfi/` | 0 / 0 | 0 / 0 |
+| `/articles/first-crypto-basics/` | 0 / 0 | 0 / 0 |
+| `/articles/etherfi-cash-card-guide/` | 0 / 0 | 0 / 0 |
+| `src/styles/global.css` | 0 | 0 |
+
+Critique：
+1. figcaption 無樣式，與正文同字級同色，圖說與正文難區分。
+2. 深色截圖直接貼在淺色底，無邊框，邊界模糊。
+3. 直式長截圖（image3/5/6/7/8）在桌機滿版寬，單張高達 1,600px 以上，閱讀節奏被打斷。
+4. 正面：皆有寬高屬性（無 CLS）、`loading="lazy"`、alt；360px 無水平溢位。
+
+Polish（僅 `.article-body figure` 範圍）：圖片置中、`--line` 細邊框與 `--radius` 圓角、`max-height: min(80vh, 900px)` 等比例縮放；figcaption 改 `--muted`、0.875rem、置中、`text-wrap: pretty`。桌機直式圖高度由 >1,600px 降為 720px；手機寬度不變。

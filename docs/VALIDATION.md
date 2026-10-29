@@ -278,6 +278,6 @@ Running 94 tests using 1 worker
 | `npm run build` | 通過（PASS）：16 個頁面與 SEO 靜態產物檢查 |
 | 建置後 HTML 與影像檔案查核 | 通過（PASS）：三篇依序 3／3／4 張圖，10 張圖皆有 alt、尺寸與圖說，資產存在且寬度不超過 1200；官方行銷圖來源完整 |
 | `git diff --check`、變更範圍查核 | 通過（PASS）：保留三篇 draft 及 noindex，未修改 sitemap／llms 或路由邏輯 |
-| `npm run test:e2e -- tests/e2e/articles.spec.ts` | 未執行（NOT RUN）：啟動伺服器時 `listen EPERM 0.0.0.0:4321`，未進入測試；桌機／手機版面及實際圖片載入尚待瀏覽器確認 |
+| `npx playwright test`（審查輪補跑） | 通過（PASS）：152 passed；另以 360px／1280px 確認三篇 10 張圖皆載入、無水平溢位 |
 
-本輪未推送、未建立 PR、未部署。提交未完成：`git add` 與 `git commit` 因 worktree 的 Git 中繼資料目錄為唯讀，無法建立 `index.lock`（Read-only file system）；變更保留於工作樹供審查，尚無新 commit SHA。
+插圖提交 `01e18ca`；審查輪（隱私逐張檢視、Impeccable、figure 樣式）另行提交並推送至 PR #21。
