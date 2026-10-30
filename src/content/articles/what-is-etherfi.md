@@ -40,10 +40,16 @@ introFor:
 
 依官方介紹，ether.fi 是「一個帳戶管理你的錢」：資產放在**非託管的智能合約帳戶**，可以從這個帳戶消費、交易、借款、賺取收益、轉帳與質押（Crypto Neobank Overview）。
 
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image.webp" alt="ether.fi 首頁儀表板，顯示淨資產、可用消費額度、借款能力與市場清單" width="1200" height="716" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>首頁儀表板集中顯示淨資產、入金與轉帳入口、可用消費額度、借款能力及市場清單。</figcaption>
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/m1a-portfolio-overview.webp" alt="ether.fi 投資組合總覽，顯示淨資產、入金與購買入口、已借款及可用餘額" width="864" height="728" loading="lazy" decoding="async" />
+  <figcaption>投資組合頁集中顯示淨資產、入金與購買入口、已借款與可用餘額。</figcaption>
 </figure>
+<figure>
+  <img src="/images/articles/etherfi/m1b-portfolio-assets.webp" alt="ether.fi 資產頁，列出 Liquid 金庫的 USD 與 ETH 收益，以及質押的 Staked ETH" width="864" height="866" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>資產頁分開列出 Liquid 金庫收益與質押中的 Staked ETH，並顯示各自的美元餘額與 APY。</figcaption>
+</figure>
+</div>
 
 ## 官方規則：產品有哪些
 
@@ -59,10 +65,36 @@ introFor:
 
 官方也說明：app 顯示的才是你帳戶可用的產品，**可用性依地區與帳戶類型而定**。
 
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image6.webp" alt="產品總覽頁，依序顯示賺取收益、借款與質押資產區塊" width="1200" height="1665" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>產品總覽將賺取收益、借款與質押分區呈現，並列出資產卡片及畫面當下的利率或收益率。</figcaption>
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/m2a-earn-apy.webp" alt="ether.fi 賺取頁，顯示 USD、ETH、BTC、EUR 與黃金的浮動 APY" width="864" height="1157" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>賺取頁以分類列出各資產的浮動 APY；官方強調收益不保證。</figcaption>
 </figure>
+<figure>
+  <img src="/images/articles/etherfi/m2b-earn-borrow.webp" alt="ether.fi 借款頁預覽，顯示可用抵押資產與 USDC、ETH 借款利率" width="864" height="391" loading="lazy" decoding="async" />
+  <figcaption>借款頁可查看以 USDC、ETH 等資產抵押的借款利率，實際額度與利率以 App 為準。</figcaption>
+</figure>
+</div>
+
+### 市場：代幣化股票與貴金屬
+
+官方文件的 Markets 條目直接連到 App 內的市場頁；App 畫面顯示可買賣加密資產、代幣化股票與貴金屬。部分代幣化資產（如 PAXG、SPYx、QQQx）也可作為借款抵押品，實際可交易項目與可用性以 App 為準（[Lending market parameters](https://etherfi.gitbook.io/etherfi/products/borrow/lending-market-parameters)）。價格波動、脫錨、流動性與發行方風險見官方 [Risks](https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks) 頁。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/m7-market-all.webp" alt="ether.fi 市場頁「全部」分類，顯示購買、出售並作為抵押品使用的說明，以及黃金、白銀、質押黃金等資產" width="864" height="1110" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>市場頁「全部」分類可切換貴金屬、股票、質押與加密貨幣；頁首說明資產可購買、出售並作為抵押品使用。</figcaption>
+</figure>
+
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/m4-market-precious-metals.webp" alt="ether.fi 市場頁的貴金屬分類，列出黃金、白銀、黃金 ETF、鉑金與質押黃金等代幣化資產" width="864" height="1402" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>貴金屬分類列出各代幣化金屬資產的價格與漲跌幅。</figcaption>
+</figure>
+<figure>
+  <img src="/images/articles/etherfi/m6-market-stocks.webp" alt="ether.fi 市場頁的股票分類，列出標普 500、那斯達克 100、T-Bill 與特斯拉等代幣化股票" width="864" height="1063" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>股票分類列出代幣化股票及其價格與漲跌幅；實際可交易項目以 App 顯示為準。</figcaption>
+</figure>
+</div>
 
 ### ether.fi 由哪些部分組成
 
@@ -87,19 +119,23 @@ introFor:
 ### Borrow：超額抵押借款
 
 - 借款為超額抵押，抵押品價值必須足以支撐債務。
+- **Product LTV** 是 app 允許的借款上限；**Collateral factor（CF）** 是清算門檻，LTV 低於 CF 以保留安全緩衝。
+- 借款力 = 各抵押資產美元價值 × Product LTV 加總；**健康因子低於 1.00 即可能被清算**（[Borrowing Power, Health Factor, and Liquidation](https://etherfi.gitbook.io/etherfi/products/borrow/borrowing-power-and-liquidation)）。
 - 目前的 Product LTV、健康因子、利率與可借金額，以 **app 顯示為準**。
 - 細節（健康因子、清算）在第 3 篇有逐步說明。
 
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image7.webp" alt="Borrow 借款頁，顯示已借款、剩餘額度、還款按鈕、借款選項與風險入口" width="869" height="1647" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>Borrow 頁列出已借款、剩餘額度與還款入口，下方包含使用中及可用的借款選項、風險與清算詳情及抵押品入口。</figcaption>
-</figure>
-
 ## 費用與限制
 
-- 官方文件未列出卡片、兌換或各產品的固定費率 → **未驗證**，請以 app 與持卡人協議為準。
-- Gas、跨鏈與兌換滑價等成本會變動，本文不列具體數字。
-- 地區限制：部分產品在部分地區不可用；台灣是否可使用各項產品 → **未驗證**，以 app 顯示為準。
+截至 2026-10-30 已查到的官方數字（都可能變動，使用前請以 app 與最新條款為準）：
+
+- **Cash 卡會員分級**：Luxe US$199／年、Pinnacle US$999／年、VIP 邀請制；Core 為入門等級（[官方 Cashback 頁](https://www.ether.fi/cashback)）。
+- **外幣交易手續費**：非美元消費依[持卡人協議（International）](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cardholder-agreement-inc.-international)先按 1% 外幣基本匯率（FX Base Rate）換算；Core 等級最高另加 0.5%（50bps）、Luxe 等級最高另加 0.25%（25bps）附加費。
+- **回饋**：Core 等級每月合格消費前 US$2,000 享 3%；Luxe／Pinnacle 日常消費 3%、VIP 4%。訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級，見[官方 Cashback 頁](https://www.ether.fi/cashback)、[Help Center](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)與 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)）。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
+- **虛擬卡**：Core 內含 1 張虛擬卡，之後每張加購 US$10；僅在官方指定國家（菲律賓、墨西哥、泰國等，台灣不在名單中）的第一張虛擬卡也收 US$10（[Help Center](https://help.ether.fi/en/articles/833743-why-is-there-a-10-fee-for-my-first-virtual-cash-card)、[Help Center｜卡片權益](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)）。
+- **實體卡寄送**：地址需使用英文字元、不收 PO Box，送出後不可修改；到貨後在 App 啟用並設定 PIN（[Help Center｜Physical Cards](https://help.ether.fi/en/articles/842973-physical-cards)）。實體卡運費與第二張卡費用：以 App 下單前顯示為準。
+- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，24 小時內最多提領 5 次（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
+- Gas 等鏈上手續費會變動，本文不列具體數字。
+- 地區限制：部分產品在部分地區不可用。官方 Help Center 列出「實體 Cash 卡目前可申請的國家」清單，台灣在清單中，仍需通過 KYC 與合規審查，清單可能變動（[Help Center](https://help.ether.fi/en/articles/758780-in-which-countries-is-the-cash-card-available)）。Cash 以外的產品在台灣的可用性尚未逐項查證，以 app 顯示為準。
 
 ## 主要風險（官方 Risks 頁整理）
 

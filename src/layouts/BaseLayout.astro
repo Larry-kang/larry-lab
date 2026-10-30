@@ -5,6 +5,7 @@ import { navItems, site } from '../config/site';
 import { serializeJsonLd } from '../lib/seo';
 import recommendationsFile from '../content/recommendations.json';
 import { publicRecommendations, validateRecommendations } from '../lib/recommendations';
+import ImageEnlargeOverlay from '../components/ImageEnlargeOverlay.astro';
 
 interface Props {
   title: string;
@@ -105,5 +106,6 @@ const schema = structuredData ?? (Astro.url.pathname === '/' ? { '@context': 'ht
     <script>
       import '../scripts/site.ts';
     </script>
+    <ImageEnlargeOverlay />
   </body>
 </html>

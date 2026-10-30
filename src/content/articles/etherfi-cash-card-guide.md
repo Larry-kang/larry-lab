@@ -38,7 +38,7 @@ recommendationIds:
 introFor: []
 ---
 
-> **閱讀前提醒**：卡片的費用、回饋、額度與支援地區受持卡人協議與發卡機構條款約束，且可能變動。**台灣是否可申請、具體費率、實體卡運費皆未驗證**，請以 app 與官方條款為準。本文不保證任何回饋或收益。
+> **閱讀前提醒**：卡片的費用、回饋、額度與支援地區受持卡人協議與發卡機構條款約束，且可能變動。截至 2026-10-30 查證：官方 Help Center 的國家清單列出台灣在「實體 Cash 卡目前可申請的國家」中（仍需通過 KYC）；具體費率與回饋見下方「費用、回饋與地區」一節。實體卡寄送需英文地址、不收 PO Box，送出後不可修改；實體卡與第二張卡費用以下單前 App 顯示為準。本文不保證任何回饋或收益。
 
 ## 官方規則：開戶與申請步驟
 
@@ -54,7 +54,7 @@ introFor: []
 官方提醒：可用的產品、資產、利率與額度依地區不同，以 app 顯示為準。
 
 <figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image8.webp" alt="新增卡片頁，提供虛擬與實體分頁，畫面目前選取虛擬卡片" width="937" height="1112" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <img src="/images/articles/etherfi/image8.webp" alt="新增卡片頁，提供虛擬與實體分頁，畫面目前選取虛擬卡片" width="937" height="1112" loading="lazy" decoding="async" class="image-portrait" />
   <figcaption>新增卡片頁提供「虛擬」與「實體」分頁；目前選取虛擬卡片，並顯示卡片示意圖與選擇按鈕。</figcaption>
 </figure>
 
@@ -65,10 +65,10 @@ introFor: []
 
 - Cash 包含一個連到 ether.fi 帳戶的 mobile app，以及一張可用帳戶餘額消費的 **Visa 卡**，也能以加密資產抵押借款消費（Cash Card 頁）。
 - 依 Cash Technical Documentation：開戶時會自動部署專屬的 Vault 智能合約、金鑰由 Turnkey 安全飛地（TEE）管理、可自行設定每日／每月消費上限。
-- 核心鏈為 **Optimism**，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值（Technical Documentation）；官方「Account upgrade」頁說明 2026 年 4 月起核心鏈更新為 Optimism，原核心鏈改為儲值鏈。實際支援網路與資產仍請以 app 入金畫面為準。
+- 核心鏈為 **Optimism**，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值（Technical Documentation）；官方「Account upgrade」頁說明 2026 年 4 月起核心鏈更新為 Optimism，原核心鏈改為儲值鏈。App 入金畫面另顯示 BNB Smart Chain（BSC）等網路；實際支援網路與資產仍請以 app 入金畫面為準。
 
 <figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image5.webp" alt="ether.fi 官方手機介面示意圖，顯示資產總覽、入金入口與 Borrow Mode 標籤" width="649" height="1287" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <img src="/images/articles/etherfi/image5.webp" alt="ether.fi 官方手機介面示意圖，顯示資產總覽、入金入口與 Borrow Mode 標籤" width="649" height="1287" loading="lazy" decoding="async" class="image-portrait" />
   <figcaption>官方行銷示意圖呈現手機版資產總覽、Deposit 等操作入口與 Borrow Mode 標籤。圖片來源：ether.fi</figcaption>
 </figure>
 
@@ -117,15 +117,22 @@ introFor: []
 
 三種 Liquid 還款額度分開計算。
 
-## 費用、回饋與地區（未驗證）
+## 費用、回饋與地區
 
-- 卡片費用、匯率／外幣手續費、回饋比例：官方文件未列固定數字 → **未驗證**。
-- 台灣居民是否可申請 Cash 卡、實體卡運費與寄送時間 → **未驗證**。
+截至 2026-10-30 已查到的官方數字（都可能變動；完整細節以 [持卡人協議（International）](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cardholder-agreement-inc.-international)與 app 顯示為準）：
+
+- **外幣手續費**：非美元交易依持卡人協議先按 1% 外幣基本匯率（FX Base Rate）換算；Core 等級最高另加 0.5%（50bps）、Luxe 等級最高另加 0.25%（25bps）附加費。
+- **虛擬卡**：Core 內含 1 張虛擬卡，之後每張加購 US$10；僅在官方指定國家（菲律賓、墨西哥、泰國等，台灣不在名單中）的第一張虛擬卡也收 US$10（[Help Center](https://help.ether.fi/en/articles/833743-why-is-there-a-10-fee-for-my-first-virtual-cash-card)、[Help Center｜卡片權益](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)）。實體卡運費與第二張卡費用：以 App 下單前顯示為準。
+- **會員分級**：Luxe US$199／年、Pinnacle US$999／年、VIP 邀請制（[官方 Cashback 頁](https://www.ether.fi/cashback)）。
+- **回饋**：Core 每月合格消費前 US$2,000 享 3%；Luxe／Pinnacle 日常消費 3%、VIP 4%。訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級）。發放資產、領取方式、資格與排除交易見 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)；實際回饋以 app 內顯示為準。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
+- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，24 小時內最多提領 5 次；虛擬卡可在支援感應的 ATM 提領（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
+- **台灣**：台灣在官方 Help Center「實體 Cash 卡目前可申請的國家」清單中，申請仍需通過 KYC 與合規審查；清單可能變動，以官方為準（[Help Center](https://help.ether.fi/en/articles/758780-in-which-countries-is-the-cash-card-available)）。
+- **實體卡寄送**：地址需使用英文字元、不收 PO Box，送出後不可修改；到貨後在 App 啟用並設定 PIN（[Help Center｜Physical Cards](https://help.ether.fi/en/articles/842973-physical-cards)）。實體卡運費與第二張卡費用：以 App 下單前顯示為準。
 - 官方 Risks 頁說明：卡片使用受持卡人協議與發卡機構條款約束，可用性、權益、額度、回饋、費用、爭議處理與支援地區都可能變動；Cash 卡與 ether.fi protocol 無關聯。
 
 <figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image10.webp" alt="消費活動紀錄，顯示新台幣消費、美元換算、現金回饋與待處理狀態" width="1185" height="281" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>活動紀錄同列顯示新台幣消費金額、美元換算、現金回饋及「待處理」狀態；商家資訊已遮罩。</figcaption>
+  <img src="/images/articles/etherfi/m3-card-transactions-cashback.webp" alt="ether.fi 交易紀錄頁，列出台幣消費、美元換算、現金回饋與待處理狀態" width="864" height="1666" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>交易紀錄列出新台幣消費、美元換算與現金回饋，並標示待處理狀態；商家資訊已遮罩。</figcaption>
 </figure>
 
 ## 作者觀點

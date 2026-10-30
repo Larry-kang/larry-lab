@@ -1330,8 +1330,29 @@ tbody th {
   }
 
   .header-inner {
-    padding: 4px 14px;
-    min-height: 48px;
+    padding: 6px 14px;
+    min-height: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 2px;
+    width: 100%;
+  }
+
+  .site-header nav {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .nav-list {
+    width: 100%;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .nav-list a {
+    padding: 6px 8px;
+    white-space: nowrap;
   }
 
   main > h1 {
@@ -1514,3 +1535,19 @@ tbody th {
 .series-list { list-style: none; padding: 0; }
 .article h1, .article h2, .article h3, .series-list h2 { text-wrap: balance; }
 .article p, .article li, .series-list p { text-wrap: pretty; }
+
+/* Article screenshots: portrait constrained + centered, pairs side by side, landscape full width */
+.article-body img.image-portrait { display: block; width: auto; height: auto; max-width: min(100%, 360px); max-height: 70vh; margin-inline: auto; cursor: zoom-in; }
+.article-body .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); justify-content: center; gap: 1.5rem; margin: 1.5rem 0; align-items: start; }
+.article-body .image-pair figure { margin: 0; }
+.article-body .image-pair img { display: block; margin-inline: auto; }
+@media (max-width: 640px) {
+  .article-body .image-pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Tap-to-enlarge overlay (ImageEnlargeOverlay.astro) */
+.image-enlarge-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 3.5rem 1rem 1rem; background: rgb(0 0 0 / 0.9); border: 0; margin: 0; width: 100%; height: 100%; max-width: none; max-height: none; }
+.image-enlarge-overlay:not([open]) { display: none; }
+.image-enlarge-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-enlarge-overlay .close-btn { position: absolute; top: 0.75rem; right: 0.75rem; min-width: 44px; min-height: 44px; color: #fff; background: rgb(255 255 255 / 0.12); border: 1px solid rgb(255 255 255 / 0.4); border-radius: 999px; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.image-enlarge-overlay .close-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
