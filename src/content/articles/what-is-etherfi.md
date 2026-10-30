@@ -78,12 +78,17 @@ introFor:
 
 ### 市場：代幣化股票與貴金屬
 
-官方 Markets 條目連到 App 內的市場頁，可買賣加密資產、代幣化股票與貴金屬，代幣化股票與金屬不適用於美國及部分市場。部分代幣化資產（如 PAXG、SPYx、QQQx）也可作為借款抵押品，實際可交易項目與可用性以 App 為準（[Lending market parameters](https://etherfi.gitbook.io/etherfi/products/borrow/lending-market-parameters)）。價格波動、脫錨、流動性與發行方風險見官方 [Risks](https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks) 頁。
+官方文件的 Markets 條目直接連到 App 內的市場頁；App 畫面顯示可買賣加密資產、代幣化股票與貴金屬。部分代幣化資產（如 PAXG、SPYx、QQQx）也可作為借款抵押品，實際可交易項目與可用性以 App 為準（[Lending market parameters](https://etherfi.gitbook.io/etherfi/products/borrow/lending-market-parameters)）。價格波動、脫錨、流動性與發行方風險見官方 [Risks](https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks) 頁。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/m7-market-all.webp" alt="ether.fi 市場頁「全部」分類，顯示購買、出售並作為抵押品使用的說明，以及黃金、白銀、質押黃金等資產" width="864" height="1110" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>市場頁「全部」分類可切換貴金屬、股票、質押與加密貨幣；頁首說明資產可購買、出售並作為抵押品使用。</figcaption>
+</figure>
 
 <div class="image-pair">
 <figure>
-  <img src="/images/articles/etherfi/m7-market-all.webp" alt="ether.fi 市場頁的貴金屬分類，列出黃金、白銀、黃金 ETF 與鉑金等代幣化資產" width="864" height="1110" loading="lazy" decoding="async" class="image-portrait" />
-  <figcaption>市場頁可切換全部、貴金屬、股票、質押與加密貨幣等分類；圖為貴金屬分類與各資產價格。</figcaption>
+  <img src="/images/articles/etherfi/m4-market-precious-metals.webp" alt="ether.fi 市場頁的貴金屬分類，列出黃金、白銀、黃金 ETF、鉑金與質押黃金等代幣化資產" width="864" height="1402" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>貴金屬分類列出各代幣化金屬資產的價格與漲跌幅。</figcaption>
 </figure>
 <figure>
   <img src="/images/articles/etherfi/m6-market-stocks.webp" alt="ether.fi 市場頁的股票分類，列出標普 500、那斯達克 100、T-Bill 與特斯拉等代幣化股票" width="864" height="1063" loading="lazy" decoding="async" class="image-portrait" />
@@ -115,7 +120,7 @@ introFor:
 
 - 借款為超額抵押，抵押品價值必須足以支撐債務。
 - **Product LTV** 是 app 允許的借款上限；**Collateral factor（CF）** 是清算門檻，LTV 低於 CF 以保留安全緩衝。
-- **健康因子** = 抵押價值 × CF ÷ 總債務；**低於 1.00 即可能被清算**（[Borrowing Power, Health Factor, and Liquidation](https://etherfi.gitbook.io/etherfi/products/borrow/borrowing-power-and-liquidation)）。
+- 借款力 = 各抵押資產美元價值 × Product LTV 加總；**健康因子低於 1.00 即可能被清算**（[Borrowing Power, Health Factor, and Liquidation](https://etherfi.gitbook.io/etherfi/products/borrow/borrowing-power-and-liquidation)）。
 - 目前的 Product LTV、健康因子、利率與可借金額，以 **app 顯示為準**。
 - 細節（健康因子、清算）在第 3 篇有逐步說明。
 
