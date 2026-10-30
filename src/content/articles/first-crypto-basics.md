@@ -76,19 +76,21 @@ introFor: []
 ### 官方規則（ether.fi）
 
 - ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值，存入不支援的資產可能無法取回（[Cash Technical Documentation](https://etherfi.gitbook.io/etherfi/products/cash/technical-documentation)）。官方「[Account upgrade](https://etherfi.gitbook.io/etherfi/products/cash/account-upgrade)」頁也說明核心鏈自 2026 年 4 月起更新為 Optimism。實際支援網路仍以 app 入金畫面為準。
+- App 入金畫面另顯示 BNB Smart Chain（BSC）等網路與 Pix、交易所轉送、銀行轉帳等方式；文件列出的支援鏈可能與 App 不同，實際支援的鏈與資產**以 App 為準**。
 - 官方 Risks 頁把「deposits to an unsupported network」列為區塊鏈與跨鏈橋風險之一。
 
 ### 小額測試轉帳步驟
 
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image2.webp" alt="ether.fi 新增資金選單，列出現金與加密貨幣兩種入金入口" width="787" height="469" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>加值選單列出「現金」與「加密貨幣」兩種入口，加密貨幣選項註明可從錢包地址或交易所接收資產。</figcaption>
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/m9-add-funds-methods.webp" alt="ether.fi 新增資金頁，列出 Pix、加密錢包轉送、交易所轉帳、分享存款地址與銀行轉帳等入金方式" width="864" height="1722" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>新增資金頁列出多種入金方式：Pix 即時付款、從加密錢包轉送、從交易所轉送、分享存款地址與銀行轉帳。</figcaption>
 </figure>
-
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image3.webp" alt="加密貨幣入金頁，顯示 USDT、Base 網路與存款提醒，QR 碼及地址已遮罩" width="1200" height="1516" loading="lazy" decoding="async" class="image-portrait" />
-  <figcaption>入金頁顯示選擇代幣、選擇網路、跨鏈費用及存款限制；QR 碼與存款地址已遮罩。</figcaption>
+<figure>
+  <img src="/images/articles/etherfi/m8-deposit-address-usdt-bsc.webp" alt="ether.fi 分享存款地址頁，選擇 USDT 與 BNB Smart Chain 網路，並顯示不要使用受限交易所入金的提醒，QR 碼已遮罩" width="864" height="1722" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>存款地址頁顯示選擇代幣 USDT、網路 BNB Smart Chain（BSC）、跨鏈費與最低存款金額，以及不要使用受限交易所入金的提醒；QR 碼與地址已遮罩。</figcaption>
 </figure>
+</div>
 
 1. 在接收端（例如錢包或 ether.fi app）複製入金地址，**確認畫面上標示的網路與支援資產**。
 2. 在交易所提領頁選擇**同一個網路**與資產，貼上地址後逐字核對開頭與結尾。
