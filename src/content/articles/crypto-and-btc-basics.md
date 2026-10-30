@@ -1,5 +1,5 @@
 ---
-title: 加密貨幣與BTC是什麼？為什麼有人長期持有
+title: 加密貨幣與 BTC 是什麼？為什麼有人長期持有
 description: 從錢與通膨出發，用白話理解區塊鏈與比特幣的總量上限、減半、去中心化，並整理長期持有的常見理由、現貨 ETF 與監管進展，以及新手一定要知道的波動、詐騙、私鑰與監管風險。
 series: etherfi
 seriesOrder: 0
@@ -29,8 +29,8 @@ sources:
     url: https://www.sec.gov/newsroom/speeches-statements/gensler-statement-spot-bitcoin-011023
   - title: BlackRock iShares｜Bitcoin Volatility Guide
     url: https://www.ishares.com/us/insights/bitcoin-volatility-trends
-  - title: 金融監督管理委員會
-    url: https://www.fsc.gov.tw
+  - title: 金融監督管理委員會｜金管會公告完成洗錢防制登記之提供虛擬資產服務之事業或人員名單（2025-09-22）
+    url: "https://www.fsc.gov.tw/ch/home.jsp?dataserno=202509220001&dtable=News&id=96&mcustomize=news_view.jsp&parentpath=0%2C2"
 recommendationIds: []
 introFor: []
 ---
@@ -64,7 +64,7 @@ introFor: []
 - 帳本公開可查，但比特幣**不是匿名**；[Bitcoin.org FAQ](https://bitcoin.org/en/faq) 明確提醒，鏈上會留下公開紀錄。
 - 「加密貨幣」是類別名稱，比特幣（BTC）是其中最早、最知名的一種。
 
-比特幣的構想來自 2008 年化名中本聰發表的白皮書〈[Bitcoin: A Peer-to-Peer Electronic Cash System](https://bitcoin.org/bitcoin.pdf)〉，並在 2009 年開始運作（[Bitcoin.org FAQ](https://bitcoin.org/en/faq)）。白皮書描述的是不依賴傳統金融機構、由使用者彼此驗證的電子現金系統。
+比特幣的構想來自化名中本聰（Satoshi Nakamoto）的白皮書〈[Bitcoin: A Peer-to-Peer Electronic Cash System](https://bitcoin.org/bitcoin.pdf)〉。依 [Bitcoin.org FAQ](https://bitcoin.org/en/faq)，第一份比特幣規格與概念驗證於 2009 年發表，比特幣自 2009 年起運作。白皮書描述的是不依賴傳統金融機構、由使用者彼此驗證的電子現金系統。
 
 ## BTC 是什麼？三個關鍵設計
 
@@ -116,15 +116,15 @@ introFor: []
 
 ## 風險：長期持有不是「買了放著就沒事」
 
-### 歷史上曾出現 70–80% 以上的深度回撤
+### 歷史上曾出現約 77%–83% 的深度回撤
 
-比特幣價格波動極大。依 [BlackRock iShares 的比特幣波動說明](https://www.ishares.com/us/insights/bitcoin-volatility-trends)，自 2014 年以來比特幣曾出現四次超過 50% 的回撤，其中三次最大回撤分別約為 -80%、-83%、-77%。也就是說，從高點買進的人，可能看到資產價值腰斬再腰斬。
+比特幣價格波動極大。依 [BlackRock iShares 的比特幣波動說明](https://www.ishares.com/us/insights/bitcoin-volatility-trends)，自 2014 年以來比特幣曾出現四次超過 50% 的回撤；三次最大回撤分別為 -80%（2014 年 1 月起）、-83%（2017 年 12 月起）、-77%（2021 年 11 月起），平均約 80%，其中三次花了將近三年才回到前高。也就是說，從高點買進的人，可能看到資產價值腰斬再腰斬。
 
 長期持有的前提是：你能承受這段期間的帳面虧損，而且不會因為急需用錢而在低點賣出。
 
 ### 詐騙
 
-常見手法包括假冒交易所、假客服要求提供助記詞、保證高收益、假投資群組、假冒官方網站等。[Bitcoin.org 的防詐騙頁](https://bitcoin.org/en/scams)提醒：比特幣交易不可逆，任何要求你提供助記詞或先付款才能「解鎖資金」的人，都應高度警覺。
+常見手法包括假冒交易所、假客服要求提供助記詞、保證高收益、假投資群組、假冒官方網站等。[Bitcoin.org 的防詐騙頁](https://bitcoin.org/en/scams)提醒：比特幣交易不可逆，送出前要先確認；正當的個人、公司或客服**絕不會**要求你提供助記詞或私鑰；也沒有正當業者能保證追回被騙的加密貨幣，聲稱「先付費就能幫你追回資金」的多半也是詐騙。
 
 ### 私鑰遺失
 
@@ -132,7 +132,7 @@ introFor: []
 
 ### 監管與政策
 
-各國對加密資產的監管仍在演變。美國 SEC 的 ETP 核准僅限於特定產品，且明確表示不背書比特幣；台灣的金融主管機關是[金管會](https://www.fsc.gov.tw)，與虛擬資產服務相關的規範與洗錢防制登記，以金管會最新公告為準。監管變動可能影響交易、稅務、產品可用性與資產存取。
+各國對加密資產的監管仍在演變。美國 SEC 的 ETP 核准僅限於特定產品，且明確表示不背書比特幣；在台灣，依金管會 [2025 年 9 月 22 日新聞稿](https://www.fsc.gov.tw/ch/home.jsp?dataserno=202509220001&dtable=News&id=96&mcustomize=news_view.jsp&parentpath=0%2C2)，提供虛擬資產服務的業者（VASP）須先向金管會完成洗錢防制登記，當時共有 9 家業者完成登記；最新名單與規範以金管會公告為準。監管變動可能影響交易、稅務、產品可用性與資產存取。
 
 ### 技術、競爭與流動性
 
