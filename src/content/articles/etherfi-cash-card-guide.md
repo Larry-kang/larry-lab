@@ -53,16 +53,24 @@ introFor: []
 
 官方提醒：可用的產品、資產、利率與額度依地區不同，以 app 顯示為準。
 
-<div class="image-side-by-side">
-  <figure style="margin: 1.5rem 0;">
-    <img src="/images/articles/etherfi/image8.webp" alt="新增卡片頁，提供虛擬與實體分頁，畫面目前選取虛擬卡片" width="937" height="1112" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" class="image-width-limited image-portrait" />
-    <figcaption>新增卡片頁提供「虛擬」與「實體」分頁；目前選取虛擬卡片，並顯示卡片示意圖與選擇按鈕。</figcaption>
-  </figure>
-  <figure style="margin: 1.5rem 0;">
-    <img src="/images/articles/etherfi/image5.webp" alt="ether.fi 官方手機介面示意圖，顯示資產總覽、入金入口與 Borrow Mode 標籤" width="649" height="1287" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" class="image-width-limited image-portrait" />
-    <figcaption>官方行銷示意圖呈現手機版資產總覽、Deposit 等操作入口與 Borrow Mode 標籤。圖片來源：ether.fi</figcaption>
-  </figure>
-</div>
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image8.webp" alt="新增卡片頁，提供虛擬與實體分頁，畫面目前選取虛擬卡片" width="937" height="1112" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>新增卡片頁提供「虛擬」與「實體」分頁；目前選取虛擬卡片，並顯示卡片示意圖與選擇按鈕。</figcaption>
+</figure>
+
+> **待補**：作者申請流程心得與 KYC 截圖（遮罩個資）。
+<!-- TODO(作者後補): 作者申請心得、KYC 截圖（遮罩個資） -->
+
+## 官方規則：Cash 卡是什麼
+
+- Cash 包含一個連到 ether.fi 帳戶的 mobile app，以及一張可用帳戶餘額消費的 **Visa 卡**，也能以加密資產抵押借款消費（Cash Card 頁）。
+- 依 Cash Technical Documentation：開戶時會自動部署專屬的 Vault 智能合約、金鑰由 Turnkey 安全飛地（TEE）管理、可自行設定每日／每月消費上限。
+- 核心鏈為 **Optimism**，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值（Technical Documentation）；官方「Account upgrade」頁說明 2026 年 4 月起核心鏈更新為 Optimism，原核心鏈改為儲值鏈。實際支援網路與資產仍請以 app 入金畫面為準。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image5.webp" alt="ether.fi 官方手機介面示意圖，顯示資產總覽、入金入口與 Borrow Mode 標籤" width="649" height="1287" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>官方行銷示意圖呈現手機版資產總覽、Deposit 等操作入口與 Borrow Mode 標籤。圖片來源：ether.fi</figcaption>
+</figure>
 
 ## Direct Pay 與 Borrow Mode 比較
 
@@ -122,7 +130,7 @@ introFor: []
 - 官方 Risks 頁說明：卡片使用受持卡人協議與發卡機構條款約束，可用性、權益、額度、回饋、費用、爭議處理與支援地區都可能變動；Cash 卡與 ether.fi protocol 無關聯。
 
 <figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image10.webp" alt="消費活動紀錄，顯示新台幣消費、美元換算、現金回饋與待處理狀態" width="1185" height="281" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <img src="/images/articles/etherfi/image10.webp" alt="消費活動紀錄，顯示新台幣消費、美元換算、現金回饋與待處理狀態" width="1185" height="220" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
   <figcaption>活動紀錄同列顯示新台幣消費金額、美元換算、現金回饋及「待處理」狀態；商家資訊已遮罩。</figcaption>
 </figure>
 

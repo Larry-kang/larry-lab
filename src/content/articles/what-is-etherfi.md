@@ -59,16 +59,42 @@ introFor:
 
 官方也說明：app 顯示的才是你帳戶可用的產品，**可用性依地區與帳戶類型而定**。
 
-<div class="image-side-by-side">
-  <figure style="margin: 1.5rem 0;">
-    <img src="/images/articles/etherfi/image6.webp" alt="產品總覽頁，依序顯示賺取收益、借款與質押資產區塊" width="1200" height="1665" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" class="image-width-limited image-portrait" />
-    <figcaption>產品總覽將賺取收益、借款與質押分區呈現，並列出資產卡片及畫面當下的利率或收益率。</figcaption>
-  </figure>
-  <figure style="margin: 1.5rem 0;">
-    <img src="/images/articles/etherfi/image7.webp" alt="Borrow 借款頁，顯示已借款、剩餘額度、還款按鈕、借款選項與風險入口" width="869" height="1647" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" class="image-width-limited image-portrait" />
-    <figcaption>Borrow 頁列出已借款、剩餘額度與還款入口，下方包含使用中及可用的借款選項、風險與清算詳情及抵押品入口。</figcaption>
-  </figure>
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/image6.webp" alt="產品總覽頁，依序顯示賺取收益、借款與質押資產區塊" width="1200" height="1665" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>產品總覽將賺取收益、借款與質押分區呈現，並列出資產卡片及畫面當下的利率或收益率。</figcaption>
+</figure>
+<figure>
+  <img src="/images/articles/etherfi/image7.webp" alt="Borrow 借款頁，顯示已借款、剩餘額度、還款按鈕、借款選項與風險入口" width="869" height="1647" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>Borrow 頁列出已借款、剩餘額度與還款入口，下方包含使用中及可用的借款選項、風險與清算詳情及抵押品入口。</figcaption>
+</figure>
 </div>
+
+### ether.fi 由哪些部分組成
+
+- **App**：顯示帳戶、建立並核准指令。
+- **ether.fi protocol**：執行質押、帳戶權限與 Cash 整合的智能合約。
+- **第三方協議與服務商**：負責 Earn、Markets、轉帳、身分驗證與發卡的部分環節。
+- **Cash 卡**：由持卡人協議中載明的發卡機構（Issuer）發行，**與 ether.fi protocol 無關聯**。
+
+### Stake：eETH 與 weETH
+
+- 質押 ETH 會拿到 eETH 或 weETH，兩者都累積以太坊質押獎勵。
+- eETH 是 rebasing（餘額會變動）代幣；weETH 是包裝後、非 rebasing 的版本，方便在 DeFi 使用。
+- 贖回時間取決於協議可用流動性、以太坊驗證者提領與網路狀況。
+- weETHs 等再質押產品是**另外選擇**，有各自的獎勵來源與風險。
+
+### Earn：Liquid vaults
+
+- 存入 ETH、eETH、BTC 或穩定幣等資產，由 vault 分散到 DeFi 部位並再平衡。
+- 目前 vault 由 Veda（BoringVault 架構）或 Midas（真實世界資產與 reserve vault）提供基礎設施。
+- 官方明言：**報酬為浮動、不保證**，每個 vault 都有智能合約、市場、流動性與第三方協議風險。
+
+### Borrow：超額抵押借款
+
+- 借款為超額抵押，抵押品價值必須足以支撐債務。
+- 目前的 Product LTV、健康因子、利率與可借金額，以 **app 顯示為準**。
+- 細節（健康因子、清算）在第 3 篇有逐步說明。
 
 ## 費用與限制
 
