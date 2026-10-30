@@ -11,6 +11,7 @@ import recommendationsFile from '../content/recommendations.json';
 import { site } from '../config/site';
 import { buildIntroMap } from '../lib/articles';
 import { loadArticles, toMeta } from '../lib/article-collection';
+import { getLogoAlt } from '../lib/logo-utils';
 
 interface Props {
   variant: 'sidebar' | 'mobile' | 'full';
@@ -46,17 +47,17 @@ const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(t
                 <li class={`rec-card${isUnknown ? ' rec-card-pending' : ''}`} data-rec-id={item.id} data-rec-status={item.linkStatus ?? 'VERIFIED'}>
                   <div class="rec-card-head">
                     <div class="rec-brand-row">
-                      {item.logo && (
-                        <img
-                          src={item.logo}
-                          alt=""
-                          width="40"
-                          height="40"
-                          class="rec-logo-lg"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
+                        {item.logo && (
+                          <img
+                            src={item.logo}
+                            alt={getLogoAlt(item.logo)}
+                            width="40"
+                            height="40"
+                            class="rec-logo-lg"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
                       <p class="rec-name">{item.name}</p>
                     </div>
                     {isUnknown && <span class="rec-status-badge" data-testid="rec-status-pending">連結待確認</span>}
@@ -108,17 +109,17 @@ const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(t
                 return (
                   <li class="rec-card rec-compact-item" data-rec-id={item.id}>
                     <div class="rec-compact-main">
-                      {item.logo && (
-                        <img
-                          src={item.logo}
-                          alt=""
-                          width="28"
-                          height="28"
-                          class="rec-logo-sm"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
+                        {item.logo && (
+                          <img
+                            src={item.logo}
+                            alt={getLogoAlt(item.logo)}
+                            width="28"
+                            height="28"
+                            class="rec-logo-sm"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
                       <div class="rec-compact-info">
                         <span class="rec-name">{item.name}</span>
                         {item.code && (

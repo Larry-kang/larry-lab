@@ -1535,3 +1535,29 @@ tbody th {
 .series-list { list-style: none; padding: 0; }
 .article h1, .article h2, .article h3, .series-list h2 { text-wrap: balance; }
 .article p, .article li, .series-list p { text-wrap: pretty; }
+
+/* Image layout fixes for 3 ether.fi draft articles */
+.article-body .image-width-limited { max-width: 360px; margin-inline: auto; }
+.article-body .image-side-by-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0; }
+.article-body .image-side-by-side figure { margin: 0; }
+@media (max-width: 768px) {
+  .article-body .image-side-by-side { grid-template-columns: 1fr; }
+  .article-body .image-side-by-side figure img { max-width: 360px; }
+}
+
+/* Mobile: portrait images max-height ~70vh with click-to-enlarge */
+.article-body .image-portrait { max-height: 70vh; cursor: zoom-in; position: relative; }
+.article-body .image-portrait.expanded { max-height: none; height: 100vh; cursor: zoom-out; }
+.article-body .image-portrait img { object-fit: contain; width: 100%; height: auto; }
+@media (max-width: 768px) {
+  .article-body .image-portrait { max-height: 70vh; }
+}
+
+/* Enlarge overlay for mobile */
+.article-body .image-enlarge-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.article-body .image-enlarge-overlay.active { opacity: 1; pointer-events: auto; }
+.article-body .image-enlarge-overlay img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+.article-body .image-enlarge-overlay .close-btn { position: absolute; top: 20px; right: 20px; color: white; background: none; border: none; font-size: 2rem; cursor: pointer; padding: 10px; }
+@media (max-width: 768px) {
+  .article-body .image-enlarge-overlay img { max-width: 95vw; max-height: 95vh; }
+}

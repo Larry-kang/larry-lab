@@ -1,0 +1,69 @@
+---
+---
+<script>
+// Image click-to-enlarge functionality for mobile portrait images
+const setupImageEnlarge = () => {
+  const overlay = document.createElement('div');
+  overlay.className = 'image-enlarge-overlay';
+  overlay.innerHTML = `
+    <button class="close-btn" aria-label="關閉圖片">×</button>
+    <img src="" alt="">
+  `;
+  document.body.appendChild(overlay);
+
+  const img = overlay.querySelector('img');
+  const closeBtn = overlay.querySelector('.close-btn');
+
+  const openOverlay = (targetImg) => {
+    img.src = targetImg.src;
+    img.alt = targetImg.alt || '';
+    overlay.classList.add('active');
+  };
+
+  const closeOverlay = () => {
+    overlay.classList.remove('active');
+    img.src = '';
+  };
+
+  // Handle image clicks
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('.image-portrait');
+    if (target && e.target.tagName === 'IMG') {
+      e.preventDefault();
+      openOverlay(e.target);
+    }
+  });
+
+  // Handle close button
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target === closeBtn) {
+      closeOverlay();
+    }
+  });
+
+  // Handle escape key
+  const handleEscape = (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeOverlay();
+    }
+  };
+
+  document.addEventListener('keydown', handleEscape);
+
+  // Clean up on navigation
+  return () => {
+    document.removeEventListener('click', handleEscape);
+    if (document.body.contains(overlay)) {
+      document.body.removeChild(overlay);
+    }
+  };
+};
+
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupImageEnlarge);
+} else {
+  setupImageEnlarge();
+}
+</script>
+---
