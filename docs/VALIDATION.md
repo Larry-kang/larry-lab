@@ -1,5 +1,7 @@
 # Larry Lab 本輪缺陷收尾與驗收補強驗證紀錄（VALIDATION REPORT）
 
+> 2026-10-29 文章區 MVP + ether.fi 新手系列（分支 `feat/articles-etherfi-mvp`，驗證 commit 為本筆紀錄所在提交）：content collection `articles`、文章頁／系列頁（目錄、適合對象、前置知識、上下篇）、推薦區塊由 `recommendations.json` 讀取、推薦總覽 ether.fi 卡片「閱讀介紹」、sitemap／llms／JSON-LD 由內容產生；三篇文章為草稿（status draft），作者經驗與截圖為 `TODO(作者後補)`。`npm run check`（0 錯誤）、`npm run lint`（0 錯誤）、`npm test`（15 檔 155 項通過）、`npm run build`（16 頁，SEO 產物 15 條 sitemap PASS）、`SEO_BASE_SHA=645efc0 node scripts/check-seo-changes.mjs`（PASS）、`npx playwright test`（150 項通過）。未 push、未開 PR、未部署（NOT RUN）。
+
 > 2026-10-23 Firstrade 推薦整合：推薦總覽、側欄與手機面板同步 18 項；型別／lint、149 單元、建置／SEO、140 E2E 通過。來源、人工版面核對、審查與發布追蹤見 [FIRSTRADE_REFERRAL.md](FIRSTRADE_REFERRAL.md)。
 
 > 2026-10-22 部署診斷更正：Cloudflare 後續收到四筆 `github:push`，先前不是完全未觸發，而是事件延遲及一筆初始化環境逾時。證據、復原計畫及自動部署驗收見 [DEPLOYMENT_TRIGGER_DIAGNOSIS.md](DEPLOYMENT_TRIGGER_DIAGNOSIS.md)。本輪只修正發布紀錄及驗證程序，不修改網站程式、計算、權限或付費設定。
@@ -258,3 +260,24 @@ Running 94 tests using 1 worker
    - 限制宣告：
      - 因目前 gh token 權限無法讀取使用者的 GitHub App 安裝列表（HTTP 403），且無法排除擁有者是否在其他 Cloudflare 帳號或組織層級安裝了 Cloudflare Pages GitHub App 並啟用預覽建置。
      - 正式撤回先前「絕不觸發部署」之宣稱。在未向擁有者確認 Cloudflare 外部串接狀態前，維持 UNKNOWN，且不向遠端執行非必要之推送。
+
+
+## 2026-10-29 ether.fi 文章插圖
+
+驗證版本：基於 `6b13eec` 的未提交工作樹。計畫、位置與驗收追蹤見 [ARTICLE_SCREENSHOTS.md](ARTICLE_SCREENSHOTS.md)。
+
+- 僅轉換指定 clean 圖片 image、image2–image10，輸出 10 張 WebP，最大寬度 1200 px、品質 80，總計 286,964 bytes；未使用 raw、preview、contact-sheet 或額外官方素材。
+- 每張圖片提供台灣繁體中文 alt、figcaption、固有寬高、延遲載入與等比例縮放。image5 標示「圖片來源：ether.fi」。保留心得及未提供的交易所、KYC 素材待補。
+- 環境：Node 22.23.4。預設 Node 20 無法執行 Astro；原套件目錄為唯讀連結，故以暫存套件副本執行，不變更依賴或鎖定檔。
+
+| 指令／查核 | 結果 |
+| --- | --- |
+| `npm run check` | 通過（PASS）：83 個檔案，0 errors、0 warnings、1 個既有 hint |
+| `npm run lint` | 通過（PASS） |
+| `npm test` | 通過（PASS）：15 個測試檔、156 項測試 |
+| `npm run build` | 通過（PASS）：16 個頁面與 SEO 靜態產物檢查 |
+| 建置後 HTML 與影像檔案查核 | 通過（PASS）：三篇依序 3／3／4 張圖，10 張圖皆有 alt、尺寸與圖說，資產存在且寬度不超過 1200；官方行銷圖來源完整 |
+| `git diff --check`、變更範圍查核 | 通過（PASS）：保留三篇 draft 及 noindex，未修改 sitemap／llms 或路由邏輯 |
+| `npx playwright test`（審查輪補跑） | 通過（PASS）：152 passed；另以 360px／1280px 確認三篇 10 張圖皆載入、無水平溢位 |
+
+插圖提交 `01e18ca`；審查輪（隱私逐張檢視、Impeccable、figure 樣式）另行提交並推送至 PR #21。

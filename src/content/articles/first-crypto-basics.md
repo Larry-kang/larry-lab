@@ -1,0 +1,135 @@
+---
+title: 第一次接觸加密貨幣：錢包、交易所、穩定幣、網路與手續費
+description: 零基礎入門：認識中心化交易所、託管與非託管錢包、助記詞與 passkey、穩定幣、區塊鏈網路與手續費，並學會用小額測試轉帳避免選錯網路。
+series: etherfi
+seriesOrder: 1
+author: Larry
+publishedAt: "2026-10-29"
+updatedAt: "2026-10-29"
+checkedAt: "2026-10-29"
+status: draft
+audience:
+  - 從沒買過加密貨幣、想先搞懂基本名詞的新手
+  - 打算之後使用 ether.fi 等鏈上服務，想先學會安全轉帳的人
+prerequisites: []
+sources:
+  - title: ether.fi Docs｜Risks（白皮書風險章節）
+    url: https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks
+  - title: ether.fi Docs｜Cash Technical Documentation
+    url: https://etherfi.gitbook.io/etherfi/products/cash/technical-documentation
+  - title: ether.fi Docs｜Quickstart
+    url: https://etherfi.gitbook.io/etherfi/quickstart
+recommendationIds: []
+introFor: []
+---
+
+> **閱讀前提醒**：本文為教學整理，不構成投資建議，也不保證任何收益。加密資產價格波動大，可能損失全部本金。標示「未驗證」的內容尚未找到官方來源，請自行查證。
+
+## 這篇會學到什麼
+
+1. 交易所與錢包的差別，以及「誰保管你的資產」。
+2. 助記詞、私鑰與 passkey 各是什麼。
+3. 穩定幣是什麼、有哪些風險。
+4. 為什麼轉帳一定要選對「網路」，以及如何做小額測試。
+5. 常見詐騙手法與自保原則。
+
+## 中心化交易所（CEX）
+
+中心化交易所是由公司營運的買賣平台，你把新台幣或加密資產存進去，由平台代為保管。開戶通常需要身分驗證（KYC），入金與出金則透過銀行或平台支援的方式。
+
+### 台灣交易所與國際交易所
+
+- 台灣有向主管機關完成洗錢防制登記的虛擬資產服務商（VASP），可用新台幣入金。實際登記名單與規範請以金管會公告為準（**未驗證**：本文尚未附上官方名單連結）。
+- 國際交易所幣種與功能通常較多，但不一定支援新台幣、也不一定受台灣法規保護（**未驗證**）。
+- 各交易所的手續費、出入金限額經常調整，本文**不列具體數字**，請以各平台官方費率頁為準。
+
+> **待補**：作者實際使用的交易所與入金流程截圖。
+<!-- TODO(作者後補): 作者實際使用的交易所、入金流程與截圖（遮罩個資） -->
+
+## 錢包：託管 vs 非託管
+
+| 類型 | 誰控制資產 | 例子 | 主要風險 |
+| --- | --- | --- | --- |
+| 託管（custodial） | 平台 | 交易所帳戶 | 平台倒閉、凍結帳戶、被駭 |
+| 非託管（non-custodial） | 你自己 | 自架錢包、智能合約帳戶 | 自己弄丟金鑰、誤簽惡意交易 |
+
+非託管的意思是「只有你能動用資產」，相對地也「只有你能負責」。ether.fi 官方也強調：非託管不等於無風險，帳戶仍依賴智能合約、登入方式與第三方服務（見官方 Risks 頁）。
+
+### 助記詞、私鑰與 passkey
+
+- **私鑰**：控制錢包的密碼學金鑰，誰拿到誰就能轉走資產。
+- **助記詞**：通常 12 或 24 個英文單字，可以還原私鑰。**絕對不要拍照上雲、不要給任何人、不要輸入到不明網站。**
+- **passkey**：綁定在你裝置（手機指紋、Face ID、密碼管理器）上的登入方式，沒有傳統密碼。ether.fi 開戶即使用 passkey 登入與核准操作（官方 Quickstart）。換手機前請先確認 passkey 有同步或備援方式。
+
+## 穩定幣
+
+穩定幣是設計成與法幣（多為美元）維持 1:1 價格的代幣，常見有 USDC、USDT。它們方便在鏈上轉帳與計價，但：
+
+- 可能**脫鉤**（價格偏離 1 美元）；官方 Risks 頁也把「lost peg」列為市場風險。
+- 價值依賴發行商的儲備與營運；發行商出問題時可能受凍結或無法兌回。
+- 同一種穩定幣在不同網路上是不同合約，轉帳前要確認網路。
+
+## 區塊鏈網路：最容易出錯的地方
+
+同樣叫「USDC」，可能存在於 Ethereum、Optimism、Base、Arbitrum 等不同網路。轉帳時**發送端與接收端必須選同一個網路，且接收端必須支援該資產**。
+
+### 官方規則（ether.fi）
+
+- ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值；存入不支援的資產可能無法取回（Cash Technical Documentation）。官方「Account upgrade」頁也說明核心鏈自 2026 年 4 月起更新為 Optimism。實際支援網路仍以 app 入金畫面為準。
+- 官方 Risks 頁把「deposits to an unsupported network」列為區塊鏈與跨鏈橋風險之一。
+
+### 小額測試轉帳步驟
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image2.webp" alt="ether.fi 新增資金選單，列出現金與加密貨幣兩種入金入口" width="787" height="469" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>加值選單列出「現金」與「加密貨幣」兩種入口，加密貨幣選項註明可從錢包地址或交易所接收資產。</figcaption>
+</figure>
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image3.webp" alt="加密貨幣入金頁，顯示 USDT、Base 網路與存款提醒，QR 碼及地址已遮罩" width="1200" height="1516" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>入金頁顯示選擇代幣、選擇網路、跨鏈費用及存款限制；QR 碼與存款地址已遮罩。</figcaption>
+</figure>
+
+1. 在接收端（例如錢包或 ether.fi app）複製入金地址，**確認畫面上標示的網路與支援資產**。
+2. 在交易所提領頁選擇**同一個網路**與資產，貼上地址後逐字核對開頭與結尾。
+3. 先送出**小額**測試，等接收端顯示到帳。
+4. 確認無誤後再轉正式金額。
+
+<figure style="margin: 1.5rem 0;">
+  <img src="/images/articles/etherfi/image4.webp" alt="入金交易明細，顯示已完成狀態、發送與接收項目，地址已遮罩" width="1200" height="746" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
+  <figcaption>入金交易明細列出「已完成」、發送與接收的資產，以及「檢視鏈上交易」入口；地址已遮罩。</figcaption>
+</figure>
+
+## Gas 與提領手續費
+
+- **Gas**：在區塊鏈上執行交易要付給網路的費用，隨擁擠程度變動，不同網路差異很大。
+- **提領手續費**：交易所把幣轉出時收取，各所各幣各網路不同。
+
+本文不列任何具體金額，因為費用會變動；請以送出前畫面顯示為準。
+
+## 常見詐騙與自保
+
+- 自稱客服私訊要你「驗證錢包」或提供助記詞——一律是詐騙。
+- 假冒官方網站、假 app：從官方網站或書籤進入，不點不明連結。
+- 保證高收益、拉你進群組帶單——加密服務沒有保證收益。
+- 簽署交易前看清楚授權內容；不懂就不要簽。
+
+## 作者觀點
+
+> 以下為作者個人看法，非官方規則。
+
+- 新手建議先用台灣受登記的交易所熟悉買賣與出金，再嘗試非託管錢包。
+- 每一次換新網路、新地址，都值得先做一次小額測試；多花一點手續費，遠比轉錯網路便宜。
+
+> **待補**：作者第一次轉帳的心得。
+<!-- TODO(作者後補): 作者自身第一次鏈上轉帳經驗（不可由他人代寫） -->
+
+## 風險整理
+
+- 價格波動與穩定幣脫鉤風險。
+- 交易所託管風險（倒閉、凍結、被駭）。
+- 自管金鑰遺失或誤簽惡意交易。
+- 選錯網路或存入不支援資產可能永久遺失資金。
+- 法規與稅務可能變動（**未驗證**：本文未涵蓋台灣稅務規定）。
+
+下一篇會介紹 ether.fi 是什麼、適合誰，以及它的成本與風險。

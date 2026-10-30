@@ -9,6 +9,8 @@ import {
 } from '../lib/recommendations';
 import recommendationsFile from '../content/recommendations.json';
 import { site } from '../config/site';
+import { buildIntroMap } from '../lib/articles';
+import { loadArticles, toMeta } from '../lib/article-collection';
 
 interface Props {
   variant: 'sidebar' | 'mobile' | 'full';
@@ -21,6 +23,7 @@ const items = variant === 'full' ? publicRecommendations(allValidated) : sidebar
 const now = new Date();
 const groups = groupByCategory(items);
 const prefix = variant;
+const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(toMeta)) : {};
 ---
 
 <div class={`rec rec-${variant}`} data-rec-variant={variant}>
@@ -78,6 +81,11 @@ const prefix = variant;
                       <a class="btn small" href={item.referralUrl} target="_blank" rel="sponsored noopener noreferrer">
                         前往 {item.name}（另開新分頁）
                       </a>
+                    </p>
+                  )}
+                  {introMap[item.id] && (
+                    <p class="rec-intro">
+                      <a href={introMap[item.id]} data-testid="rec-intro-link">閱讀介紹</a>
                     </p>
                   )}
                   {isUnknown && (
