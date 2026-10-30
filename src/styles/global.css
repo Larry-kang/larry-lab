@@ -1345,6 +1345,14 @@ tbody th {
 
   .nav-list {
     width: 100%;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .nav-list a {
+    padding: 6px 8px;
+    white-space: nowrap;
   }
 
   main > h1 {
