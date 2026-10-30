@@ -38,7 +38,7 @@ recommendationIds:
 introFor: []
 ---
 
-> **閱讀前提醒**：卡片的費用、回饋、額度與支援地區受持卡人協議與發卡機構條款約束，且可能變動。**台灣是否可申請、具體費率、實體卡運費皆未驗證**，請以 app 與官方條款為準。本文不保證任何回饋或收益。
+> **閱讀前提醒**：卡片的費用、回饋、額度與支援地區受持卡人協議與發卡機構條款約束，且可能變動。截至 2026-10-30 查證：官方 Help Center 的國家清單列出台灣在「實體 Cash 卡目前可申請的國家」中（仍需通過 KYC）；具體費率與回饋見下方「費用、回饋與地區」一節。**實體卡運費與到貨時間、第二張起卡片費用，尚未找到官方數字**。本文不保證任何回饋或收益。
 
 ## 官方規則：開戶與申請步驟
 
@@ -117,10 +117,16 @@ introFor: []
 
 三種 Liquid 還款額度分開計算。
 
-## 費用、回饋與地區（未驗證）
+## 費用、回饋與地區
 
-- 卡片費用、匯率／外幣手續費、回饋比例：官方文件未列固定數字 → **未驗證**。
-- 台灣居民是否可申請 Cash 卡、實體卡運費與寄送時間 → **未驗證**。
+截至 2026-10-30 已查到的官方數字（都可能變動；完整細節以 [持卡人協議（International）](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cardholder-agreement-inc.-international)與 app 顯示為準）：
+
+- **外幣手續費**：非美元交易依持卡人協議先按 1% 外幣基本匯率（FX Base Rate）換算；Core 等級最高另加 0.5%（50bps）、Luxe 等級最高另加 0.25%（25bps）附加費。
+- **首張虛擬卡**：Core 帳戶的第一張虛擬卡通常免費；僅在官方指定國家（菲律賓、墨西哥、泰國等，台灣不在名單中）的第一張虛擬卡收 US$10（[Help Center](https://help.ether.fi/en/articles/833743-why-is-there-a-10-fee-for-my-first-virtual-cash-card)）。其他卡片費用依協議納入的費率表（Fee Schedule）與 app 內顯示。
+- **會員分級**：Luxe US$199／年、Pinnacle US$999／年、VIP 邀請制（[官方 Cashback 頁](https://www.ether.fi/cashback)）。
+- **回饋**：官方顯示日常消費回饋 3%（Core／Luxe／Pinnacle）、VIP 4%；訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級）。發放資產、領取方式、資格與排除交易見 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)；實際回饋以 app 內顯示為準。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
+- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，24 小時內最多提領 5 次；虛擬卡可在支援感應的 ATM 提領（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
+- **台灣**：台灣在官方 Help Center「實體 Cash 卡目前可申請的國家」清單中，申請仍需通過 KYC 與合規審查；清單可能變動，以官方為準（[Help Center](https://help.ether.fi/en/articles/758780-in-which-countries-is-the-cash-card-available)）。**實體卡運費與到貨時間：未驗證**。
 - 官方 Risks 頁說明：卡片使用受持卡人協議與發卡機構條款約束，可用性、權益、額度、回饋、費用、爭議處理與支援地區都可能變動；Cash 卡與 ether.fi protocol 無關聯。
 
 <figure style="margin: 1.5rem 0;">

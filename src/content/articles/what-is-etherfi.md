@@ -97,9 +97,15 @@ introFor:
 
 ## 費用與限制
 
-- 官方文件未列出卡片、兌換或各產品的固定費率 → **未驗證**，請以 app 與持卡人協議為準。
-- Gas、跨鏈與兌換滑價等成本會變動，本文不列具體數字。
-- 地區限制：部分產品在部分地區不可用；台灣是否可使用各項產品 → **未驗證**，以 app 顯示為準。
+截至 2026-10-30 已查到的官方數字（都可能變動，使用前請以 app 與最新條款為準）：
+
+- **Cash 卡會員分級**：Luxe US$199／年、Pinnacle US$999／年、VIP 邀請制；Core 為入門等級（[官方 Cashback 頁](https://www.ether.fi/cashback)）。
+- **外幣交易手續費**：非美元消費依[持卡人協議（International）](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cardholder-agreement-inc.-international)先按 1% 外幣基本匯率（FX Base Rate）換算；Core 等級最高另加 0.5%（50bps）、Luxe 等級最高另加 0.25%（25bps）附加費。
+- **回饋**：官方顯示日常消費回饋 3%（Core／Luxe／Pinnacle）、VIP 4%；訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級，見[官方 Cashback 頁](https://www.ether.fi/cashback)與 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)）。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
+- **虛擬卡首卡費用**：Core 帳戶第一張虛擬卡通常免費；僅在官方指定國家（菲律賓、墨西哥、泰國等，台灣不在名單中）的第一張虛擬卡收 US$10（[Help Center](https://help.ether.fi/en/articles/833743-why-is-there-a-10-fee-for-my-first-virtual-cash-card)）。
+- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，24 小時內最多提領 5 次（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
+- Gas 等鏈上手續費會變動，本文不列具體數字。
+- 地區限制：部分產品在部分地區不可用。官方 Help Center 列出「實體 Cash 卡目前可申請的國家」清單，台灣在清單中，仍需通過 KYC 與合規審查，清單可能變動（[Help Center](https://help.ether.fi/en/articles/758780-in-which-countries-is-the-cash-card-available)）。Cash 以外的產品在台灣的可用性尚未逐項查證，以 app 顯示為準。
 
 ## 主要風險（官方 Risks 頁整理）
 
