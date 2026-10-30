@@ -57,3 +57,9 @@ Critique：
 4. 正面：皆有寬高屬性（無 CLS）、`loading="lazy"`、alt；360px 無水平溢位。
 
 Polish（僅 `.article-body figure` 範圍）：圖片置中、`--line` 細邊框與 `--radius` 圓角、`max-height: min(80vh, 900px)` 等比例縮放；figcaption 改 `--muted`、0.875rem、置中、`text-wrap: pretty`。桌機直式圖高度由 >1,600px 降為 720px；手機寬度不變。
+
+## 第 0 篇：加密貨幣與 BTC（2026-10-31）
+
+Detect（`impeccable detect --json`，本機 `serve:dist`）：`/articles/crypto-and-btc-basics/` 0 findings；`/articles/etherfi/`（系列索引，新增第 0 篇）0 findings。
+
+Critique（⚠️ DEGRADED: single-context，Playwright 量測）：320／375／1280px 皆無水平捲動（scrollWidth = clientWidth）；正文 16px／行高 1.65，桌機行寬約 627px；閱讀前提醒、免責聲明、作者觀點 TODO 皆以既有提醒區塊樣式呈現；無阻擋問題。唯一修正：標題中英間距與內文不一致（「加密貨幣與BTC」→「加密貨幣與 BTC」）。未改 CSS。
