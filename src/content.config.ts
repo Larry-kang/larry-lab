@@ -10,7 +10,7 @@ const articles = defineCollection({
     title: z.string().min(1),
     description: z.string().min(1),
     series: z.enum(['etherfi']),
-    seriesOrder: z.number().int().positive(),
+    seriesOrder: z.number().int().nonnegative(),
     author: z.string().default('Larry'),
     publishedAt: isoDate,
     updatedAt: isoDate,
