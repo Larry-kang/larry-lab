@@ -31,7 +31,7 @@ test('推薦總覽 ether.fi 卡片有「閱讀介紹」', async ({ page }) => {
   await expect(intro).toHaveAttribute('href', '/articles/what-is-etherfi/');
 });
 
-test('系列索引頁列出三篇', async ({ page }) => {
+test('系列索引頁列出四篇', async ({ page }) => {
   await page.goto('/articles/etherfi/');
-  await expect(page.getByTestId('series-list').locator('li')).toHaveCount(3);
+  await expect(page.getByTestId('series-list').locator('li')).toHaveCount(4);
 });

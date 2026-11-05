@@ -49,7 +49,7 @@ const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(t
                       {item.logo && (
                         <img
                           src={item.logo}
-                          alt=""
+                          alt={`${item.name} 標誌`}
                           width="40"
                           height="40"
                           class="rec-logo-lg"
@@ -111,7 +111,7 @@ const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(t
                       {item.logo && (
                         <img
                           src={item.logo}
-                          alt=""
+                          alt={`${item.name} 標誌`}
                           width="28"
                           height="28"
                           class="rec-logo-sm"

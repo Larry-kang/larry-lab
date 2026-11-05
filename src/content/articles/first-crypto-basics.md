@@ -39,9 +39,9 @@ introFor: []
 
 ### 台灣交易所與國際交易所
 
-- 台灣有向主管機關完成洗錢防制登記的虛擬資產服務商（VASP），可用新台幣入金。實際登記名單與規範請以金管會公告為準（**未驗證**：本文尚未附上官方名單連結）。
-- 國際交易所幣種與功能通常較多，但不一定支援新台幣、也不一定受台灣法規保護（**未驗證**）。
-- 各交易所的手續費、出入金限額經常調整，本文**不列具體數字**，請以各平台官方費率頁為準。
+- 台灣有向主管機關完成洗錢防制登記的虛擬資產服務商（VASP）。依[金管會 2025 年 9 月 22 日公告](https://www.fsc.gov.tw/ch/home.jsp?dataserno=202509220001&dtable=News&id=96&mcustomize=news_view.jsp&parentpath=0%2C2)，VASP 提供虛擬資產服務前，應先向金管會完成洗錢防制登記，未完成登記者不得繼續經營業務；首批名單共 9 家。名單會持續更新，最新版名單見金管會官網（截至 2026 年 10 月 28 日更新：[完成洗錢防制登記之 VASP 業者名單](https://www.fsc.gov.tw/userfiles/file/1151028更新完成洗錢防制登記之VASP業者名單.pdf)）。
+- 各交易所是否支援新台幣入金、手續費與出入金限額以各平台官方公告為準，且經常調整，本文**不列具體數字**。
+- 金管會亦建議民眾透過已完成登記的業者進行交易；選擇國際平台前，請自行確認其監管身分，以及你在台灣能得到什麼保護。
 
 > **待補**：作者實際使用的交易所與入金流程截圖。
 <!-- TODO(作者後補): 作者實際使用的交易所、入金流程與截圖（遮罩個資） -->
@@ -53,19 +53,19 @@ introFor: []
 | 託管（custodial） | 平台 | 交易所帳戶 | 平台倒閉、凍結帳戶、被駭 |
 | 非託管（non-custodial） | 你自己 | 自架錢包、智能合約帳戶 | 自己弄丟金鑰、誤簽惡意交易 |
 
-非託管的意思是「只有你能動用資產」，相對地也「只有你能負責」。ether.fi 官方也強調：非託管不等於無風險，帳戶仍依賴智能合約、登入方式與第三方服務（見官方 Risks 頁）。
+非託管的意思是「只有你能動用資產」，相對地也「只有你能負責」。ether.fi 官方也強調：非託管不等於無風險，帳戶仍依賴智能合約、登入方式與第三方服務（見[官方 Risks 頁](https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks)）。
 
 ### 助記詞、私鑰與 passkey
 
 - **私鑰**：控制錢包的密碼學金鑰，誰拿到誰就能轉走資產。
 - **助記詞**：通常 12 或 24 個英文單字，可以還原私鑰。**絕對不要拍照上雲、不要給任何人、不要輸入到不明網站。**
-- **passkey**：綁定在你裝置（手機指紋、Face ID、密碼管理器）上的登入方式，沒有傳統密碼。ether.fi 開戶即使用 passkey 登入與核准操作（官方 Quickstart）。換手機前請先確認 passkey 有同步或備援方式。
+- **passkey**：綁定在你裝置（手機指紋、Face ID、密碼管理器）上的登入方式，沒有傳統密碼。ether.fi 開戶即使用 passkey 登入與核准操作（[官方 Quickstart](https://etherfi.gitbook.io/etherfi/quickstart)）。換手機前請先確認 passkey 有同步或備援方式。
 
 ## 穩定幣
 
 穩定幣是設計成與法幣（多為美元）維持 1:1 價格的代幣，常見有 USDC、USDT。它們方便在鏈上轉帳與計價，但：
 
-- 可能**脫鉤**（價格偏離 1 美元）；官方 Risks 頁也把「lost peg」列為市場風險。
+- 可能**脫鉤**（價格偏離 1 美元）；[官方 Risks 頁](https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks)也把「lost peg」列為市場風險。
 - 價值依賴發行商的儲備與營運；發行商出問題時可能受凍結或無法兌回。
 - 同一種穩定幣在不同網路上是不同合約，轉帳前要確認網路。
 
@@ -75,20 +75,22 @@ introFor: []
 
 ### 官方規則（ether.fi）
 
-- ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值；存入不支援的資產可能無法取回（Cash Technical Documentation）。官方「Account upgrade」頁也說明核心鏈自 2026 年 4 月起更新為 Optimism。實際支援網路仍以 app 入金畫面為準。
+- ether.fi Cash 的核心鏈為 Optimism，可從 Ethereum、Base、Arbitrum、HyperEVM 儲值，存入不支援的資產可能無法取回（[Cash Technical Documentation](https://etherfi.gitbook.io/etherfi/products/cash/technical-documentation)）。官方「[Account upgrade](https://etherfi.gitbook.io/etherfi/products/cash/account-upgrade)」頁也說明核心鏈自 2026 年 4 月起更新為 Optimism。實際支援網路仍以 app 入金畫面為準。
+- App 入金畫面另顯示 BNB Smart Chain（BSC）等網路與 Pix、交易所轉送、銀行轉帳等方式；文件列出的支援鏈可能與 App 不同，實際支援的鏈與資產**以 App 為準**。
 - 官方 Risks 頁把「deposits to an unsupported network」列為區塊鏈與跨鏈橋風險之一。
 
 ### 小額測試轉帳步驟
 
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image2.webp" alt="ether.fi 新增資金選單，列出現金與加密貨幣兩種入金入口" width="787" height="469" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>加值選單列出「現金」與「加密貨幣」兩種入口，加密貨幣選項註明可從錢包地址或交易所接收資產。</figcaption>
+<div class="image-pair">
+<figure>
+  <img src="/images/articles/etherfi/m9-add-funds-methods.webp" alt="ether.fi 新增資金頁，列出 Pix、加密錢包轉送、交易所轉帳、分享存款地址與銀行轉帳等入金方式" width="864" height="1722" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>新增資金頁列出多種入金方式：Pix 即時付款、從加密錢包轉送、從交易所轉送、分享存款地址與銀行轉帳。</figcaption>
 </figure>
-
-<figure style="margin: 1.5rem 0;">
-  <img src="/images/articles/etherfi/image3.webp" alt="加密貨幣入金頁，顯示 USDT、Base 網路與存款提醒，QR 碼及地址已遮罩" width="1200" height="1516" loading="lazy" decoding="async" style="max-width: 100%; height: auto;" />
-  <figcaption>入金頁顯示選擇代幣、選擇網路、跨鏈費用及存款限制；QR 碼與存款地址已遮罩。</figcaption>
+<figure>
+  <img src="/images/articles/etherfi/m8-deposit-address-usdt-bsc.webp" alt="ether.fi 分享存款地址頁，選擇 USDT 與 BNB Smart Chain 網路，並顯示不要使用受限交易所入金的提醒，QR 碼已遮罩" width="864" height="1722" loading="lazy" decoding="async" class="image-portrait" />
+  <figcaption>存款地址頁顯示選擇代幣 USDT、網路 BNB Smart Chain（BSC）、跨鏈費與最低存款金額，以及不要使用受限交易所入金的提醒；QR 碼與地址已遮罩。</figcaption>
 </figure>
+</div>
 
 1. 在接收端（例如錢包或 ether.fi app）複製入金地址，**確認畫面上標示的網路與支援資產**。
 2. 在交易所提領頁選擇**同一個網路**與資產，貼上地址後逐字核對開頭與結尾。
