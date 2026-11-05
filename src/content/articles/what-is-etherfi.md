@@ -130,10 +130,10 @@ introFor:
 
 - **Cash 卡會員分級**：Luxe US$199／年、Pinnacle US$999／年、VIP 邀請制；Core 為入門等級（[官方 Cashback 頁](https://www.ether.fi/cashback)）。
 - **外幣交易手續費**：非美元消費依[持卡人協議（International）](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cardholder-agreement-inc.-international)先按 1% 外幣基本匯率（FX Base Rate）換算；Core 等級最高另加 0.5%（50bps）、Luxe 等級最高另加 0.25%（25bps）附加費。
-- **回饋**：Core 等級每月合格消費前 US$2,000 享 3%；Luxe／Pinnacle 日常消費 3%、VIP 4%。訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級，見[官方 Cashback 頁](https://www.ether.fi/cashback)、[Help Center](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)與 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)）。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
+- **回饋**：Core 等級每月合格消費前 US$2,000 享 3%；Luxe／Pinnacle 日常消費 3%、VIP 4%。訂閱類消費回饋 Luxe 10%、Pinnacle 20%、VIP 30%，並設有每月上限（金額依等級）；訂閱類回饋須先在 App 選定一個訂閱類別，僅該類別內的合格服務享回饋，且每月可更改一次（見[官方 Cashback 頁](https://www.ether.fi/cashback)、[Help Center](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)與 [Cashback Rewards Program 條款](https://etherfi.gitbook.io/etherfi/legal/ether.fi-legal/ether.fi-cash-cashback-rewards-program-u.s.-and-international)）。回饋的稅務處理由持卡人自行負責（條款第 5 節）。
 - **虛擬卡**：Core 內含 1 張虛擬卡，之後每張加購 US$10；僅在官方指定國家（菲律賓、墨西哥、泰國等，台灣不在名單中）的第一張虛擬卡也收 US$10（[Help Center](https://help.ether.fi/en/articles/833743-why-is-there-a-10-fee-for-my-first-virtual-cash-card)、[Help Center｜卡片權益](https://help.ether.fi/en/articles/304368-what-are-the-benefits-of-a-personal-cash-credit-card)）。
 - **實體卡寄送**：地址需使用英文字元、不收 PO Box，送出後不可修改；到貨後在 App 啟用並設定 PIN（[Help Center｜Physical Cards](https://help.ether.fi/en/articles/842973-physical-cards)）。實體卡運費與第二張卡費用：以 App 下單前顯示為準。
-- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，24 小時內最多提領 5 次（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
+- **ATM 提領（個人卡）**：單次上限 US$5,000、24 小時滾動上限 US$25,000，滾動 24 小時內最多 5 次提領嘗試，失敗或遭拒也計入次數（[Help Center](https://help.ether.fi/en/articles/303623-what-are-the-atm-withdrawal-limits-for-personal-cash-cards)）。
 - Gas 等鏈上手續費會變動，本文不列具體數字。
 - 地區限制：部分產品在部分地區不可用。官方 Help Center 列出「實體 Cash 卡目前可申請的國家」清單，台灣在清單中，仍需通過 KYC 與合規審查，清單可能變動（[Help Center](https://help.ether.fi/en/articles/758780-in-which-countries-is-the-cash-card-available)）。Cash 以外的產品在台灣的可用性尚未逐項查證，以 app 顯示為準。
 
