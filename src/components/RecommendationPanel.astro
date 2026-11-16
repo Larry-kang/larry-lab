@@ -65,6 +65,7 @@ const prefix = variant;
                       {item.offerExpiresAt ? `（至 ${item.offerExpiresAt}）` : ''}
                     </p>
                   )}
+                  {item.id === 'ether-fi' && <p><a href="/guides/etherfi/">閱讀 ether.fi 新手指南</a></p>}
                   {item.code && (
                     <p class="rec-code">
                       推薦碼：<code data-copy-code={item.code}>{item.code}</code>{' '}

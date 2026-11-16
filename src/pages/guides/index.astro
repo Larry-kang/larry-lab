@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { guides } from '../../lib/guides';
+---
+<BaseLayout title="教學指南" description="從零開始理解金融與加密資產服務。閱讀 ether.fi 新手系列，先了解用途、成本、安全與限制，再決定是否使用。" nav="guides">
+  <p class="eyebrow">理解用途，再開始使用</p>
+  <h1>教學指南</h1>
+  <p class="lead">把陌生名詞拆成能理解的步驟。先看適不適合自己，再了解怎麼使用。</p>
+  <section class="panel" aria-labelledby="series-title">
+    <p class="eyebrow">加密資產 · 新手系列</p>
+    <h2 id="series-title"><a href="/guides/etherfi/">ether.fi：從第一次接觸到進階功能</a></h2>
+    <p>從錢包、網路與穩定幣開始，逐步認識支付、收益策略、ETH 質押、抵押借貸與代幣化股票。</p>
+    <p>共 {guides.length} 篇 · 不需要先開戶或持有加密貨幣 · 每篇附官方來源與查核日期</p>
+    <a class="btn" href="/guides/etherfi/">查看系列與閱讀順序 →</a>
+  </section>
+  <section class="panel">
+    <h2>怎麼使用這些文章？</h2>
+    <p>第一次接觸加密貨幣，從基礎篇開始；只想了解某項功能，可以直接選篇閱讀。借貸與交易篇標示為進階，不是新手必須完成的任務。</p>
+    <p>內容以官方文件整理為主，未冒稱帳戶操作實測。推薦關係會揭露；是否使用服務，由你依需求與風險判斷。</p>
+  </section>
+</BaseLayout>

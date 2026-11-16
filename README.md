@@ -4,6 +4,14 @@
 
 正式網站：<https://larry-lab.pages.dev/>
 
+## 教學指南與 Agent 閱讀（2026-11-17 本機候選版，尚未發布）
+
+新增 `/guides/` 與九篇 ether.fi 新手系列，從基礎概念到支付、收益、質押、借貸、代幣化股票與退出。內容是官方文件整理，不是帳戶操作實測。
+
+文章資料集中在 `src/content/guides.json`，HTML、Markdown、公開目錄、Article 結構化資料、sitemap 與 llms.txt 同源生成；設定 `draft: true` 不產生公開文章路由。更新內容時須重新閱讀來源，實質查核後才調整 `checkedAt`，不可改成建置日期。`npm run build` 會核對正文及資料出口同步。
+
+閱讀方式保留於 `docs/AGENT_READING.md`，`/content-index.json` 提供文章、Markdown 與方法論入口。目前沒有公開 MCP 或遠端計算 API；後續可行架構、成本、安全與驗收見 [公開 MCP 研究](docs/PUBLIC_MCP_RESEARCH.md)。
+
 2026-10-21 操作體驗更新已正式發布：金額千分位、精確年月切換、模式摘要與方案鍵盤操作。版本、測試及部署限制見 [本輪驗收紀錄](docs/TOOL_UX_VALIDATION.md)。
 
 Larry Lab 為台灣使用者提供房貸、信貸、股票質押、退休及投資組合五大財金試算器，並整理數位銀行、證券開戶與加密資產服務推薦資訊。所有試算皆在瀏覽器本機執行，不設伺服器端個人資料庫，亦不載入第三方追蹤腳本。
