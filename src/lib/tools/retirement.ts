@@ -175,17 +175,19 @@ export const retirementTool: ToolDef = {
       ev.notices.push({ tone: 'warn', text: '規劃期間內，在這些假設下沒有任何整歲年齡可以退休而不發生資金不足。' });
     }
     if (result.noAccumulation) {
-      ev.notices.push({ tone: 'info', text: '目標退休年齡等於目前年齡，沒有累積期：每月應存金額不適用，請看資金缺口。' });
+      ev.notices.push({ tone: 'info', text: '目標退休年齡等於目前年齡，沒有累積期：每月應存金額不適用，請看目標年齡預估資產與其缺口／盈餘註記。' });
     }
     if (result.maxSpendingExceedsCap) {
       ev.notices.push({ tone: 'warn', text: '目標年齡可負擔的月支出超過畫面上限（10 億元），上限值不是精確答案。' });
     }
 
-    // 前三項核心結果 (Core Cards)
+    // --- 前三項核心重點結果卡片（已精簡，僅對齊 compareKey） ---
     ev.cards.push(
       card(`目標退休所需本金（${unitLabel}）`, fmt(result.requiredAtRetire!, Mr), {
         isCore: true,
         compare: true,
+        compareKey: 'requiredAtRetire',
+        compareLabel: '目標退休所需本金',
         note: nominal ? '以退休時點名目金額表示' : '以今天購買力表示',
       }),
       card(
@@ -194,31 +196,54 @@ export const retirementTool: ToolDef = {
         {
           isCore: true,
           compare: true,
+          compareKey: 'neededSaving',
+          compareLabel: '每月應存金額',
           note: result.neededSaving === null ? '已達退休年齡' : nominal ? '首月名目金額，隨通膨逐年調整' : '以今天購買力計',
         },
       ),
       card('最早可退休年齡', result.earliestRetireAge === null ? '無法達標' : `${result.earliestRetireAge} 歲`, {
         isCore: true,
         compare: true,
+        compareKey: 'earliestRetireAge',
+        compareLabel: '最早可退休年齡',
         tone: result.earliestRetireAge === null ? 'bad' : 'neutral',
         note: result.earliestRetireAge === null ? '規劃期間資產不足支應' : `以此假設最早可在 ${result.earliestRetireAge} 歲達標`,
       }),
     );
 
-    // 次要結果卡片
+    // --- 次要與比較表結果卡片 ---
+    // 資金缺口／差額併入「目標年齡預估資產」註記，避免與所需本金並列重述差額
     const gap = result.gap!;
+    const surplus = Math.max(0, result.projectedAtRetire! - result.requiredAtRetire!);
+    const projectedNote =
+      gap > 0
+        ? `相對所需本金缺口 ${fmt(gap, Mr)}`
+        : surplus > 0
+          ? `相對所需本金盈餘 ${fmt(surplus, Mr)}`
+          : '恰符所需本金';
     ev.cards.push(
-      card(`今天退休所需本金（${unitLabel}）`, fmt(result.requiredToday!, 0), { compare: true, note: '假設現在立即退休、支應至終止年齡' }),
-      card(`目標年齡預估資產（${unitLabel}）`, fmt(result.projectedAtRetire!, Mr), { compare: true }),
-      card(
-        gap > 0 ? `資金缺口（${unitLabel}）` : `資金差額（${unitLabel}）`,
-        gap > 0 ? fmt(gap, Mr) : `盈餘 ${fmt(Math.max(0, result.projectedAtRetire! - result.requiredAtRetire!), Mr)}`,
-        { tone: gap > 0 ? 'bad' : 'good' },
-      ),
+      card(`今天退休所需本金（${unitLabel}）`, fmt(result.requiredToday!, 0), {
+        compare: true,
+        compareKey: 'requiredToday',
+        compareLabel: '今天退休所需本金',
+        note: '假設現在立即退休、支應至終止年齡',
+      }),
+      card(`目標年齡預估資產（${unitLabel}）`, fmt(result.projectedAtRetire!, Mr), {
+        compare: true,
+        compareKey: 'projectedAtRetire',
+        compareLabel: '目標年齡預估資產',
+        note: projectedNote,
+        tone: gap > 0 ? 'bad' : 'good',
+      }),
       card(`目標年齡可負擔最高月支出（${unitLabel}）`, `${result.maxSpendingExceedsCap ? '超過 ' : ''}${fmt(result.maxMonthlySpending!, nominal ? Mr + 1 : 0)}`, {
         note: nominal ? '退休首月名目金額，隨通膨調整' : '以今天購買力計',
       }),
-      card('首次資金不足年齡', result.firstShortfallAge === null ? '無（可支應到終止年齡）' : `${result.firstShortfallAge} 歲`, { compare: true, tone: result.feasible ? 'good' : 'bad' }),
+      card('首次資金不足年齡', result.firstShortfallAge === null ? '無（可支應到終止年齡）' : `${result.firstShortfallAge} 歲`, {
+        compare: true,
+        compareKey: 'firstShortfallAge',
+        compareLabel: '首次資金不足年齡',
+        tone: result.feasible ? 'good' : 'bad',
+      }),
     );
 
     const yearly = result.points.filter((pt) => pt.month % 12 === 0);

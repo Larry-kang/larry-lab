@@ -81,33 +81,68 @@ export const loanTool: ToolDef = {
     }
     const s = result.schedule.summary;
 
-    // 前三項核心結果 (Core Cards)
+    const principal = r.number('principal');
+    const fee = s.fee;
+    const netProceeds = result.netProceeds!;
+    // 本金與期初可用相同時（費用另付或費用為 0），本金卡僅供比較表，避免結果網格重述
+    const hidePrincipalRestatement = Math.abs(principal - netProceeds) < 0.005;
+
+    // --- 前三項核心重點結果卡片 ---
+    const netNoteParts: string[] = [];
+    if (feeMode === 'deducted') {
+      netNoteParts.push(fee > 0 ? `已扣除開辦費 ${formatTwd(fee)}` : '無開辦費，可用金額等於本金');
+    } else {
+      netNoteParts.push(fee > 0 ? `費用另付 ${formatTwd(fee)}，可用金額等於本金` : '無開辦費，可用金額等於本金');
+    }
     ev.cards.push(
       card('每月還款金額', formatTwd(result.monthlyPayment!), {
         isCore: true,
         compare: true,
+        compareKey: 'monthlyPayment',
+        compareLabel: '每月還款金額',
         note: '本息平均攤還，各期固定',
       }),
       card('估算有效年化成本', formatPercent(result.effectiveAnnualCost!, 2), {
         isCore: true,
         compare: true,
+        compareKey: 'effectiveAnnualCost',
+        compareLabel: '估算有效年化成本',
         tone: 'neutral',
         note: '依現金流複利估算；非貸款機構法規 APR',
       }),
-      card('期初可用金額', formatTwd(result.netProceeds!), {
+      card('期初可用金額', formatTwd(netProceeds), {
         isCore: true,
         compare: true,
-        note: feeMode === 'deducted' ? '已扣除期初費用' : '費用另付，可用金額等於本金',
+        compareKey: 'netProceeds',
+        compareLabel: '期初可用金額',
+        note: netNoteParts.join('；'),
       }),
     );
 
-    // 次要結果卡片
+    // --- 次要與比較表結果卡片 ---
     ev.cards.push(
-      card('貸款本金', formatTwd(r.number('principal')), { compare: true }),
-      card('總利息支出', formatTwd(result.totalInterest!), { compare: true }),
-      card('一次性費用', formatTwd(s.fee)),
-      card('總支出（本息 + 費用）', formatTwd(result.totalCost!), { compare: true }),
+      card('貸款本金', formatTwd(principal), {
+        compare: true,
+        compareKey: 'principal',
+        compareLabel: '貸款本金',
+        resultsHide: hidePrincipalRestatement,
+      }),
+      card('總利息支出', formatTwd(result.totalInterest!), {
+        compare: true,
+        compareKey: 'totalInterest',
+        compareLabel: '總利息支出',
+      }),
+      card('總支出（本息 + 費用）', formatTwd(result.totalCost!), {
+        compare: true,
+        compareKey: 'totalCost',
+        compareLabel: '總支出（本息 + 費用）',
+        note: fee > 0 ? `含開辦費 ${formatTwd(fee)}` : '無開辦費',
+      }),
     );
+    // 費用已併入期初可用／總支出註記；有費用時仍列次要卡供對照，零費用不佔結果格
+    if (fee > 0) {
+      ev.cards.push(card('一次性費用', formatTwd(fee)));
+    }
 
     ev.charts.push(balanceChart(result.schedule, r.number('principal')));
     ev.tables.push(scheduleTable(result.schedule, '逐月攤還表'));

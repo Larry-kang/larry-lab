@@ -702,11 +702,13 @@ a:hover {
 
 /* 進階設定 details */
 .advanced-box {
+  /* Flat section, not a nested card: divider + spacing only */
   margin: 18px 0 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fafcfb;
-  padding: 6px 14px 14px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 10px 0 4px;
 }
 
 .advanced-summary-btn {
@@ -832,9 +834,9 @@ fieldset.list-item > legend {
 }
 
 .card-featured {
-  border-left: 6px solid var(--accent);
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgba(17, 122, 114, 0.08);
+  /* No thick accent border (side-tab / border-accent-on-rounded). Keep brand via teal wash + shadow; .card-value stays accent-strong */
+  background: linear-gradient(180deg, rgba(17, 122, 114, 0.07) 0%, #ffffff 48%);
+  box-shadow: 0 2px 10px rgba(17, 122, 114, 0.12);
 }
 
 .card-featured .card-value {
@@ -861,17 +863,14 @@ fieldset.list-item > legend {
 }
 
 .card.tone-bad {
-  border-left-color: var(--bad);
   background: var(--bad-bg);
 }
 
 .card.tone-good {
-  border-left-color: var(--good);
   background: var(--good-bg);
 }
 
 .card.tone-warn {
-  border-left-color: var(--warn);
   background: var(--warn-bg);
 }
 
@@ -1293,10 +1292,11 @@ tbody th {
 }
 
 .step-card {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 14px;
-  background: #fafcfb;
+  /* Flat step block inside panel — no nested card chrome */
+  border: 0;
+  border-radius: 0;
+  padding: 4px 2px 8px;
+  background: transparent;
 }
 
 .step-num {
@@ -1330,8 +1330,30 @@ tbody th {
   }
 
   .header-inner {
-    padding: 4px 14px;
-    min-height: 48px;
+    padding: 6px 14px;
+    min-height: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 2px;
+    width: 100%;
+  }
+
+  .site-header nav {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .nav-list {
+    width: 100%;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .nav-list a {
+    padding: 6px 4px;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 
   main > h1 {
@@ -1455,6 +1477,22 @@ tbody th {
   background: rgba(234, 179, 8, 0.06);
 }
 
+.compare-row-same {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+.compare-same-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  min-height: 44px;
+}
+
 .diff-tag {
   display: inline-block;
   font-size: 0.75rem;
@@ -1475,3 +1513,42 @@ tbody th {
 .schedule-details > summary { cursor: pointer; padding: .75rem; border: 1px solid var(--line); border-radius: 6px; }
 .weight-summary { font-weight: 600; color: var(--text); }
 .term-presets { gap: 4px; }
+
+/* 文章區 */
+.breadcrumb { font-size: 0.875rem; margin-bottom: 0.5rem; }
+.article-badge { display: inline-block; padding: 0.25rem 0.625rem; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-size: 0.875rem; }
+.article-meta { display: grid; grid-template-columns: max-content 1fr; gap: 0.375rem 1rem; }
+.article-meta dt { font-weight: 600; }
+.article-meta dd { margin: 0; }
+@media (max-width: 480px) { .article-meta { grid-template-columns: 1fr; gap: 0 1rem; } .article-meta dd + dt { margin-top: 0.5rem; } }
+.article-meta ul { margin: 0; padding-left: 1.25rem; }
+.article-toc ol { padding-left: 1.25rem; }
+.article-toc .toc-depth-3 { margin-left: 1rem; font-size: 0.9375rem; }
+.article-body blockquote { background: var(--warn-bg); border-radius: var(--radius); margin: 1rem 0; padding: 0.75rem 1rem; }
+.article-body blockquote > :first-child { margin-top: 0; }
+.article-body blockquote > :last-child { margin-bottom: 0; }
+.article-body table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+.article-body th, .article-body td { border: 1px solid var(--line); padding: 0.375rem 0.5rem; text-align: left; }
+.article-body figure { margin: 1.5rem 0; }
+.article-body figure img { display: block; width: auto; max-width: 100%; max-height: min(80vh, 900px); height: auto; margin-inline: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+.article-body figcaption { margin-top: 0.5rem; color: var(--muted); font-size: 0.875rem; line-height: 1.6; text-align: center; text-wrap: pretty; }
+.article-pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.series-list { list-style: none; padding: 0; }
+.article h1, .article h2, .article h3, .series-list h2 { text-wrap: balance; }
+.article p, .article li, .series-list p { text-wrap: pretty; }
+
+/* Article screenshots: portrait constrained + centered, pairs side by side, landscape full width */
+.article-body img.image-portrait { display: block; width: auto; height: auto; max-width: min(100%, 360px); max-height: 70vh; margin-inline: auto; cursor: zoom-in; }
+.article-body .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); justify-content: center; gap: 1.5rem; margin: 1.5rem 0; align-items: start; }
+.article-body .image-pair figure { margin: 0; }
+.article-body .image-pair img { display: block; margin-inline: auto; }
+@media (max-width: 640px) {
+  .article-body .image-pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Tap-to-enlarge overlay (ImageEnlargeOverlay.astro) */
+.image-enlarge-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 3.5rem 1rem 1rem; background: rgb(0 0 0 / 0.9); border: 0; margin: 0; width: 100%; height: 100%; max-width: none; max-height: none; }
+.image-enlarge-overlay:not([open]) { display: none; }
+.image-enlarge-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-enlarge-overlay .close-btn { position: absolute; top: 0.75rem; right: 0.75rem; min-width: 44px; min-height: 44px; color: #fff; background: rgb(255 255 255 / 0.12); border: 1px solid rgb(255 255 255 / 0.4); border-radius: 999px; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.image-enlarge-overlay .close-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

@@ -9,6 +9,8 @@ import {
 } from '../lib/recommendations';
 import recommendationsFile from '../content/recommendations.json';
 import { site } from '../config/site';
+import { buildIntroMap } from '../lib/articles';
+import { loadArticles, toMeta } from '../lib/article-collection';
 
 interface Props {
   variant: 'sidebar' | 'mobile' | 'full';
@@ -21,10 +23,11 @@ const items = variant === 'full' ? publicRecommendations(allValidated) : sidebar
 const now = new Date();
 const groups = groupByCategory(items);
 const prefix = variant;
+const introMap = variant === 'full' ? buildIntroMap((await loadArticles()).map(toMeta)) : {};
 ---
 
 <div class={`rec rec-${variant}`} data-rec-variant={variant}>
-  {variant !== 'full' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦開戶與平台</h2>}
+  {variant === 'sidebar' && <h2 class="rec-title" id={`rec-title-${prefix}`}>推薦開戶與平台</h2>}
   {
     items.length === 0 ? (
       <div class="rec-empty" data-testid="rec-empty">
@@ -46,7 +49,7 @@ const prefix = variant;
                       {item.logo && (
                         <img
                           src={item.logo}
-                          alt=""
+                          alt={`${item.name} 標誌`}
                           width="40"
                           height="40"
                           class="rec-logo-lg"
@@ -81,6 +84,11 @@ const prefix = variant;
                       </a>
                     </p>
                   )}
+                  {introMap[item.id] && (
+                    <p class="rec-intro">
+                      <a href={introMap[item.id]} data-testid="rec-intro-link">閱讀介紹</a>
+                    </p>
+                  )}
                   {isUnknown && (
                     <p class="rec-pending-note">連結整理中，暫不提供外連按鈕。</p>
                   )}
@@ -104,7 +112,7 @@ const prefix = variant;
                       {item.logo && (
                         <img
                           src={item.logo}
-                          alt=""
+                          alt={`${item.name} 標誌`}
                           width="28"
                           height="28"
                           class="rec-logo-sm"

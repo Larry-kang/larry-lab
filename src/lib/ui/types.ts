@@ -62,6 +62,8 @@ export interface Card {
   compareLabel?: string;
   /** 是否為前三項核心重點指標 */
   isCore?: boolean;
+  /** 僅供比較表使用，不在結果卡網格顯示（避免與核心卡重複） */
+  resultsHide?: boolean;
 }
 
 export interface Notice {

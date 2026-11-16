@@ -1,7 +1,7 @@
 {
   "/": {
     "updatedAt": "2026-11-17",
-    "reviewNote": "新增教學指南入口"
+    "reviewNote": "新增新手指南入口，保留主線工具介面改善"
   },
   "/tools/": {
     "updatedAt": "2026-10-17",
@@ -13,7 +13,7 @@
   },
   "/recommendations/": {
     "updatedAt": "2026-11-17",
-    "reviewNote": "新增 ether.fi 指南入口"
+    "reviewNote": "保留既有介紹文章入口並新增 ether.fi 新手指南"
   },
   "/about/": {
     "updatedAt": "2026-10-17",

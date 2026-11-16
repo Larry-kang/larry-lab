@@ -1,6 +1,16 @@
 # 教學指南與 Agent 閱讀驗收
 
-日期：2026-11-17。工作分支：`feat/guides-agent-reading`；基準 commit：`7a1b5e7`。本輪成果尚未提交，驗證對象為本機工作目錄及其靜態建置產物。
+日期：2026-11-17。工作分支：`feat/guides-agent-reading`；基準 commit：`7a1b5e7`。以下開發階段紀錄以本機工作目錄及靜態建置產物為驗證對象；最新整合驗證見下段。
+
+## 發布前主線整合驗證
+
+使用者已授權 push、PR、merge 與發布。整合主線 `bda336a`，保留四篇既有文章草稿、noindex 規則、工具介面與圖片功能；依現行主線重新安裝依賴並驗證。
+
+- `npm ci`、`npm run check`、`npm run lint`、`npm test`、`npm run build`、`npm run test:e2e`：全部通過。
+- 最終整合版：159 項單元測試、156 項桌機／手機 E2E；28 個 HTML 頁面（含四篇草稿、其系列頁與 404）、22 條 sitemap；草稿未進 sitemap／llms。
+- `package.json`／`package-lock.json` 相對目前 main 沒有新增變更。`npm audit` 回報既有 10 項 moderate，無 high／critical；未擅自執行 audit fix 或升級套件。這是發布保留事項，不宣稱無弱點。
+- 提交者使用 GitHub noreply。公開新增文字的機密格式與本機私人路徑檢查通過；沒有讀取機密檔案。
+- PR／CI、合併 SHA 與 Cloudflare 結果以本輪 PR 的發布追蹤及實際正式站驗證為準；不得以本機通過當作已上線證據。
 
 ## 後續介面簡化
 
@@ -35,7 +45,7 @@
 
 ## 未驗證與交付狀態
 
-- 尚未 commit、push、建立 PR、merge 或部署；正式網站不因本機編輯而更新。
+- 以下為開發階段的未驗證界線；Git／發布狀態以最新 PR 的交付追蹤為準。
 - Cloudflare 正式環境的新增 Markdown MIME header 與路由：尚未部署（NOT_DEPLOYED）。
 - 金融帳戶資格、台灣地區核准、即時費率／收益、申請、入金、交易及提領：未執行（NOT RUN），不保證成功或可用。
 - 真實外部讀者易用性、原生 200% 縮放與搜尋／AI 索引：未執行（NOT RUN）。
@@ -44,5 +54,4 @@
 
 ## 後續交付
 
-由使用者審閱本機內容後，另取得 push／PR／merge／Cloudflare 發布同意，再依現行部署工作流程驗證 CI、正式路由、Markdown Content-Type 與資料出口。MCP 後端屬後續獨立施工範圍，不能把本次閱讀入口當成已上線的 MCP。
-
+使用者已同意本輪 push／PR／merge／Cloudflare 發布，依現行部署工作流程驗證 CI、正式路由、Markdown Content-Type 與資料出口。MCP 後端屬後續獨立施工範圍，不能把本次閱讀入口當成已上線的 MCP。

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config/site';
+import { articlePath, indexableArticles, seriesInfo, sortSeries } from '../../../lib/articles';
+import { loadArticles, toMeta } from '../../../lib/article-collection';
+
+const series = seriesInfo.etherfi;
+const list = sortSeries((await loadArticles()).map(toMeta), 'etherfi');
+// 系列內沒有任何已發布文章時，索引頁本身也 noindex（sitemap / llms.txt 同步排除）。
+const seriesNoindex = indexableArticles(list).length === 0;
+const url = new URL(series.path, Astro.site).href;
+const structuredData = { '@context': 'https://schema.org', '@graph': [
+  { '@type': 'CollectionPage', '@id': `${url}#series`, name: series.title, url, description: series.description, inLanguage: 'zh-Hant-TW', hasPart: list.map(a => ({ '@type': 'Article', headline: a.title, url: new URL(articlePath(a.slug), Astro.site).href })) },
+  { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: site.name, item: new URL('/', Astro.site).href }, { '@type': 'ListItem', position: 2, name: series.title, item: url }] },
+] };
+---
+
+<BaseLayout title={series.title} description={series.description} structuredData={structuredData} noindex={seriesNoindex}>
+  <h1>{series.title}</h1>
+  <p class="lead">{series.description}</p>
+  <ol class="series-list" data-testid="series-list">
+    {list.map(a => (
+      <li class="panel">
+        <h2><a href={articlePath(a.slug)}>第 {a.seriesOrder} 篇：{a.title}</a></h2>
+        <p>{a.description}</p>
+        <p class="muted">作者 {a.author}・更新 <time datetime={a.updatedAt}>{a.updatedAt}</time></p>
+      </li>
+    ))}
+  </ol>
+  <p>本系列內容僅供教學參考，不構成投資建議，也不保證任何收益。<a href="/recommendations/#disclosure">利益揭露</a></p>
+</BaseLayout>

@@ -5,7 +5,19 @@ import globals from 'globals';
 
 export default tseslint.config(
   {
-    ignores: ['dist/', '.astro/', 'node_modules/', 'playwright-report/', 'test-results/'],
+    ignores: [
+      'dist/',
+      '.astro/',
+      'node_modules/',
+      'playwright-report/',
+      'test-results/',
+      // Impeccable / AI harness vendor skills (installed artifacts; not project source)
+      '.cursor/skills/**',
+      '.cursor/agents/**',
+      '.agents/skills/**',
+      '.codex/**',
+      '.impeccable/**',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
