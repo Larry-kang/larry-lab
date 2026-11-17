@@ -1,3 +1,4 @@
+import { guides } from '../../src/lib/guides';
 import { test, expect } from '@playwright/test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { tools } from '../../src/config/site';
@@ -31,7 +32,7 @@ test('SEO 文件與公開路由一致，重整工具仍可操作', async ({ page
   expect(llms.status()).toBe(200);
   expect(await llms.text()).toContain('/tools/mortgage/');
   const xml = await request.get('/sitemap.xml');
-  expect((await xml.text()).match(/<lastmod>/g)).toHaveLength(tools.length + 6 + (publishedCount ? publishedCount + 1 : 0));
+  expect((await xml.text()).match(/<lastmod>/g)).toHaveLength(tools.length + 6 + guides.length + 2 + (publishedCount ? publishedCount + 1 : 0));
   await page.goto('/tools/mortgage/');
   await page.reload();
   await expect(page.getByLabel('房價（新台幣元）', { exact: true })).toBeVisible();

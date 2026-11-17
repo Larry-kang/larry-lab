@@ -82,6 +82,7 @@ export const tools: ToolMeta[] = [
 export const navItems = [
   { key: 'home', href: '/', label: '首頁' },
   { key: 'tools', href: '/tools/', label: '工具大全' },
+  { key: 'guides', href: '/guides/', label: '教學指南' },
   { key: 'recommendations', href: '/recommendations/', label: '推薦優惠' },
   { key: 'about', href: '/about/', label: '關於 Larry' },
 ] as const;

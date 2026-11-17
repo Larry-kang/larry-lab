@@ -1,8 +1,26 @@
 {
-  "/": { "updatedAt": "2026-10-19", "reviewNote": "加入首頁結構化資料" },
-  "/tools/": { "updatedAt": "2026-10-17", "reviewNote": "工具清單" },
-  "/methodology/": { "updatedAt": "2026-10-19", "reviewNote": "加入五工具固定錨點" },
-  "/recommendations/": { "updatedAt": "2026-10-29", "reviewNote": "ether.fi 卡片新增「閱讀介紹」連結至文章" },
-  "/about/": { "updatedAt": "2026-10-17", "reviewNote": "正式文案" },
-  "/privacy/": { "updatedAt": "2026-10-17", "reviewNote": "資料處理說明" }
+  "/": {
+    "updatedAt": "2026-11-17",
+    "reviewNote": "新增新手指南入口，保留主線工具介面改善"
+  },
+  "/tools/": {
+    "updatedAt": "2026-10-17",
+    "reviewNote": "工具清單"
+  },
+  "/methodology/": {
+    "updatedAt": "2026-10-19",
+    "reviewNote": "加入五工具固定錨點"
+  },
+  "/recommendations/": {
+    "updatedAt": "2026-11-17",
+    "reviewNote": "保留既有介紹文章入口並新增 ether.fi 新手指南"
+  },
+  "/about/": {
+    "updatedAt": "2026-10-17",
+    "reviewNote": "正式文案"
+  },
+  "/privacy/": {
+    "updatedAt": "2026-10-17",
+    "reviewNote": "資料處理說明"
+  }
 }
