@@ -22,13 +22,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </section>
 
   <section class="panel">
+    <p>正式網站使用 Cloudflare Web Analytics 統計造訪與頁面效能，不會將試算欄位或結果作為分析資料。網址中的 example 僅用於識別公開虛構範例。</p>
     <h2>2. 本機儲存 (LocalStorage) 與選擇權</h2>
     <div class="prose">
       <p>
         預設情況下，試算輸入僅保存在當頁記憶體中，關閉或重新整理分頁即會還原為預設示範情境。
       </p>
       <p>
-        若你主動勾選<strong>「記住此工具設定」</strong>，系統會將該工具的輸入假設以<strong>未經加密的純文字 JSON 格式</strong>儲存在你目前瀏覽器的 LocalStorage 中，方便下次開啟時自動帶入。同來源（Same-Origin）的網頁程式以及任何能使用該瀏覽器的人皆可讀取這些內容。
+        房貸的「儲存目前方案」會另外保留一份手動快照，可在房貸工具載入或清除。若你主動勾選<strong>「記住此工具設定」</strong>，系統會將該工具的輸入假設以<strong>未經加密的純文字 JSON 格式</strong>儲存在你目前瀏覽器的 LocalStorage 中，方便下次開啟時自動帶入。同來源（Same-Origin）的網頁程式以及任何能使用該瀏覽器的人皆可讀取這些內容。
       </p>
       <p>
         <strong>共用裝置提醒：</strong> 若在公共電腦或他人裝置上使用本站，請勿勾選記住設定。你可隨時在各工具底部的「儲存與設定管理」區點擊「刪除已儲存設定」，或使用下方按鈕清除本站所有本機儲存資料。

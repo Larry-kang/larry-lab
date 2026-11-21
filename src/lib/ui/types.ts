@@ -135,6 +135,7 @@ export interface ToolDef {
   blank: () => Values;
   /** Fictional example data. */
   example: () => Values;
+  linkedExample?: (id: string) => Values | undefined;
   evaluate: (scenario: Values, root: Values) => Evaluation;
   /** 動態產生情境徽章文字（如「年利率 2.15%」或「年報酬 6%」），非寫死固定字樣 */
   scenarioBadge?: (scenario: Values, root?: Values) => string;

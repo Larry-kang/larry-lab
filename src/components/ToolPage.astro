@@ -24,6 +24,7 @@ const description = toolDescription(toolId);
     <noscript><p class="notice notice-warn">此工具需要啟用 JavaScript 才能在瀏覽器本機計算。本站不會把你的輸入送到伺服器。</p></noscript>
     <p>工具載入中…</p>
   </div>
+  <slot name="after-tool" />
   <ToolExplanation toolId={toolId} />
   <script>
     import '../scripts/tool.ts';
