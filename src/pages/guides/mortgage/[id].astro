@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { mortgageGuides, mortgageGuidePath, mortgageGuideDate } from '../../../lib/mortgage-guides';
+
+export function getStaticPaths() {
+  return mortgageGuides.map(guide => ({ params: { id: guide.id }, props: { guide } }));
+}
+const { guide } = Astro.props;
+const term = guide.id === 'term';
+const payment = (months: number) => 12000000 * (0.022 / 12) / (1 - (1 + 0.022 / 12) ** -months);
+const twd = (amount: number) => `NT$${Math.round(amount).toLocaleString('zh-TW')}`;
+const a = payment(360);
+const b = payment(term ? 480 : 336);
+const interestA = a * 360 - 12000000;
+const interestB = term ? b * 480 - 12000000 : b * 336 + 22000 * 24 - 12000000;
+const structuredData = { '@context': 'https://schema.org', '@type': 'Article', headline: guide.title, description: guide.summary, dateModified: mortgageGuideDate, inLanguage: 'zh-Hant-TW', url: new URL(mortgageGuidePath(guide.id), Astro.site!).href };
+---
+<BaseLayout title={guide.title} description={guide.summary} structuredData={structuredData} nav="guides">
+  <p><a href="/guides/">教學指南</a> ／ 房貸</p>
+  <h1>{guide.title}</h1>
+  <p class="lead">{guide.summary}</p>
+  <p>假設房價 1,500 萬元、貸款八成（本金 1,200 萬元），年利率固定 2.2%，採本息平均攤還，不含開辦費。利率是虛構範例，並非銀行報價。</p>
+  <section class="panel">
+    <h2>兩個方案差在哪？</h2>
+    {term ? <>
+      <p>30 年：月付約 {twd(a)}，總利息約 {twd(interestA)}。</p>
+      <p>40 年：月付約 {twd(b)}，總利息約 {twd(interestB)}。</p>
+      <p>延長到 40 年，每月少付約 {twd(a - b)}，但整筆貸款多付約 {twd(interestB - interestA)} 利息。實際可貸年限以核貸條件為準。</p>
+    </> : <>
+      <p>兩案皆為 30 年。無寬限期：從第一期起，月付約 {twd(a)}，總利息約 {twd(interestA)}。</p>
+      <p>有 24 個月寬限期：前 24 期每月只付 {twd(22000)} 利息，本金不變。第 25 期起要在剩下 28 年還本金和利息，月付約 {twd(b)}，比寬限期內多約 {twd(b - 22000)}，總利息約 {twd(interestB)}。</p>
+      <p>拿到報價時，要確認寬限期和利率調整是否同時結束；若會調升利率，可在工具裡另建方案比較。</p>
+    </>}
+    <a class="btn" href={`/tools/mortgage/?example=${guide.id}`}>將兩個方案套入房貸試算 →</a>
+  </section>
+  <p>計算基準與限制：<a href="/methodology/#mortgage">房貸公式</a>。金額為約數，實際攤還與費用依契約。</p>
+</BaseLayout>

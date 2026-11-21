@@ -3,6 +3,8 @@
     "updatedAt": "2026-11-17",
     "reviewNote": "新增新手指南入口，保留主線工具介面改善"
   },
+  "/guides/mortgage/term/": { "updatedAt": "2026-11-21", "reviewNote": "房貸年限範例" },
+  "/guides/mortgage/grace/": { "updatedAt": "2026-11-21", "reviewNote": "房貸寬限期範例" },
   "/tools/": {
     "updatedAt": "2026-10-17",
     "reviewNote": "工具清單"

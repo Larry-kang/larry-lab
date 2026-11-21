@@ -1,3 +1,4 @@
+import { mortgageGuides, mortgageGuidePath } from './mortgage-guides';
 import { site, tools } from '../config/site';
 import { toolContent } from '../content/tool-content';
 import pageUpdates from '../content/page-updates.json';
@@ -30,7 +31,7 @@ export function buildLlms(origin: string, all: SeoArticle[] = []): string {
   // 只收已發布文章；全為草稿時系列索引也一併排除。
   const articles = indexableArticles(all);
   const articleSection = articles.length ? `\n## 文章\n\n- [${seriesInfo.etherfi.title}](${new URL(seriesInfo.etherfi.path, origin).href}): ${seriesInfo.etherfi.description}\n${articles.map(a => `- [${a.title}](${new URL(articlePath(a.slug), origin).href}): ${a.description}`).join('\n')}\n` : '';
-  return `# ${site.name}\n\n> ${site.description}\n\n免登入；互動試算需要 JavaScript。內容與範例不構成個人化財務建議，固定報酬模型不保證未來結果。\n\n## 試算工具\n\n${tools.map(tool => `- [${tool.name}](${new URL(tool.path, origin).href}): ${toolDescription(tool.id)}\n  - [假設與公式](${new URL(`/methodology/#${tool.id}`, origin).href})`).join('\n')}\n\n## 教學指南\n\n${guides.map(guide => `- [${guide.title}](${new URL(guidePath(guide), origin).href}): ${guide.summary} 查核日期：${guide.checkedAt}\n  - [Markdown](${new URL(guideMarkdownPath(guide), origin).href})`).join('\n')}\n\n## Agent 閱讀\n\n- [內容目錄 JSON](${new URL('/content-index.json', origin).href})\n目前無公開 MCP 或遠端計算 API；文章是官方資料整理，推薦連結屬商業推薦。\n\n## 方法與政策\n\n- [計算方法](${new URL('/methodology/', origin).href})\n- [隱私說明](${new URL('/privacy/', origin).href})\n- [推薦與利益揭露](${new URL('/recommendations/#disclosure', origin).href}): 推薦不影響試算，優惠條件以平台公告為準。\n${articleSection}`;
+  return `# ${site.name}\n\n> ${site.description}\n\n免登入；互動試算需要 JavaScript。內容與範例不構成個人化財務建議，固定報酬模型不保證未來結果。\n\n## 試算工具\n\n${tools.map(tool => `- [${tool.name}](${new URL(tool.path, origin).href}): ${toolDescription(tool.id)}\n  - [假設與公式](${new URL(`/methodology/#${tool.id}`, origin).href})`).join('\n')}\n\n## 教學指南\n\n${guides.map(guide => `- [${guide.title}](${new URL(guidePath(guide), origin).href}): ${guide.summary} 查核日期：${guide.checkedAt}\n  - [Markdown](${new URL(guideMarkdownPath(guide), origin).href})`).join('\n')}\n\n## Agent 閱讀\n\n- [內容目錄 JSON](${new URL('/content-index.json', origin).href})\n目前無公開 MCP 或遠端計算 API；文章是官方資料整理，推薦連結屬商業推薦。\n\n## 方法與政策\n\n- [計算方法](${new URL('/methodology/', origin).href})\n- [隱私說明](${new URL('/privacy/', origin).href})\n- [推薦與利益揭露](${new URL('/recommendations/#disclosure', origin).href}): 推薦不影響試算，優惠條件以平台公告為準。\n${articleSection}\n## 房貸比較指南\n\n${mortgageGuides.map(guide => "- " + guide.title + ": " + new URL(mortgageGuidePath(guide.id), origin).href).join("\n")}`;
 }
 
 export function buildSitemap(origin: string, all: SeoArticle[] = []): string {

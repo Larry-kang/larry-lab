@@ -245,6 +245,16 @@ export const mortgageTool: ToolDef = {
       scenario('方案 2（範例：寬限期）', { graceMonths: '24', fixedRate: '2.0', segments: [{ startMonth: '1', annualRate: '2.0' }, { startMonth: '37', annualRate: '2.4' }] }),
     ],
   }),
+  linkedExample(id) {
+    if (id !== 'term' && id !== 'grace') return undefined;
+    const base = { price: '15,000,000', fee: '0', monthlyIncome: '', otherMonthlyDebt: '' };
+    return { scenarios: [
+      scenario(id === 'term' ? '30 年' : '無寬限期', base),
+      scenario(id === 'term' ? '40 年' : '寬限期 2 年', {
+        ...base, ...(id === 'term' ? { termMonths: '480' } : { graceMonths: '24' }),
+      }),
+    ] };
+  },
   scenarioBadge(s: Values): string {
     const segments = Array.isArray(s.segments) ? (s.segments as Values[]) : [];
     if (segments.length === 1) {
