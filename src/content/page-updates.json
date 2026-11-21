@@ -1,13 +1,19 @@
 {
   "/": {
-    "updatedAt": "2026-11-17",
-    "reviewNote": "新增新手指南入口，保留主線工具介面改善"
+    "updatedAt": "2026-11-21",
+    "reviewNote": "審核房貸入口及試算資料與網站分析說明"
   },
-  "/guides/mortgage/term/": { "updatedAt": "2026-11-21", "reviewNote": "房貸年限範例" },
-  "/guides/mortgage/grace/": { "updatedAt": "2026-11-21", "reviewNote": "房貸寬限期範例" },
+  "/guides/mortgage/term/": {
+    "updatedAt": "2026-11-21",
+    "reviewNote": "房貸年限範例"
+  },
+  "/guides/mortgage/grace/": {
+    "updatedAt": "2026-11-21",
+    "reviewNote": "房貸寬限期範例"
+  },
   "/tools/": {
-    "updatedAt": "2026-10-17",
-    "reviewNote": "工具清單"
+    "updatedAt": "2026-11-21",
+    "reviewNote": "審核房貸入口及試算資料與網站分析說明"
   },
   "/methodology/": {
     "updatedAt": "2026-10-19",
@@ -22,7 +28,7 @@
     "reviewNote": "正式文案"
   },
   "/privacy/": {
-    "updatedAt": "2026-10-17",
-    "reviewNote": "資料處理說明"
+    "updatedAt": "2026-11-21",
+    "reviewNote": "審核房貸入口及試算資料與網站分析說明"
   }
 }
