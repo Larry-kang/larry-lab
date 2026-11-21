@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config/site';
+import { guides, guidePath, guideStructuredData, guideNotice, etherfiReferral } from '../../../lib/guides';
+export function getStaticPaths() { return guides.map((guide, index) => ({ params: { slug: guide.slug }, props: { guide, index } })); }
+const { guide, index } = Astro.props;
+const previous = guides[index - 1];
+const next = guides[index + 1];
+---
+<BaseLayout title={guide.title} description={guide.summary} nav="guides" structuredData={guideStructuredData(guide, Astro.site!.href)}>
+  <article class="guide-article">
+    <header>
+      <p><a href="/guides/">教學指南</a> / <a href="/guides/etherfi/">ether.fi 系列</a></p>
+      <p class="eyebrow">第 {index + 1} 篇 / {guides.length} · {guide.level}</p>
+      <h1>{guide.title}</h1>
+      <p class="lead">{guide.summary}</p>
+      <p class="muted">作者：Larry Lab · 資料查核日期：<time datetime={guide.checkedAt}>{guide.checkedAt}</time></p>
+      <div class="notice"><p><strong>閱讀前提：</strong>{guide.prerequisites}</p><p>{guideNotice}</p></div>
+    </header>
+    <nav class="panel" aria-label="本篇目錄"><h2>本篇目錄</h2><ol>{guide.sections.map(section => <li><a href={`#${section.id}`}>{section.title}</a></li>)}</ol></nav>
+    {guide.sections.map(section => <section id={section.id} class="guide-section"><h2>{section.title}</h2>{section.paragraphs.map(p => <p>{p}</p>)}</section>)}
+    <section class="panel" aria-labelledby="sources-title"><h2 id="sources-title">官方來源與查核範圍</h2><p>以下來源於 {guide.checkedAt} 閱讀核對；帳戶資格、即時費用及實際操作結果未經實測。</p><ul>{guide.sources.map(source => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}（官方文件，另開分頁）</a></li>)}</ul></section>
+    <section class="panel" aria-labelledby="referral-title"><h2 id="referral-title">推薦與利益揭露</h2><p>{site.referralNotice}</p>{etherfiReferral?.referralUrl && <p><a class="btn" href={etherfiReferral.referralUrl} target="_blank" rel="sponsored noopener noreferrer">使用 ether.fi 推薦連結（另開分頁）</a></p>}<p><a href="/recommendations/#disclosure">查看完整利益揭露</a></p></section>
+    <nav class="panel" aria-label="系列閱讀順序"><h2>繼續閱讀</h2><ul>{previous && <li>上一篇：<a href={guidePath(previous)}>{previous.title}</a></li>}{next && <li>下一篇：<a href={guidePath(next)}>{next.title}</a></li>}<li><a href="/guides/etherfi/">回到系列目錄</a></li></ul></nav>
+  </article>
+</BaseLayout>
+<style>
+  .guide-article { max-width: 76ch; margin-inline: auto; }
+  .guide-section { scroll-margin-top: 7rem; margin-block: 2rem; }
+  .guide-section p { line-height: 1.95; margin-block: 1rem; }
+  @media (max-width: 700px) { .guide-section { scroll-margin-top: 12rem; } }
+</style>

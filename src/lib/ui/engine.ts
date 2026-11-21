@@ -72,7 +72,11 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   let undoState: Values | null = null;
   let undoTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const stored = loadTool(def.id, schema);
+  const exampleId = new URLSearchParams(location.search).get('example');
+  const linkedExample = exampleId ? def.linkedExample?.(exampleId) : undefined;
+  const snapshotId = `${def.id}:snapshot`;
+  const stored = linkedExample ? null : loadTool(def.id, schema);
+  if (linkedExample) root = linkedExample;
   if (stored && Array.isArray(stored.scenarios) && stored.scenarios.length > 0) {
     root = stored;
     remember = true;
@@ -1115,6 +1119,38 @@ export function mountTool(def: ToolDef, container: HTMLElement): void {
   renderTabs();
   renderForm();
   renderStorage();
+  if (def.id === 'mortgage') {
+    const save = h('button', { type: 'button', class: 'btn' }, '儲存目前方案');
+    const load = h('button', { type: 'button', class: 'btn subtle' }, '載入已儲存方案');
+    const clear = h('button', { type: 'button', class: 'btn subtle' }, '清除已儲存方案');
+    function syncSnapshotButtons() {
+      load.disabled = !hasStoredTool(snapshotId);
+      clear.disabled = load.disabled;
+    }
+    save.addEventListener('click', () => {
+      setStatus(saveTool(snapshotId, root) ? '已在這個瀏覽器儲存目前所有房貸方案。' : '無法在此瀏覽器儲存方案。');
+      syncSnapshotButtons();
+    });
+    load.addEventListener('click', () => {
+      const snapshot = loadTool(snapshotId, schema);
+      if (!snapshot) { setStatus('無法讀取已儲存方案。'); return; }
+      root = snapshot;
+      resetView();
+      setStatus('已載入儲存的房貸方案。');
+    });
+    clear.addEventListener('click', () => {
+      clearTool(snapshotId);
+      syncSnapshotButtons();
+      save.focus();
+      setStatus(clear.disabled ? '已清除儲存的房貸方案；畫面上的方案仍可編輯。' : '無法清除已儲存方案。');
+    });
+    syncSnapshotButtons();
+    storageEl.before(h('section', { class: 'panel', 'aria-label': '房貸方案儲存' },
+      h('div', { class: 'btn-row' }, save, load, clear),
+      h('p', { class: 'hint' }, '只在按下儲存時更新快照，包含目前所有比較方案；以未加密純文字保存在此瀏覽器。共用裝置請勿儲存。'),
+    ));
+  }
   refresh();
+  if (linkedExample) setStatus('已載入虛構範例；原先儲存的方案仍可載入。');
   if (remember) setStatus('已載入你先前在此瀏覽器保存的本機設定。');
 }

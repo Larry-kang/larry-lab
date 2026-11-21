@@ -8,9 +8,12 @@ const articleSlugs = articleFiles.map(f => f.replace(/\.md$/, ''));
 const isDraft = slug => /^status:\s*draft\s*$/m.test(readFileSync(`src/content/articles/${slug}.md`, 'utf8').split(/^---$/m)[1] ?? '');
 const publishedSlugs = articleSlugs.filter(s => !isDraft(s));
 // 已發布文章數 + 1 個系列索引頁（草稿不進 sitemap/llms；全為草稿時索引頁也排除）
-const expectedPages = Object.keys(content).length + Object.keys(pageUpdates).length + (publishedSlugs.length ? publishedSlugs.length + 1 : 0);
+const guides = JSON.parse(readFileSync('src/content/guides.json', 'utf8')).filter(g => !g.draft);
+const expectedPages = Object.keys(content).length + Object.keys(pageUpdates).length + guides.length + 2 + (publishedSlugs.length ? publishedSlugs.length + 1 : 0);
 const llms = read('llms.txt');
 const sitemap = read('sitemap.xml');
+assert(!existsSync('dist/agents/index.html'));
+assert(!sitemap.includes('/agents/') && !llms.includes('/agents/'));
 assert.equal((sitemap.match(/<loc>/g) ?? []).length, expectedPages);
 assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, expectedPages);
 assert(!/priority|changefreq|localhost/.test(sitemap));
@@ -60,3 +63,24 @@ assert(read('index.html').includes('"@type":"WebSite"'));
 assert(!read('404.html').includes('application/ld+json'));
 for (const match of sitemap.matchAll(/<loc>https:\/\/larry-lab.pages.dev\/([^<]*)<\/loc>/g)) assert(existsSync(`dist/${match[1]}index.html`));
 console.log(`SEO 靜態產物：PASS（工具正文、JSON-LD、方法錨點、llms 與 ${expectedPages} 條 sitemap）`);
+
+const catalog = JSON.parse(read('content-index.json'));
+assert.equal(catalog.mcp.available, false);
+assert.equal(catalog.guides.length, guides.length);
+for (const guide of guides) {
+  const path = `guides/etherfi/${guide.slug}`;
+  const html = read(`${path}/index.html`);
+  const markdown = read(`${path}.md`);
+  assert(html.includes(guide.title));
+  assert(markdown.includes(guide.title));
+  for (const section of guide.sections) for (const p of section.paragraphs) {
+    assert(html.includes(p), `${path}: HTML 正文缺漏`);
+    assert(markdown.includes(p), `${path}: Markdown 正文缺漏`);
+  }
+  const data = JSON.parse(html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)[1]);
+  assert.equal(data['@graph'][0]['@type'], 'Article');
+  assert.equal(data['@graph'][0].dateModified, guide.checkedAt);
+  assert(llms.includes(`${path}.md`));
+  assert(catalog.guides.some(item => item.url.endsWith(`${path}/`)));
+}
+console.log(`指南靜態產物：PASS（${guides.length} 篇 HTML、Markdown、Article、JSON 目錄與 llms 同步）`);

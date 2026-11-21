@@ -1,0 +1,83 @@
+[
+  {
+    "slug": "crypto-basics", "title": "第一次接觸加密貨幣：先認識錢包、網路與穩定幣", "summary": "從資產、帳戶與區塊鏈網路開始，了解轉帳與授權為何需要特別確認。", "level": "基礎", "prerequisites": "不需要錢包或交易所帳戶。先讀懂名詞即可，不必為了閱讀而購買資產。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "assets", "title": "先分清楚資產與使用服務", "paragraphs": ["加密貨幣是記錄在區塊鏈上的資產。ETH 是 Ethereum 網路的原生資產；穩定幣則通常以追蹤某種貨幣價值為目標。持有資產、拿它支付、存入收益策略與借款，是不同的決定。", "穩定幣不是保本承諾。即使名稱帶有美元，也可能因發行機構、準備資產、流動性或市場事件而失去掛鉤。先理解資產本身，再評估平台的用途。"] },
+      { "id": "accounts", "title": "帳戶、錢包與授權", "paragraphs": ["交易所帳戶與自行控制的鏈上帳戶，登入與資產管理方式可能不同。判斷服務時，要確認誰能簽署交易、有哪些復原機制，以及合約或管理權限能做什麼。『非託管』也不能消除合約、權限與操作風險。", "ether.fi 官方入門文件目前採電子郵件驗證與 Passkey（通行金鑰）。通行金鑰會用於登入及核准操作。不要把驗證碼、通行金鑰或助記詞交給他人，也不要因客服私訊而核准看不懂的操作。"] },
+      { "id": "networks", "title": "同一種資產也要核對網路", "paragraphs": ["轉帳不能只核對幣種縮寫。收款服務支援的網路、資產版本、地址與可能要求的額外欄位，都必須一致。跨鏈橋另有合約與延遲風險；地址看起來相同不代表任意網路都能入帳。", "理解手續費、最低金額與錯誤處理方式後，才考慮是否使用服務。網站文章只是閱讀指南，不會替你建立錢包、購買資產或發送交易。"] }
+    ],
+    "sources": [{ "title": "ether.fi 官方入門", "url": "https://etherfi.gitbook.io/etherfi/quickstart" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "overview", "title": "ether.fi 是什麼？新手先看用途、成本與限制", "summary": "用支付、交易、收益、質押與借貸五個需求，理解 ether.fi 能做什麼及使用前要確認的事。", "level": "入門", "prerequisites": "先閱讀加密貨幣基礎篇，認識穩定幣、錢包與網路。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "purpose", "title": "從需求選功能", "paragraphs": ["ether.fi 的官方產品入口整理了 Cash 卡、Markets、Borrow、Earn 與 Stake。它把支付、交易、借貸、策略收益與質押放在同一個產品體系；每個功能仍有各自的條款與依賴。", "如果你的需求是研究加密資產支付，可以先了解 Cash；想理解質押則看 Stake。你不需要為了使用其中一項功能，就同時開啟借貸或將全部資產投入收益策略。"] },
+      { "id": "fit", "title": "什麼情況值得繼續了解？", "paragraphs": ["已經有明確支付或鏈上資產使用需求，且願意理解轉帳、費用與風險的人，可以先逐項核對功能。若你只需要一般台幣存款，或無法承擔資產損失，就應先理解它與銀行服務的差異。", "官方明確說明 ether.fi 不是受監管金融機構。產品是否可用取決於地區、身分驗證與帳戶類型，不能從網站能打開就推定台灣使用者必定符合資格。"] },
+      { "id": "check", "title": "使用前確認四件事", "paragraphs": ["先確認所在地資格、實際費用、資金退出方式，以及發生問題時由誰處理。卡片發行、收益策略與代幣化資產可能涉及不同第三方，不能只看平台品牌就假設保障相同。", "本系列不提供即時收益率、保證回饋或開戶成功承諾。閱讀下一篇操作準備後，再依自己帳戶顯示的條件判斷。"] }
+    ],
+    "sources": [{ "title": "ether.fi 官方產品入口", "url": "https://etherfi.gitbook.io/etherfi" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "getting-started", "title": "ether.fi 註冊與入金前準備：安全、資格與網路核對", "summary": "依官方文件整理帳戶建立順序，列出轉入資產前要核對的項目。", "level": "入門", "prerequisites": "了解加密貨幣基本概念；能使用自己的電子郵件與支援通行金鑰的裝置。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "signup", "title": "官方文件的帳戶建立順序", "paragraphs": ["官方 Quickstart 依序列出：選擇 Personal 或 Business 帳戶、驗證電子郵件、閱讀與接受條款、建立 Passkey，以及在要求時完成身分驗證。個人使用者應先確認自己需要的帳戶類型，不為了跳過限制選擇不符事實的身分。", "Cash 卡與銀行轉帳需要身分驗證；文件也提醒部分地區的流程順序可能不同。請依官方帳戶顯示的要求處理，不把本文當成固定不變的介面逐步截圖教學。"] },
+      { "id": "funding", "title": "轉入前逐項核對", "paragraphs": ["先看帳戶實際提供的入金方式，再核對支援幣種、網路、收款地址、最低金額、費用及入帳條件。不要直接從舊截圖或他人文章複製地址，也不要假設同名代幣在所有網路都被支援。", "本篇沒有登入、開戶或入金實測，也不確認個別台灣帳戶的申請結果。若畫面與官方文件不一致，先找官方支援確認，避免為了跟上教學而勉強送出。"] },
+      { "id": "security", "title": "先準備好安全與退出方式", "paragraphs": ["確認通行金鑰如何保存、換裝置後如何恢復存取，以及官方支援入口在哪裡。平台能復原哪些狀態、需要哪些驗證，都應在存入資產前了解。", "先閱讀條款、風險與轉出篇，再決定是否註冊。推薦連結只是選擇性的入口，不會降低審核標準，也不代表一定符合活動資格。"] }
+    ],
+    "sources": [{ "title": "官方 Quickstart", "url": "https://etherfi.gitbook.io/etherfi/quickstart" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "cash-card", "title": "ether.fi Cash 卡入門：Direct Pay 與 Borrow Mode 怎麼分？", "summary": "先分清楚花自己的餘額與抵押借款付款，再核對卡片費用及可用地區。", "level": "應用", "prerequisites": "已讀帳戶安全與入金準備；理解穩定幣與借貸是不同的風險。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "direct-pay", "title": "Direct Pay：使用既有餘額付款", "paragraphs": ["依官方說明，Direct Pay 從支援的穩定幣或 Liquid vault 餘額支付，不會因這個付款模式本身產生貸款。可設定支付優先順序；餘額不足時的支付來源，須以當時支援的資產與帳戶設定為準。", "如果帳戶已有借款，部分餘額可能需要支持抵押部位。帳戶顯示的資產總額因此不一定等於可以直接刷卡的金額。"] },
+      { "id": "borrow-mode", "title": "Borrow Mode：付款同時產生負債", "paragraphs": ["Borrow Mode 使用資產作為抵押來借款付款。沒有賣出抵押資產不等於沒有成本：借款會有利息，抵押資產與債務的關係也會影響清算風險。", "新手應先理解這兩種模式的結果，再決定是否使用卡片。不能把抵押借款當成沒有還款壓力的回饋工具，或只比較回饋比例而忽略利息與資產波動。"] },
+      { "id": "terms", "title": "申請前看發卡條款", "paragraphs": ["卡片可用地區、申請資格、費用、限制、爭議處理與回饋由相應條款規範，且可能更新。本篇不保證台灣核卡、行動支付綁定或特定回饋。", "付款前確認目前選擇的模式、支付資產與可用餘額；發生退款或爭議時依發卡條款處理。本篇為官方文件整理，未進行刷卡測試。"] }
+    ],
+    "sources": [{ "title": "Direct Pay 官方說明", "url": "https://etherfi.gitbook.io/etherfi/products/cash/direct-pay" }, { "title": "官方風險與卡片條款提醒", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "earn", "title": "ether.fi Earn 是什麼？收益策略與提領風險入門", "summary": "了解 Liquid vault 如何配置資產，以及為什麼顯示收益不等於保本或保證報酬。", "level": "應用", "prerequisites": "了解穩定幣、合約與網路風險，並能辨認資產與收益策略的差別。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "mechanism", "title": "收益來自策略，不是固定存款利息", "paragraphs": ["Liquid vault 將存入資產配置到不同 DeFi 部位，並依策略重新調整。不同 vault 使用的資產、基礎設施與第三方協議可能不同，不能把所有 Earn 產品當成同一種風險。", "官方列出的基礎設施包含 Veda 與 Midas。研究時應繼續閱讀個別 vault 的策略與權限，而不是只看產品總覽或當下顯示的年化數字。"] },
+      { "id": "costs", "title": "先確認收益來源與費用", "paragraphs": ["顯示的收益率可能變動，也不代表未來實際能取得的報酬。理解它是否包含額外獎勵、採什麼計算期間，以及有哪些策略費用或網路成本，才有比較基礎。", "本篇不列即時 APY，不把過去績效當成承諾，也不將穩定幣策略描述成保本。策略依賴的合約、資產、價格來源與外部協議都可能出問題。"] },
+      { "id": "exit", "title": "先了解退出，再評估投入", "paragraphs": ["存入前核對提領是否有等待、流動性限制、可取回的資產與費用。官方風險文件提醒 vault 可能損失價值或延後提領。", "『自動配置』代表操作由策略代為執行，不代表你不需要理解風險。若無法說明資金如何取回，先暫停評估，繼續閱讀來源文件。"] }
+    ],
+    "sources": [{ "title": "Earn 官方產品說明", "url": "https://etherfi.gitbook.io/etherfi/products/liquid" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "staking", "title": "ETH 質押入門：eETH、weETH 與再質押有什麼差別？", "summary": "理解兩種流動性質押代幣的獎勵呈現方式，以及贖回與使用於 DeFi 的額外風險。", "level": "應用", "prerequisites": "了解 ETH、價格波動與合約風險；這篇不要求實際持有或購買 ETH。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "tokens", "title": "eETH 與 weETH 的差別", "paragraphs": ["官方將 eETH 描述為重設餘額的流動性質押代幣：質押獎勵累積時，餘額會調整。weETH 是包裝後的版本，代幣數量通常維持不變，而每單位代表的 eETH 隨獎勵累積而增加。", "兩種呈現方式不代表無風險。用本幣衡量的資產價值仍會受 ETH 價格、兌換條件與市場流動性影響。"] },
+      { "id": "restaking", "title": "質押與再質押分開理解", "paragraphs": ["依本次查核的官方文件，eETH／weETH 並未綁入額外再質押收益；想承擔額外再質押曝險需另選產品。不要沿用舊文章，假設所有相關代幣都具有相同收益來源與懲罰風險。", "再質押產品另有策略、協議與參與者風險。是否參加是額外決定，不是持有流動性質押代幣就必須完成的下一步。"] },
+      { "id": "redemption", "title": "可交易不等於隨時原價贖回", "paragraphs": ["官方贖回完成時間取決於協議流動性、驗證者退出與網路狀況。在市場賣出代幣與向協議申請贖回，是不同退出方式，成本與取得金額可能不同。", "把 eETH 或 weETH 再投入其他 DeFi 協議，會加入新的合約、價格來源、流動性與可能的清算風險。質押收益也會變動，不是固定利率。"] }
+    ],
+    "sources": [{ "title": "weETH／eETH 官方說明", "url": "https://etherfi.gitbook.io/etherfi/products/staking/eeth" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "borrowing", "title": "ether.fi 抵押借貸：可借額度、健康因子與清算", "summary": "分清 Product LTV 與清算參數，透過虛構例子理解抵押品下跌與利息累積的影響。", "level": "進階", "prerequisites": "先讀基礎與 Cash 卡篇；需要理解負債、利息與抵押資產可能下跌。新手不必使用借貸。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "limits", "title": "可借額度不等於清算門檻", "paragraphs": ["官方把 Product LTV 作為產品可借上限的參數；Collateral Factor 則用於評估清算。實際可借金額還受到帳戶上限、現有負債、市場流動性與風險設定限制。", "因此，用抵押品市值乘一個成數，只能幫助理解概念，不能保證交易會被接受。參數可能改變，當下帳戶顯示的可借額度才是產品可用額度的依據。"] },
+      { "id": "health", "title": "健康因子怎麼理解？", "paragraphs": ["官方以抵押品價值乘以相應 Collateral Factor，再與含利息的負債比較。多資產須依各自參數加總，不能共用任意單一比例。依本次文件，健康因子低於 1 時可能被清算。", "虛構單一資產範例：抵押品價值 1,000 美元、假設清算參數 80%、負債 400 美元，簡化健康因子為 2；若抵押品跌至 500 美元，則變成 1。這些數字不是 ether.fi 現行參數，且未計利息、費用或價格來源差異。"] },
+      { "id": "liquidation", "title": "不賣資產借款，也可能失去抵押品", "paragraphs": ["清算時可能由清算者償還部分負債並取得抵押品與獎勵。不要假設一定有補繳寬限期或收到通知後才需要處理；官方說明部位符合條件時即可被清算。", "資產價格不變時，利息累積也會增加負債。理解還款、增加抵押品與退出的限制後，才有能力評估風險。本網站股票質押工具是不同的簡化模型，不能當作 ether.fi 清算計算器。"] }
+    ],
+    "sources": [{ "title": "可借額度、健康因子與清算官方說明", "url": "https://etherfi.gitbook.io/etherfi/products/borrow/borrowing-power-and-liquidation" }, { "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "markets", "title": "ether.fi Markets：代幣化美股與券商持股一樣嗎？", "summary": "交易前先確認產品性質、發行人、權利與地區限制，不只比較操作便利性。", "level": "進階", "prerequisites": "了解加密資產與股票是不同產品；先讀功能總覽與風險說明。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "nature", "title": "先問買到的是什麼", "paragraphs": ["ether.fi 官方入口將 Markets 列為加密資產、代幣化股票與金屬的交易功能。代幣與對應資產的價格關聯，不代表持有人自動取得直接持有股票的相同權利。", "本文不是個別股票代幣的盡職調查或下單教學。買入前必須繼續查核特定代幣的發行文件、保障安排、贖回方式及權利；不能只靠名稱或價格畫面判斷。"] },
+      { "id": "rights", "title": "與券商比較時要看的項目", "paragraphs": ["確認你對誰有請求權、股息如何處理、有沒有投票權、公司行動如何反映，以及發行人出問題時如何處理。這些都需要看具體產品條款，不能推定為一般券商帳戶的持股保障。", "還要核對交易時段、價差、流動性、費用、結算與轉出限制。官方風險說明提醒，交易也涉及聚合器、合約與價格滑價等風險。"] },
+      { "id": "availability", "title": "台灣能不能使用？先核對資格", "paragraphs": ["官方入口明確說明代幣化股票與金屬不開放美國及部分市場；這不能反推其他所有地區都可使用。所在地、國籍、身分驗證與帳戶類型都可能影響可用功能。", "本篇沒有驗證台灣帳戶可交易的清單，也不提供繞過地區限制的方法。若目的是長期持有美股，先比較具體權利與資金退出方式，再決定適合自己的管道。"] }
+    ],
+    "sources": [{ "title": "官方產品入口與地區提醒", "url": "https://etherfi.gitbook.io/etherfi" }, { "title": "Markets 官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }]
+  },
+  {
+    "slug": "withdrawals", "title": "使用 ether.fi 前先了解：轉出、贖回與資金退出", "summary": "分開理解鏈上轉帳、vault 提領、質押贖回與借貸還款，避免把帳戶餘額當成可立即轉出的金額。", "level": "應用", "prerequisites": "先讀帳戶安全篇；如有借貸或收益策略，先讀對應功能篇。", "checkedAt": "2026-11-17", "draft": false,
+    "sections": [
+      { "id": "routes", "title": "不同資產有不同退出方式", "paragraphs": ["鏈上轉帳是把支援資產送到另一個地址；vault 提領是退出策略；質押贖回則可能需要協議流動性與驗證者退出。這些操作的等待時間、費用與風險不同。", "先確認最終要取得的資產與網路，再核對官方提供的退出方式。不能把可在市場交易的代幣，等同於隨時能以固定價格贖回的資產。"] },
+      { "id": "restrictions", "title": "有負債時，餘額可能受到限制", "paragraphs": ["部分資產若正支持借款，提領或支付可能受到健康因子與借貸限制影響。先核對負債、累積利息、抵押要求及可用餘額，不以資產總額推算能取走多少。", "不要依賴『到時候全部取出』作為還款計畫。策略流動性、鏈上壅塞、價格變化與產品限制可能同時影響退出。"] },
+      { "id": "checklist", "title": "退出前的核對清單", "paragraphs": ["確認收款方支援資產與網路、地址與額外欄位、費用與最低金額，以及是否需要先退出 vault 或處理負債。遇到不明確的條件，先透過官方支援釐清。", "本篇只整理決策前應確認的項目，未執行提領或資金移轉測試，也不承諾完成時間。閱讀完整系列後，即使最後選擇不使用平台，也是合理的決定。"] }
+    ],
+    "sources": [{ "title": "官方風險說明", "url": "https://etherfi.gitbook.io/etherfi/resources/ether.fi-whitepaper/risks" }, { "title": "官方質押贖回說明", "url": "https://etherfi.gitbook.io/etherfi/products/staking/eeth" }, { "title": "官方借貸與提領限制", "url": "https://etherfi.gitbook.io/etherfi/products/borrow/borrowing-power-and-liquidation" }]
+  }
+]

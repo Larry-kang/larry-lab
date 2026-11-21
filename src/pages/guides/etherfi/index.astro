@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { guides, guidePath, guideUpdatedAt } from '../../../lib/guides';
+---
+<BaseLayout title="ether.fi 新手指南" description="九篇 ether.fi 入門與進階指南：加密貨幣基礎、帳戶安全、Cash 卡、Earn、ETH 質押、抵押借貸與代幣化股票。" nav="guides">
+  <p><a href="/guides/">教學指南</a> / ether.fi 系列</p>
+  <p class="eyebrow">從零開始 · 依需求閱讀</p>
+  <h1>ether.fi 新手指南</h1>
+  <p class="lead">先理解為什麼使用，再了解怎麼運作。從基礎概念出發，每次讀懂一個問題。</p>
+  <p>資料查核日期：<time datetime={guideUpdatedAt}>{guideUpdatedAt}</time> · 官方文件整理，未進行帳戶或交易實測</p>
+  <ol class="guide-list">
+    {guides.map((guide, index) => <li class="panel">
+      <p class="eyebrow">第 {index + 1} 篇 · {guide.level}</p>
+      <h2><a href={guidePath(guide)}>{guide.title}</a></h2>
+      <p>{guide.summary}</p>
+      <p class="muted">閱讀前提：{guide.prerequisites}</p>
+    </li>)}
+  </ol>
+  <p><a href="/recommendations/#disclosure">推薦與利益揭露</a></p>
+</BaseLayout>
+<style>
+  .guide-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
+  .guide-list .panel { margin: 0; }
+</style>

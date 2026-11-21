@@ -1351,7 +1351,8 @@ tbody th {
   }
 
   .nav-list a {
-    padding: 6px 8px;
+    padding: 6px 4px;
+    font-size: 0.85rem;
     white-space: nowrap;
   }
 

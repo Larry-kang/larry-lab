@@ -2,4 +2,12 @@
 import ToolPage from '../../../components/ToolPage.astro';
 ---
 
-<ToolPage toolId="mortgage" />
+<ToolPage toolId="mortgage">
+  <section slot="after-tool" class="panel" aria-label="房貸比較範例">
+  <div class="btn-row">
+    <a class="btn subtle" href="?example=term">套用範例：30 年 vs. 40 年</a>
+    <a class="btn subtle" href="?example=grace">套用範例：有無兩年寬限期</a>
+  </div>
+  <p>想先看差異？<a href="/guides/mortgage/term/">房貸年限</a> ／ <a href="/guides/mortgage/grace/">房貸寬限期</a></p>
+  </section>
+</ToolPage>
